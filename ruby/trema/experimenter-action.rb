@@ -50,18 +50,15 @@ module Trema
     # @raise [TypeError] if body is not an Array.
     #
     def initialize experimenter, body = nil
-      unless experimenter.is_a?( Integer )
-        raise TypeError, "Experimeter must be an unsigned 32-bit integer"
-      end
-      unless experimenter.unsigned_32bit?
-        raise ArgumentError, "Experimenter must be an unsigned 32-bit integer"
-      end
-      if ( not body.nil? )  and ( not body.is_a?( Array ) )
-        raise TypeError, "Body must be an Array"
-      end
+      validate_create :experimenter, :presence => true, :validate_with => "check_unsigned_int", :value =>experimenter
+      validate_create :body, :validate_with => "check_body", :value => body
+    end
 
-      @experimenter = experimenter 
-      @body = body
+
+    def check_body body, name
+      if ( not body.nil? )  and ( not body.is_a?( Array ) )
+        raise TypeError, "#{ name } must be an Array"
+      end
     end
   end
 end

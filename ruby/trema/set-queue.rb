@@ -25,10 +25,6 @@ module Trema
   # An action that sets the queue id for the packet.
   #
   class SetQueue < Action
-    # @return [Fixnum] the value of attribute {#queue_id}
-    attr_reader :queue_id
-
-
     #
     # An action that sets the queue id for the packet.
     #
@@ -42,13 +38,8 @@ module Trema
     # @raise [ArgumentError] if queue_id is not an unsigned 32-bit integer.
     #
     def initialize queue_id
-      if queue_id.nil?
-        raise ArgumentError, "Queue id is a mandatory option"
-      end
-      unless queue_id.unsigned_32bit?
-        raise ArgumentError, "Queue id must be an unsigned 32-bit integer."
-      end
-      @queue_id = queue_id
+      # @return [Fixnum] the value of attribute {#queue_id}
+      validate_create :queue_id, :presence => true, :validate_with => "check_unsigned_int", :value => queue_id
     end
   end
 end

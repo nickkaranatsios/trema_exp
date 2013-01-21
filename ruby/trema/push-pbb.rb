@@ -28,7 +28,7 @@ module Trema
   # @example
   #   PushPbb.new
   #
-  class PushPbb < PushPopEtherType
+  class PushPbb < Action
     #
     # The PPB ethertype is 0x88e7.
     #
@@ -37,7 +37,7 @@ module Trema
 
     def initialize
       ether_type = PBB_ETHER_TAG
-      super ether_type
+      validate_create :ether_type, :value => ether_type 
     end
   end
 end
