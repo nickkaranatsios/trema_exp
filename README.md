@@ -1,4 +1,4 @@
 trema_exp
 =========
 
-My Trema experimentation ruby/c
+My Trema experimentation ruby/c repository.
