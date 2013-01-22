@@ -16,28 +16,14 @@
 #
 
 
-require "trema/action"
-
-
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
-    end
+  module Logger
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

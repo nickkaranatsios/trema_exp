@@ -1,5 +1,7 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# The syntax definition of custom_switch { ... } stanza in Trema DSL.
+#
+# Copyright (C) 2012 Hiroyasu OHYAMA
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,21 +18,20 @@
 #
 
 
-require "trema/action"
+require "trema/dsl/switch"
 
 
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  module DSL
+    class CustomSwitch < Switch
+      def initialize name = nil
+        super name
+      end
+
+
+      def path filepath
+        @path = filepath
+      end
     end
   end
 end

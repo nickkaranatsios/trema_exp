@@ -16,21 +16,27 @@
 #
 
 
-require "trema/action"
+module MonkeyPatch
+  module Integer
+    module Ranges
+      def unsigned_8bit?
+        within_range? 8
+      end
 
 
-module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+      def unsigned_16bit?
+        within_range? 16
+      end
+
+
+      def unsigned_32bit?
+        within_range? 32
+      end
+
+
+      def within_range? nbit
+        ( 0 <= self ) and ( self < 2 ** nbit )
+      end
     end
   end
 end

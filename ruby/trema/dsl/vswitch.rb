@@ -1,4 +1,8 @@
 #
+# The syntax definition of vswitch { ... } stanza in Trema DSL.
+#
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,21 +20,21 @@
 #
 
 
-require "trema/action"
+require "trema/dsl/switch"
 
 
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  module DSL
+    class Vswitch < Switch
+      def initialize name = nil
+        super name
+        @ip = "127.0.0.1"
+      end
+
+
+      def ip str
+        @ip = str
+      end
     end
   end
 end

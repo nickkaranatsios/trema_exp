@@ -16,21 +16,53 @@
 #
 
 
-require "trema/action"
-
-
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
+  class OrderedHash
+    attr_reader :keys
+
+
     def initialize
-      # Do nothing.
+      @keys = Array.new
+      @content = Hash.new
+    end
+
+
+    def size
+      @content.size
+    end
+
+
+    def [] key
+      @content[ key ]
+    end
+
+
+    def []= key, value
+      @content[ key ] = value
+      unless @keys.include?( key )
+        @keys << key
+      end
+    end
+
+
+    def values
+      @keys.map do | each |
+        @content[ each ]
+      end
+    end
+
+
+    def clear
+      @keys.clear
+      @content.clear
+      self
+    end
+
+
+    def each &block
+      @keys.each do | each |
+        block.call each, @content[ each ]
+      end
     end
   end
 end
@@ -38,6 +70,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8-unix
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

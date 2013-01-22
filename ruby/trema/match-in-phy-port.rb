@@ -21,16 +21,19 @@ require "trema/action"
 
 module Trema
   #
-  # Copy TTL outwards.
+  # Creates an match field that matches the input port.
   #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  class MatchInPhyPort < Action
+    include MatchSet
+
+
+    def initialize in_phy_port
+      validate_create :in_phy_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_phy_port
+    end
+
+
+    def append_match actions
+      append_match_in_phy_port actions, @in_phy_port
     end
   end
 end

@@ -1,4 +1,6 @@
 #
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,21 +18,47 @@
 #
 
 
-require "trema/action"
+require "fileutils"
+require "trema/dsl/configuration"
+require "trema/dsl/syntax"
+require "trema/path"
 
 
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  module DSL
+    class Context
+      PATH = File.join( Trema.tmp, ".context" )
+
+
+      def self.load_current
+        if FileTest.exists?( PATH )
+          Marshal.load( IO.read PATH )
+        else
+          Configuration.new
+        end
+      end
+
+
+
+      def initialize config
+        @config = config
+      end
+
+
+      #
+      # Dumps a {Configuration} object to <code>PATH</code>
+      #
+      # @example
+      #   context.dump
+      #
+      # @return [Configuration]
+      #
+      def dump
+        File.open( PATH, "w" ) do | f |
+          f.print Marshal.dump( @config )
+        end
+        @config
+      end
     end
   end
 end

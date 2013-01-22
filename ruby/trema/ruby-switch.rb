@@ -16,21 +16,40 @@
 #
 
 
-require "trema/action"
+require "rbconfig"
+require "trema/hardware-switch"
 
 
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  class RubySwitch < HardwareSwitch
+    include Trema::Daemon
+
+
+    def initialize stanza
+      super stanza
+    end
+
+
+    def command
+      "#{ ruby } -I#{ libruby } -rtrema -e \"Trema.module_eval IO.read( '#{ @stanza.path }' )\" #{ dpid_short }"
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def libruby
+      File.join Trema.home, "ruby"
+    end
+
+
+    def ruby
+      File.join(
+        RbConfig::CONFIG[ "bindir" ],
+        RbConfig::CONFIG[ "ruby_install_name" ] + RbConfig::CONFIG[ "EXEEXT" ]
+      )
     end
   end
 end

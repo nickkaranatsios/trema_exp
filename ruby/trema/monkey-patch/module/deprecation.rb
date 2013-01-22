@@ -16,21 +16,17 @@
 #
 
 
-require "trema/action"
-
-
-module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+module MonkeyPatch
+  module Module
+    module Deprecation
+      def deprecate method_pairs
+        method_pairs.each do | old_method, new_method |
+          define_method old_method do | *args, &block |
+            $stderr.puts "Warning: #{ old_method }() is deprecated. Use #{ new_method }()."
+            __send__ new_method, *args, &block
+          end
+        end
+      end
     end
   end
 end

@@ -18,25 +18,11 @@
  */
 
 
-#include "barrier-reply.h"
 #include "buffer.h"
 #include "controller.h"
-#include "features-reply.h"
-#include "flow-removed.h"
-#include "get-config-reply.h"
-#include "list-switches-reply.h"
-#include "logger.h"
-#include "openflow-error.h"
 #include "openflow.h"
-#include "packet-in.h"
-#include "port-status.h"
-#include "queue-get-config-reply.h"
 #include "ruby.h"
-#include "rubysig.h"
-#include "stats-reply.h"
-#include "switch-disconnected.h"
 #include "trema.h"
-#include "vendor.h"
 
 
 extern VALUE mTrema;
@@ -74,14 +60,13 @@ controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
 }
 
 
-static VALUE
-controller_send_list_switches_request( VALUE self ) {
-  send_list_switches_request( ( void * ) self );
-  return self;
-}
-
+#ifdef TEST
 static void
 append_action_set( openflow_actions *actions, VALUE field ) {
+  VALUE r_actions = Data_Wrap_Struct( field, NULL, delete_actions, actions );
+  if ( rb_respond_to( field, rb_intern( "append_match" ) ) == Qtrue  ) {
+    rb_funcall( field, rb_intern( "append_match" ), 1, r_actions );
+  }
   if ( rb_funcall( field, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::MatchInPort" ) ) == Qtrue ) {
     const uint32_t in_port = NUM2UINT( rb_funcall( field, rb_intern( "in_port" ) , 0 ) );
     append_action_set_field_in_port( actions, in_port );
@@ -256,6 +241,7 @@ append_action_set( openflow_actions *actions, VALUE field ) {
   }
 }
 
+
 static void
 append_action( openflow_actions *actions, VALUE action ) {
   if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SendOutPort" ) ) == Qtrue ) {
@@ -282,18 +268,18 @@ append_action( openflow_actions *actions, VALUE action ) {
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PushVlan" ) ) == Qtrue ) {
     const uint16_t ether_type = ( const uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "ethertype" ), 0 ) );
-    append_action_push_vlan( actions, ethertype );
+    append_action_push_vlan( actions, ether_type );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PopVlan" ) ) == Qtrue ) {
     append_action_pop_vlan( actions );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PushMpls" ) ) == Qtrue ) {
     const uint16_t ether_type = ( const uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "ethertype" ), 0 ) );
-    append_action_push_mpls( actions, ethertype );
+    append_action_push_mpls( actions, ether_type );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PopMpls" ) ) == Qtrue ) {
     const uint16_t ether_type = ( const uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "ethertype" ), 0 ) );
-    append_action_pop_mpls( actions, ethertype );
+    append_action_pop_mpls( actions, ether_type );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetQueue" ) ) == Qtrue ) {
     const uint32_t queue_id = NUM2UINT( rb_funcall( action, rb_intern( "queue_id" ), 0 ) );
@@ -301,11 +287,11 @@ append_action( openflow_actions *actions, VALUE action ) {
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::SetIpTtl" ) ) == Qtrue ) {
     const uint8_t ip_ttl = ( const uint8_t ) NUM2UINT( rb_funcall( action, rb_intern( "ip_ttl" ), 0 ) );
-    append_action_set_nw_ttl( actions, nw_ttl );
+    append_action_set_nw_ttl( actions, ip_ttl );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PushPbb" ) ) == Qtrue ) {
     const uint16_t ether_type = ( const uint16_t ) NUM2UINT( rb_funcall( action, rb_intern( "ethertype" ), 0 ) );
-    append_action_push_pbb( actions, ethertype );
+    append_action_push_pbb( actions, ether_type );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::PopPbb" ) ) == Qtrue ) {
     append_action_pop_pbb( actions );
@@ -321,17 +307,15 @@ append_action( openflow_actions *actions, VALUE action ) {
       for ( int i = 0; i < length; i++ ) {
         ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
       }
-      append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), body );
+      append_action_experimenter( actions, ( uint32_t ) NUM2UINT( experimenter ), body );
       free_buffer( body );
     }
     else {
-      append_action_vendor( actions, ( uint32_t ) NUM2UINT( vendor_id ), NULL );
+      append_action_experimenter( actions, ( uint32_t ) NUM2UINT( experimenter ), NULL );
     }
   }
   else {
     rb_raise( rb_eTypeError, "actions argument must be an Array of Action objects" );
-  }
-
   }
 }
 
@@ -371,330 +355,8 @@ get_strict( int argc, VALUE *argv ) {
   }
   return strict;
 }
+#endif
 
-
-static VALUE
-controller_send_flow_mod( uint16_t command, int argc, VALUE *argv, VALUE self ) {
-  VALUE datapath_id = Qnil;
-  VALUE options = Qnil;
-  rb_scan_args( argc, argv, "11", &datapath_id, &options );
-
-  // Defaults
-  struct ofp_match default_match;
-  memset( &default_match, 0, sizeof( struct ofp_match ) );
-  default_match.wildcards = OFPFW_ALL;
-  struct ofp_match *match = &default_match;
-  uint64_t cookie = get_cookie();
-  uint16_t idle_timeout = 0;
-  uint16_t hard_timeout = 0;
-  uint16_t priority = OFP_HIGH_PRIORITY;
-  uint32_t buffer_id = OFP_NO_BUFFER;
-  uint16_t out_port = OFPP_NONE;
-  uint16_t flags = OFPFF_SEND_FLOW_REM;
-  openflow_actions *actions = create_actions();
-
-  // Options
-  if ( options != Qnil ) {
-    VALUE opt_match = rb_hash_aref( options, ID2SYM( rb_intern( "match" ) ) );
-    if ( opt_match != Qnil ) {
-      Data_Get_Struct( opt_match, struct ofp_match, match );
-    }
-
-    VALUE opt_cookie = rb_hash_aref( options, ID2SYM( rb_intern( "cookie" ) ) );
-    if ( opt_cookie != Qnil ) {
-      cookie = NUM2ULL( opt_cookie );
-    }
-
-    VALUE opt_idle_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "idle_timeout" ) ) );
-    if ( opt_idle_timeout != Qnil ) {
-      idle_timeout = ( uint16_t )NUM2UINT( opt_idle_timeout );
-    }
-
-    VALUE opt_hard_timeout = rb_hash_aref( options, ID2SYM( rb_intern( "hard_timeout" ) ) );
-    if ( opt_hard_timeout != Qnil ) {
-      hard_timeout = ( uint16_t )NUM2UINT( opt_hard_timeout );
-    }
-
-    VALUE opt_priority = rb_hash_aref( options, ID2SYM( rb_intern( "priority" ) ) );
-    if ( opt_priority != Qnil ) {
-      priority = ( uint16_t )NUM2UINT( opt_priority );
-    }
-
-    VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-    if ( opt_buffer_id != Qnil ) {
-      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
-    }
-
-    VALUE opt_out_port = rb_hash_aref( options, ID2SYM( rb_intern( "out_port" ) ) );
-    if ( opt_out_port != Qnil ) {
-      out_port = ( uint16_t )NUM2UINT( opt_out_port );
-    }
-
-    VALUE opt_send_flow_rem = rb_hash_aref( options, ID2SYM( rb_intern( "send_flow_rem" ) ) );
-    if ( opt_send_flow_rem == Qfalse ) {
-      flags &= ( uint16_t ) ~OFPFF_SEND_FLOW_REM;
-    }
-
-    VALUE opt_check_overlap = rb_hash_aref( options, ID2SYM( rb_intern( "check_overlap" ) ) );
-    if ( opt_check_overlap != Qnil ) {
-      flags |= OFPFF_CHECK_OVERLAP;
-    }
-
-    VALUE opt_emerg = rb_hash_aref( options, ID2SYM( rb_intern( "emerg" ) ) );
-    if ( opt_emerg != Qnil ) {
-      flags |= OFPFF_EMERG;
-    }
-
-    VALUE opt_actions = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
-    if ( opt_actions != Qnil ) {
-      form_actions( opt_actions, actions );
-    }
-  }
-
-  buffer *flow_mod = create_flow_mod(
-    get_transaction_id(),
-    *match,
-    cookie,
-    command,
-    idle_timeout,
-    hard_timeout,
-    priority,
-    buffer_id,
-    out_port,
-    flags,
-    actions
-  );
-  send_openflow_message( NUM2ULL( datapath_id ), flow_mod );
-
-  free_buffer( flow_mod );
-  delete_actions( actions );
-
-  return self;
-}
-
-
-/*
- * @overload send_flow_mod_add(datapath_id, options={})
- *   Sends a flow_mod message to add a flow into the datapath.
- *
- *   @example
- *     def packet_in datapath_id, message
- *       send_flow_mod_add datapath_id, :match => Match.from(message), :actions => ActionOutput.new(OFPP_FLOOD)
- *     end
- *
- *
- *   @param [Number] datapath_id
- *     the datapath to which a message is sent.
- *
- *   @param [Hash] options
- *     the options to create a message with.
- *
- *
- *   @option options [Match, nil] :match (nil)
- *     A {Match} object describing the fields of the flow.
- *
- *   @option options [Number] :idle_timeout (0)
- *     The idle time in seconds before discarding.
- *     Zero means flow never expires.
- *
- *   @option options [Number] :cookie
- *     An opaque issued identifier.
- *
- *   @option options [Number] :hard_timeout (0)
- *     The maximum time before discarding in seconds.
- *     Zero means flow never expires.
- *
- *   @option options [Number] :priority (0xffff)
- *     The priority level of the flow entry.
- *
- *   @option options [Number] :buffer_id (0xffffffff)
- *     The buffer ID assigned by the datapath of a buffered packet to
- *     apply the flow to. If 0xffffffff, no buffered packet is to be
- *     applied to flow actions.
- *
- *   @option options [Number] :out_port (0xffff)
- *     If the option contains a value other than OFPP_NONE(0xffff), 
- *     it introduces a constraint when deleting flow entries.
- *
- *   @option options [Boolean] :send_flow_rem (true)
- *     If true, send a flow_removed message when the flow expires or
- *     is deleted.
- *
- *   @option options [Boolean] :check_overlap (false)
- *     If true, check for overlapping entries first, i.e. if there are
- *     conflicting entries with the same priority, the flow is not
- *     added and the modification fails.
- *
- *   @option options [Boolean] :emerg (false)
- *     if true, the switch must consider this flow entry as an
- *     emergency entry, and only use it for forwarding when
- *     disconnected from the controller.
- *
- *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
- *     The sequence of actions specifying the actions to perform on
- *     the flow's packets.
- */
-static VALUE
-controller_send_flow_mod_add( int argc, VALUE *argv, VALUE self ) {
-  return controller_send_flow_mod( OFPFC_ADD, argc, argv, self );
-}
-
-
-/*
- * @overload send_flow_mod_modify(datapath, options={})
- *   Sends a flow_mod message to either modify or modify strict a flow from datapath.
- *   Both flow_mod modify and flow_mod modify strict commands would modify
- *   matched flow actions. The strict option adds the flow priority to the
- *   matched criteria. Accepts the same options as #send_flow_mod_add with the
- *   following additional option.
- *
- *   @option options [Symbol] :strict
- *     If set to true modify_strict command is invoked otherwise the modify
- *     command is invoked.
- */
-static VALUE
-controller_send_flow_mod_modify( int argc, VALUE *argv, VALUE self ) {
-  uint16_t command = OFPFC_MODIFY;
-
-  if ( get_strict( argc, argv ) == Qtrue ) {
-    command = OFPFC_MODIFY_STRICT;
-  }
-  return controller_send_flow_mod( command, argc, argv, self );
-}
-
-
-/*
- * @overload send_flow_mod_delete(datapath_id, options={})
- *   Sends a flow_mod_delete message to delete all matching flows.
- *   Both flow_mod delete and flow_mod delete strict commands would delete matched flows.
- *   The strict option adds the flow priority to the matched criteria.
- *   Accepts the same options as #send_flow_mod_add with the following additional
- *   option.
- *
- *   @option options [Symbol] :strict
- *     If set to true delete_strict command is invoked otherwise the delete
- *     command is invoked.
- */
-static VALUE
-controller_send_flow_mod_delete( int argc, VALUE *argv, VALUE self ) {
-  uint16_t command = OFPFC_DELETE;
-
-  if ( get_strict( argc, argv ) == Qtrue ) {
-    command = OFPFC_DELETE_STRICT;
-  }
-  return controller_send_flow_mod( command, argc, argv, self );
-}
-
-
-/*
- * @overload send_packet_out(datapath_id, options={})
- *   Sends a packet_out message to have a packet processed by the datapath.
- *
- *   @example
- *     send_packet_out(
- *       datapath_id,
- *       :packet_in => message,
- *       :actions => Trema::ActionOutput.new(port_no)
- *     )
- *
- *
- *   @param [Number] datapath_id
- *     the datapath to which a message is sent.
- *
- *   @param [Hash] options
- *     the options to create a message with.
- *
- *
- *   @option options [PacketIn] :packet_in (nil)
- *     The {PacketIn} object received by packet_in handler. If this
- *     option is not nil, :buffer_id, :data, and :in_port option is
- *     set automatically according to the value of :packet_in.
- *
- *   @option options [Number] :in_port (OFPP_NONE)
- *     The port from which the frame is to be sent. OFPP_NONE if
- *     none. OFPP_TABLE to perform the actions defined in the flow
- *     table.
- *
- *   @option options [Number] :buffer_id (0xffffffff)
- *     The buffer ID assigned by the datapath. If 0xffffffff, the
- *     frame is not buffered, and the entire frame must be passed in
- *     :data.
- *
- *   @option options [String, nil] :data (nil)
- *     The entire Ethernet frame. Should be of length 0 if buffer_id
- *     is 0xffffffff, and should be of length >0 otherwise.
- *
- *   @option options [ActionOutput, Array<ActionOutput>, nil] :actions (nil)
- *     The sequence of actions specifying the actions to perform on
- *     the frame.
- */
-static VALUE
-controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
-  VALUE datapath_id = Qnil;
-  VALUE options = Qnil;
-  rb_scan_args( argc, argv, "11", &datapath_id, &options );
-
-  // Defaults.
-  uint32_t buffer_id = OFP_NO_BUFFER;
-  uint16_t in_port = OFPP_NONE;
-  openflow_actions *actions = create_actions();
-  const buffer *data = NULL;
-  buffer *allocated_data = NULL;
-
-  if ( options != Qnil ) {
-    VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
-    if ( opt_message != Qnil ) {
-      packet_in *message;
-      Data_Get_Struct( opt_message, packet_in, message );
-
-      if ( NUM2ULL( datapath_id ) == message->datapath_id ) {
-        buffer_id = message->buffer_id;
-        in_port = message->in_port;
-      }
-      data = ( buffer_id == OFP_NO_BUFFER ? message->data : NULL );
-    }
-
-    VALUE opt_buffer_id = rb_hash_aref( options, ID2SYM( rb_intern( "buffer_id" ) ) );
-    if ( opt_buffer_id != Qnil ) {
-      buffer_id = ( uint32_t ) NUM2ULONG( opt_buffer_id );
-    }
-
-    VALUE opt_in_port = rb_hash_aref( options, ID2SYM( rb_intern( "in_port" ) ) );
-    if ( opt_in_port != Qnil ) {
-      in_port = ( uint16_t ) NUM2UINT( opt_in_port );
-    }
-
-    VALUE opt_action = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
-    if ( opt_action != Qnil ) {
-      form_actions( opt_action, actions );
-    }
-
-    VALUE opt_data = rb_hash_aref( options, ID2SYM( rb_intern( "data" ) ) );
-    if ( opt_data != Qnil ) {
-      Check_Type( opt_data, T_STRING );
-      uint16_t length = ( u_int16_t ) RSTRING_LEN( opt_data );
-      allocated_data = alloc_buffer_with_length( length );
-      memcpy( append_back_buffer( allocated_data, length ), RSTRING_PTR( opt_data ), length );
-      data = allocated_data;
-    }
-  }
-
-  buffer *packet_out = create_packet_out(
-    get_transaction_id(),
-    buffer_id,
-    in_port,
-    actions,
-    data
-  );
-  send_openflow_message( NUM2ULL( datapath_id ), packet_out );
-
-  if ( allocated_data != NULL ) {
-    free_buffer( allocated_data );
-  }
-  free_buffer( packet_out );
-  delete_actions( actions );
-  return self;
-}
 
 
 /*
@@ -704,33 +366,19 @@ controller_send_packet_out( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE
 controller_run( VALUE self ) {
-  setenv( "TREMA_HOME", STR2CSTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
+  setenv( "TREMA_HOME", RSTRING_PTR( rb_funcall( mTrema, rb_intern( "home" ), 0 ) ), 1 );
 
   VALUE name = rb_funcall( self, rb_intern( "name" ), 0 );
   rb_gv_set( "$PROGRAM_NAME", name );
 
   int argc = 3;
   char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
-  argv[ 0 ] = STR2CSTR( name );
+  argv[ 0 ] = RSTRING_PTR( name );
   argv[ 1 ] = ( char * ) ( uintptr_t ) "--name";
-  argv[ 2 ] = STR2CSTR( name );
+  argv[ 2 ] = RSTRING_PTR( name );
   argv[ 3 ] = NULL;
   init_trema( &argc, &argv );
   xfree( argv );
-
-  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
-  set_features_reply_handler( handle_features_reply, ( void * ) self );
-  set_packet_in_handler( handle_packet_in, ( void * ) self );
-  set_flow_removed_handler( handle_flow_removed, ( void * ) self );
-  set_switch_disconnected_handler( handle_switch_disconnected, ( void * ) self );
-  set_port_status_handler( handle_port_status, ( void * ) self );
-  set_stats_reply_handler( handle_stats_reply, ( void * ) self );
-  set_error_handler( handle_openflow_error, ( void * ) self );
-  set_get_config_reply_handler( handle_get_config_reply, ( void * ) self );
-  set_barrier_reply_handler( handle_barrier_reply, ( void * ) self );
-  set_vendor_handler( handle_vendor, ( void * ) self );
-  set_queue_get_config_reply_handler( handle_queue_get_config_reply, ( void * ) self );
-  set_list_switches_reply_handler( handle_list_switches_reply );
 
   struct itimerspec interval;
   interval.it_interval.tv_sec = 1;
@@ -763,7 +411,7 @@ controller_shutdown( VALUE self ) {
 static void
 thread_pass( void *user_data ) {
   UNUSED( user_data );
-  CHECK_INTS;
+  rb_thread_check_ints();
   rb_funcall( rb_cThread, rb_intern( "pass" ), 0 );
 }
 
@@ -786,6 +434,43 @@ controller_start_trema( VALUE self ) {
 }
 
 
+static VALUE
+controller_test_match_set( VALUE self, VALUE match_set ) {
+  openflow_actions *actions = create_actions();
+  VALUE cActions;
+
+
+  if ( match_set != Qnil ) {
+    switch ( TYPE( match_set ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( match_set );
+          int i;
+          
+          if ( RARRAY_LEN( match_set ) ) {
+            cActions = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
+          }
+          for ( i = 0; i < RARRAY_LEN( match_set ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "append_match" ) ) ) {
+              rb_funcall( each[ i ], rb_intern( "append_match" ), 1, cActions );
+            }
+          }
+          Data_Get_Struct( cActions, openflow_actions, actions );
+printf("no.of actions added %d\n", actions->n_actions );
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( rb_obj_class( match_set ), rb_intern( ":append_match" ) ) ) {
+          cActions = Data_Wrap_Struct( match_set, NULL, delete_actions, actions );
+          rb_funcall( match_set, rb_intern( "append_match" ), 1, cActions );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "match field argument must be an Array or an MatchXXX object" );
+    }
+  }
+  return self;
+}
 /********************************************************************************
  * Init Controller module.
  ********************************************************************************/
@@ -801,26 +486,12 @@ Init_controller() {
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
 
-  rb_define_const( cController, "OFPP_MAX", INT2NUM( OFPP_MAX ) );
-  rb_define_const( cController, "OFPP_IN_PORT", INT2NUM( OFPP_IN_PORT ) );
-  rb_define_const( cController, "OFPP_TABLE", INT2NUM( OFPP_TABLE ) );
-  rb_define_const( cController, "OFPP_NORMAL", INT2NUM( OFPP_NORMAL ) );
-  rb_define_const( cController, "OFPP_FLOOD", INT2NUM( OFPP_FLOOD ) );
-  rb_define_const( cController, "OFPP_ALL", INT2NUM( OFPP_ALL ) );
-  rb_define_const( cController, "OFPP_CONTROLLER", INT2NUM( OFPP_CONTROLLER ) );
-  rb_define_const( cController, "OFPP_LOCAL", INT2NUM( OFPP_LOCAL ) );
-  rb_define_const( cController, "OFPP_NONE", INT2NUM( OFPP_NONE ) );
-
   rb_define_method( cController, "send_message", controller_send_message, 2 );
-  rb_define_method( cController, "send_list_switches_request", controller_send_list_switches_request, 0 );
-  rb_define_method( cController, "send_flow_mod_add", controller_send_flow_mod_add, -1 );
-  rb_define_method( cController, "send_flow_mod_modify", controller_send_flow_mod_modify, -1 );
-  rb_define_method( cController, "send_flow_mod_delete", controller_send_flow_mod_delete, -1 );
-  rb_define_method( cController, "send_packet_out", controller_send_packet_out, -1 );
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
+  rb_define_method( cController, "test_match_set", controller_test_match_set, 1 );
 
   rb_require( "trema/controller" );
 }

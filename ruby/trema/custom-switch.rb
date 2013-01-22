@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2012 Hiroyasu OHYAMA
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,21 +16,34 @@
 #
 
 
-require "trema/action"
+require "trema/hardware-switch"
 
 
 module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+  class CustomSwitch < HardwareSwitch
+    include Trema::Daemon
+
+
+    log_file { |vswitch| "customswitch.#{ vswitch.name }.log" }
+
+    
+    def initialize stanza
+      super stanza
+    end
+
+
+    def command
+      "CHIBACH_TMP=#{ Trema.tmp } #{ path } -i #{ dpid_short } > #{ log_file } &"
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def path
+      File.join( Trema.home, @stanza[ :path ] )
     end
   end
 end

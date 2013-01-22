@@ -1,4 +1,6 @@
 #
+# Author: Yasuhito Takamiya <yasuhito@gmail.com>
+#
 # Copyright (C) 2008-2012 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,21 +18,30 @@
 #
 
 
-require "trema/action"
+module MonkeyPatch
+  module String
+    module Inflectors
+      def camelize
+        self.split( /[^a-z0-9]/i ).map do | each |
+          each.capitalize
+        end.join
+      end
 
 
-module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < Action
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-    def initialize
-      # Do nothing.
+      def demodulize
+        self.gsub /^.*::/, ''
+      end
+
+
+      def underscore
+        word = self.dup
+        word.gsub! /::/, '/'
+        word.gsub! /([A-Z]+)([A-Z][a-z])/,'\1_\2'
+        word.gsub! /([a-z\d])([A-Z])/,'\1_\2'
+        word.tr! "-", "_"
+        word.downcase!
+        word
+      end
     end
   end
 end
