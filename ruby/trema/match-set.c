@@ -49,10 +49,10 @@ append_match_in_phy_port( VALUE self, VALUE r_actions, VALUE in_phy_port ) {
 void
 Init_match_set() {
   mMatchSet = rb_define_module_under( mTrema, "MatchSet" );
-  rb_require( "trema/match-in-port" );
-  rb_require( "trema/match-in-phy-port" );
   rb_define_module_function( mMatchSet, "append_match_in_port", append_match_in_port, 2 );
   rb_define_module_function( mMatchSet, "append_match_in_phy_port", append_match_in_phy_port, 2 );
+  rb_require( "trema/match-in-port" );
+  rb_require( "trema/match-in-phy-port" );
 }
 
 
