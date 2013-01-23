@@ -21,11 +21,11 @@ require "trema/match-field"
 
 module Trema
   #
-  # A match field to match an the input port
+  # A match field to match any arbitrary 64-bit data
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchMetadata < MatchField
+    def initialize metadata
+      validate_create :metadata, :presence => true, :validate_with => "check_unsigned_long", :value => metadata
     end
   end
 end

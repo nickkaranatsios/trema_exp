@@ -16,24 +16,16 @@
 #
 
 
-require "trema/action"
+require "trema/match-field"
 
 
 module Trema
   #
-  # Creates an match field that matches the input port.
+  # A field to match an input physical port
   #
-  class MatchInPhyPort < Action
-    include MatchSet
-
-
+  class MatchInPhyPort < MatchField
     def initialize in_phy_port
       validate_create :in_phy_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_phy_port
-    end
-
-
-    def append_match actions
-      append_match_in_phy_port actions, @in_phy_port
     end
   end
 end

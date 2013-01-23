@@ -21,11 +21,11 @@ require "trema/match-field"
 
 module Trema
   #
-  # A match field to match an the input port
+  # A match field to match an IP protocol value.
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchIpProto < MatchField
+    def initialize ip_proto
+      validate_create :ip_proto, :presence => true, :validate_with => "check_unsigned_char", :value => ip_proto
     end
   end
 end

@@ -16,16 +16,25 @@
 #
 
 
-require "trema/match-field"
+require "trema/action-helper"
 
 
 module Trema
   #
-  # A match field to match an the input port
+  # A base match field class that exposes all the match set and action helper
+  # methods.
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchField
+    include MatchSet
+    include ActionHelper
+
+
+    def append_match actions
+      attributes = instance_variables
+      raise TypeError, "append_match accepts only a single argument" if attributes.length > 1
+      attr_value = instance_variable_get( attributes[ 0 ] )
+      method = "append_#{ self.class.name.demodulize.underscore }"
+      send method, actions, attr_value
     end
   end
 end

@@ -17,15 +17,16 @@
 
 
 require "trema/match-field"
+require "trema/mac"
 
 
 module Trema
   #
-  # A match field to match an the input port
+  # A base class for match classes source and destination MAC addresses. 
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchEthAddr < MatchField
+    def initialize mac_address
+      validate_create :mac_address, :presence => true, :value => Mac.new( mac_address )
     end
   end
 end

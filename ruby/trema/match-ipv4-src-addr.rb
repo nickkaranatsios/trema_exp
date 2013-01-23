@@ -16,16 +16,16 @@
 #
 
 
-require "trema/match-field"
+require "trema/match-ipv4-addr"
 
 
 module Trema
   #
-  # A match field to match an the input port
+  # A match field to match an IPv4 source address
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchIpv4SrcAddr < MatchIpv4Addr
+    def initialize ipv4_addr
+      super
     end
   end
 end

@@ -17,15 +17,24 @@
 
 
 require "trema/match-field"
+require "ipaddr"
 
 
 module Trema
   #
-  # A match field to match an the input port
+  # A base class for match IPv4 source and destination addresses classes.
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchIpv4Addr < MatchField
+    def initialize ipv4_addr
+      validate_create :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :value => ipv4_addr
+      @ipv4_addr = IPAddr.new( ipv4_addr )
+    end
+
+
+    def check_ipv4_addr ipv4_addr, name
+      unless ipv4_addr.is_a? String
+        raise ArgumentError, "An IPv4 source/destination address must be a String"
+      end
     end
   end
 end

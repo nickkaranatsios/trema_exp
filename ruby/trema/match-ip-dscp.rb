@@ -21,11 +21,20 @@ require "trema/match-field"
 
 module Trema
   #
-  # A match field to match an the input port
+  # A match field to match a diffserv code point. The value is restricted
+  # within 0 to 63.
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchIpDscp < MatchField
+    def initialize ip_dscp
+      validate_create :ip_dscp, :presence => true, :validate_with => "check_unsigned_char", :within => "check_ip_dscp_range", :value => ip_dscp
+    end
+
+
+    def check_ip_dscp_range ip_dscp, name
+      range = 0..63
+      unless range.include? ip_dscp
+        raise ArgumentError, "#{ name } value must be >= #{ range.first } and <= #{ range.last }." 
+      end
     end
   end
 end

@@ -18,6 +18,25 @@
 
 module Trema
   module ActionHelper
+    TYPE_SIZE = { 
+      "char" => 8, 
+      "short" => 16, 
+      "int" => 32, 
+      "long" => 64 
+    }
+
+
+    def self.included klass
+      TYPE_SIZE.keys.each do | type |
+        define_method :"check_unsigned_#{ type }" do | number, attr_name |
+          unless number.send( "unsigned_#{ TYPE_SIZE[ type ] }bit?" )
+            raise ArgumentError, "#{ attr_name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
+          end
+        end
+      end
+    end
+
+
     def validate_create *attributes
       #
       # extracts the hash opptions after extraction the attributes holds
@@ -30,26 +49,6 @@ module Trema
       create_attribute options
     end
 
-    protected
-
-    #
-    # @raise [ArgumentError] if number is not an unsigned 16-bit integer.
-    #
-    def check_unsigned_short number, attr_name
-      unless number.unsigned_16bit?
-        raise ArgumentError, "#{ attr_name } must be an unsigned 16-bit integer"
-      end
-    end
-
-
-    #
-    # @raise [ArgumentError] if number is not unsigned 32-bit integer.
-    #
-    def check_unsigned_int number, attr_name
-      unless number.unsigned_32bit?
-        raise ArgumentError, "#{ attr_name } must be an unsigned 32-bit integer"
-      end
-    end
 
     ############################################################################
     private
@@ -112,9 +111,6 @@ module Trema
       end
     end
   end
-
-
-
 end
 
 

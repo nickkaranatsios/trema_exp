@@ -21,11 +21,11 @@ require "trema/match-field"
 
 module Trema
   #
-  # A match field to match an the input port
+  # A match field to match an IP ECN value. Applicable only to IPv4 packets.
   #
-  class MatchInPort < MatchField
-    def initialize in_port
-      validate_create :in_port, :presence => true, :validate_with => "check_unsigned_int", :value => in_port
+  class MatchIpEcn < MatchField
+    def initialize ip_ecn
+      validate_create :ip_ecn, :presence => true, :validate_with => "check_unsigned_char", :value => ip_ecn
     end
   end
 end
