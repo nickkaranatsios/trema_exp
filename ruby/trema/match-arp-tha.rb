@@ -16,25 +16,17 @@
 #
 
 
-require "trema/match-field"
-require "ipaddr"
+require "trema/match-eth-addr"
 
 
 module Trema
   #
-  # A base class for match IPv4 source and destination addresses classes.
+  # A match field to match an ARP target hardware address,
+  # a 48-bit Ethernet address
   #
-  class MatchIpv4Addr < MatchField
-    def initialize ipv4_addr
-      validate_create :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :value => ipv4_addr
-      @ipv4_addr = IPAddr.new( ipv4_addr )
-    end
-
-
-    def check_ipv4_addr ipv4_addr, name
-      unless ipv4_addr.is_a? String
-        raise ArgumentError, "An IPv4 address must be a String"
-      end
+  class MatchArpTha < MatchEthAddr
+    def initialize mac_address
+      super
     end
   end
 end

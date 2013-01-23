@@ -158,6 +158,75 @@ append_match_udp_dst_port( VALUE self, VALUE r_actions, VALUE udp_dst_port ) {
 }
 
 
+static VALUE
+append_match_sctp_src_port( VALUE self, VALUE r_actions, VALUE sctp_src_port ) {
+  append_action_set_field_sctp_src( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( sctp_src_port ) );
+  return self;
+}
+
+
+static VALUE
+append_match_sctp_dst_port( VALUE self, VALUE r_actions, VALUE sctp_dst_port ) {
+  append_action_set_field_sctp_dst( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( sctp_dst_port ) );
+  return self;
+}
+
+
+static VALUE
+append_match_icmpv4_type( VALUE self, VALUE r_actions, VALUE icmpv4_type ) {
+  append_action_set_field_icmpv4_type( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( icmpv4_type ) );
+  return self;
+}
+
+
+static VALUE
+append_match_icmpv4_code( VALUE self, VALUE r_actions, VALUE icmpv4_code ) {
+  append_action_set_field_icmpv4_code( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( icmpv4_code ) );
+  return self;
+}
+
+
+static VALUE
+append_match_arp_op( VALUE self, VALUE r_actions, VALUE arp_op ) {
+  append_action_set_field_arp_op( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( arp_op ) );
+  return self;
+}
+
+
+static VALUE
+append_match_arp_spa( VALUE self, VALUE r_actions, VALUE arp_spa ) {
+  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( arp_spa );
+  append_action_set_field_arp_spa( openflow_actions_ptr( r_actions ), ip_address );
+  return self;
+}
+
+
+static VALUE
+append_match_arp_tpa( VALUE self, VALUE r_actions, VALUE arp_tpa ) {
+  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( arp_tpa );
+  append_action_set_field_arp_tpa( openflow_actions_ptr( r_actions ), ip_address );
+  return self;
+}
+
+
+static VALUE
+append_match_arp_sha( VALUE self, VALUE r_actions, VALUE mac_address ) {
+  uint8_t arp_sha[ OFP_ETH_ALEN ];
+  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, arp_sha );
+  append_action_set_field_arp_sha( openflow_actions_ptr( r_actions ), ptr );
+  return self;
+}
+
+
+static VALUE
+append_match_arp_tha( VALUE self, VALUE r_actions, VALUE mac_address ) {
+  uint8_t arp_tha[ OFP_ETH_ALEN ];
+  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, arp_tha );
+  append_action_set_field_arp_tha( openflow_actions_ptr( r_actions ), ptr );
+  return self;
+}
+
+  
 void
 Init_match_set() {
   mMatchSet = rb_define_module_under( mTrema, "MatchSet" );
@@ -178,6 +247,15 @@ Init_match_set() {
   rb_define_module_function( mMatchSet, "append_match_tcp_dst_port", append_match_tcp_dst_port, 2 );
   rb_define_module_function( mMatchSet, "append_match_udp_src_port", append_match_udp_src_port, 2 );
   rb_define_module_function( mMatchSet, "append_match_udp_dst_port", append_match_udp_dst_port, 2 );
+  rb_define_module_function( mMatchSet, "append_match_sctp_src_port", append_match_sctp_src_port, 2 );
+  rb_define_module_function( mMatchSet, "append_match_sctp_dst_port", append_match_sctp_dst_port, 2 );
+  rb_define_module_function( mMatchSet, "append_match_icmpv4_type", append_match_icmpv4_type, 2 );
+  rb_define_module_function( mMatchSet, "append_match_icmpv4_code", append_match_icmpv4_code, 2 );
+  rb_define_module_function( mMatchSet, "append_match_arp_op", append_match_arp_op, 2 );
+  rb_define_module_function( mMatchSet, "append_match_arp_spa", append_match_arp_spa, 2 );
+  rb_define_module_function( mMatchSet, "append_match_arp_tpa", append_match_arp_tpa, 2 );
+  rb_define_module_function( mMatchSet, "append_match_arp_sha", append_match_arp_sha, 2 );
+  rb_define_module_function( mMatchSet, "append_match_arp_tha", append_match_arp_tha, 2 );
   rb_require( "trema/match-in-port" );
   rb_require( "trema/match-in-phy-port" );
   rb_require( "trema/match-metadata" );
@@ -195,6 +273,15 @@ Init_match_set() {
   rb_require( "trema/match-tcp-dst-port" );
   rb_require( "trema/match-udp-src-port" );
   rb_require( "trema/match-udp-dst-port" );
+  rb_require( "trema/match-sctp-src-port" );
+  rb_require( "trema/match-sctp-dst-port" );
+  rb_require( "trema/match-icmpv4-type" );
+  rb_require( "trema/match-icmpv4-code" );
+  rb_require( "trema/match-arp-op" );
+  rb_require( "trema/match-arp-spa" );
+  rb_require( "trema/match-arp-tpa" );
+  rb_require( "trema/match-arp-sha" );
+  rb_require( "trema/match-arp-tha" );
 }
 
 

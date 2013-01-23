@@ -17,24 +17,16 @@
 
 
 require "trema/match-field"
-require "ipaddr"
 
 
 module Trema
   #
-  # A base class for match IPv4 source and destination addresses classes.
+  # A match field to match an ICMPv4 type. For example type 0 refers to echo
+  # reply.
   #
-  class MatchIpv4Addr < MatchField
-    def initialize ipv4_addr
-      validate_create :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :value => ipv4_addr
-      @ipv4_addr = IPAddr.new( ipv4_addr )
-    end
-
-
-    def check_ipv4_addr ipv4_addr, name
-      unless ipv4_addr.is_a? String
-        raise ArgumentError, "An IPv4 address must be a String"
-      end
+  class MatchIcmpv4Type < MatchField
+    def initialize icmpv4_type
+      validate_create :icmpv4_type, :presence => true, :validate_with => "check_unsigned_char", :value => icmpv4_type
     end
   end
 end

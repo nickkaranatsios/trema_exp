@@ -16,25 +16,16 @@
 #
 
 
-require "trema/match-field"
-require "ipaddr"
+require "trema/match-transport-port"
 
 
 module Trema
   #
-  # A base class for match IPv4 source and destination addresses classes.
+  # A match field to match a SCTP destination port
   #
-  class MatchIpv4Addr < MatchField
-    def initialize ipv4_addr
-      validate_create :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :value => ipv4_addr
-      @ipv4_addr = IPAddr.new( ipv4_addr )
-    end
-
-
-    def check_ipv4_addr ipv4_addr, name
-      unless ipv4_addr.is_a? String
-        raise ArgumentError, "An IPv4 address must be a String"
-      end
+  class MatchSctpDstPort < MatchTransportPort
+    def initialize transport_port
+      super
     end
   end
 end
