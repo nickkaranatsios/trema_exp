@@ -56,6 +56,9 @@ Rake::Builder.new do | builder |
   builder.programming_language = 'c'
   builder.target = 'ruby/trema.so'
   builder.target_type = :shared_library
+  builder.target_prerequisites = [ 
+    "#{ File.expand_path 'objects/lib/libtrema.a' }"
+  ]
   builder.source_search_paths = [ 'ruby/trema' ]
   builder.installable_headers = [ 'src/lib' ]
   ruby_includes = [ 
@@ -71,7 +74,16 @@ Rake::Builder.new do | builder |
     'objects/lib'
   ]
   builder.linker_options = [ '-Wl', '-Bsymbolic' ]
-  builder.library_dependencies = [ 'ruby', 'trema', 'sqlite3', 'pthread', 'rt', 'dl', 'crypt', 'm' ]
+  builder.library_dependencies = [
+    'ruby',
+    'trema',
+    'sqlite3',
+    'pthread',
+    'rt',
+    'dl',
+    'crypt',
+    'm'
+  ]
 end
 
 
