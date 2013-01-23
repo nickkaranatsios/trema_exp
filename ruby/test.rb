@@ -19,6 +19,9 @@ module Trema
         MatchIpv4SrcAddr.new( "10.10.10.1" ),
         MatchIpv4DstAddr.new( "127.0.0.1" ),
         MatchTcpSrcPort.new( 5555 ),
+        MatchTcpDstPort.new( 5556 ),
+        MatchUdpSrcPort.new( 3333 ),
+        MatchUdpDstPort.new( 3334 ),
       ]
       test_match_set ms
     end
