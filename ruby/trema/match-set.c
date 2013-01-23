@@ -144,6 +144,20 @@ append_match_tcp_dst_port( VALUE self, VALUE r_actions, VALUE tcp_dst_port ) {
 }
 
 
+static VALUE
+append_match_udp_src_port( VALUE self, VALUE r_actions, VALUE udp_src_port ) {
+  append_action_set_field_udp_src( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( udp_src_port ) );
+  return self;
+}
+
+
+static VALUE
+append_match_udp_dst_port( VALUE self, VALUE r_actions, VALUE udp_dst_port ) {
+  append_action_set_field_udp_dst( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( udp_dst_port ) );
+  return self;
+}
+
+
 void
 Init_match_set() {
   mMatchSet = rb_define_module_under( mTrema, "MatchSet" );
@@ -162,6 +176,8 @@ Init_match_set() {
   rb_define_module_function( mMatchSet, "append_match_ipv4_dst_addr", append_match_ipv4_dst_addr, 2 );
   rb_define_module_function( mMatchSet, "append_match_tcp_src_port", append_match_tcp_src_port, 2 );
   rb_define_module_function( mMatchSet, "append_match_tcp_dst_port", append_match_tcp_dst_port, 2 );
+  rb_define_module_function( mMatchSet, "append_match_udp_src_port", append_match_udp_src_port, 2 );
+  rb_define_module_function( mMatchSet, "append_match_udp_dst_port", append_match_udp_dst_port, 2 );
   rb_require( "trema/match-in-port" );
   rb_require( "trema/match-in-phy-port" );
   rb_require( "trema/match-metadata" );
@@ -177,6 +193,8 @@ Init_match_set() {
   rb_require( "trema/match-ipv4-dst-addr" );
   rb_require( "trema/match-tcp-src-port" );
   rb_require( "trema/match-tcp-dst-port" );
+  rb_require( "trema/match-udp-src-port" );
+  rb_require( "trema/match-udp-dst-port" );
 }
 
 
