@@ -16,17 +16,15 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
   #
   # A match field to match an IP protocol value.
   #
-  class MatchIpProto < MatchField
-    def initialize ip_proto
-      validate_create :ip_proto, :presence => true, :validate_with => "check_unsigned_char", :value => ip_proto
-    end
+  class MatchIpProto < AccessorBase
+    unsigned_char :ip_proto, :presence => true, :validate_with => "check_unsigned_char"
   end
 end
 

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
@@ -24,10 +24,8 @@ module Trema
   # A base class for all source and destination transport port subclasses
   # (TCP/UDP/SCTP)
   #
-  class MatchTransportPort < MatchField
-    def initialize transport_port
-      validate_create :transport_port, :presence => true, :validate_with => "check_unsigned_short", :value => transport_port
-    end
+  class MatchTransportPort < AccessorBase
+    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
   end
 end
 

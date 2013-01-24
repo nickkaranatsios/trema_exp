@@ -16,17 +16,15 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
   #
   # A match field to match an ARP operation code. For example 1 for REQUEST.
   #
-  class MatchArpOp < MatchField
-    def initialize arp_op
-      validate_create :arp_op, :presence => true, :validate_with => "check_unsigned_short", :value => arp_op 
-    end
+  class MatchArpOp < AccessorBase
+    unsigned_short :arp_op, :presence => true, :validate_with => "check_unsigned_short"
   end
 end
 

@@ -16,17 +16,15 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
   #
   # A match field to match any arbitrary 64-bit data
   #
-  class MatchMetadata < MatchField
-    def initialize metadata
-      validate_create :metadata, :presence => true, :validate_with => "check_unsigned_long", :value => metadata
-    end
+  class MatchMetadata < AccessorBase
+    unsigned_long :metadata, :presence => true, :validate_with => "check_unsigned_long"
   end
 end
 

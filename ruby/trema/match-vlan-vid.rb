@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
@@ -24,9 +24,7 @@ module Trema
   # A match field to match a VLAN ID
   #
   class MatchVlanVid < MatchField
-    def initialize vlan_vid
-      validate_create :vlan_vid, :presence => true, :validate_with => "check_unsigned_short", :value => vlan_vid
-    end
+    unsigned_short :vlan_vid, :presence => true, :validate_with => "check_unsigned_short"
   end
 end
 

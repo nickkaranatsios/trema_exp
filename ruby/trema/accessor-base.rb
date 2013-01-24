@@ -16,27 +16,48 @@
 #
 
 
-require "trema/action-helper"
-
-
 module Trema
   #
   # A base match field class that exposes all the match set and action helper
   # methods.
   #
-  class MatchField
+  class AccessorBase
     include MatchSet
-    include ActionHelper
+
+    TYPE_SIZE = { 
+      "char" => 8, 
+      "short" => 16, 
+      "int" => 32, 
+      "long" => 64 
+    }
+
+
 
 
     class << self
-      def unsigned_int *args
-        opts = extract_options!( args )
-        raise ArgumentError, "You need at least one attribute" if args.empty?
-        raise ArgumentError, "Too many attributes specified" if args.length > 1
-        opts.merge! :attributes => args.fetch( 0 )
-        attr_name = opts[ :attributes ]
-        define_accessor attr_name, opts
+      def inherited klass
+        TYPE_SIZE.keys.each do | type |
+          primitive_type type
+          define_method :"check_unsigned_#{ type }" do | number, name |
+            unless number.send( "unsigned_#{ TYPE_SIZE[ type ] }bit?" )
+              raise ArgumentError, "#{ name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
+            end
+          end
+        end
+      end
+
+
+      def primitive_type type
+        self.class.class_eval do
+          define_method :"unsigned_#{ type }" do | *args |
+            opts = extract_options!( args )
+            raise ArgumentError, "You need at least one attribute" if args.empty?
+            raise ArgumentError, "Too many attributes specified" if args.length > 1
+            opts.merge! :attributes => args.fetch( 0 )
+            attr_name = opts[ :attributes ]
+            define_accessor attr_name, opts
+          end
+        end
       end
 
 
@@ -85,7 +106,7 @@ module Trema
       raise TypeError, "append_match accepts only a single argument" if attributes.length > 1
       attr_value = instance_variable_get( attributes[ 0 ] )
       method = "append_#{ self.class.name.demodulize.underscore }"
-      send method, actions, attr_value
+      __send__ method, actions, attr_value
     end
   end
 end

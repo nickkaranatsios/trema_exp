@@ -28,9 +28,9 @@ module Trema
 
     def self.included klass
       TYPE_SIZE.keys.each do | type |
-        define_method :"check_unsigned_#{ type }" do | number, attr_name |
+        define_method :"check_unsigned_#{ type }" do | number, name |
           unless number.send( "unsigned_#{ TYPE_SIZE[ type ] }bit?" )
-            raise ArgumentError, "#{ attr_name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
+            raise ArgumentError, "#{ name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
           end
         end
       end

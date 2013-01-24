@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
@@ -24,10 +24,8 @@ module Trema
   # A match field to match a diffserv code point. The value is restricted
   # within 0 to 63.
   #
-  class MatchIpDscp < MatchField
-    def initialize ip_dscp
-      validate_create :ip_dscp, :presence => true, :validate_with => "check_unsigned_char", :within => "check_ip_dscp_range", :value => ip_dscp
-    end
+  class MatchIpDscp < AccessorBase
+    unsigned_char :ip_dscp, :presence => true, :validate_with => "check_unsigned_char", :within => "check_ip_dscp_range"
 
 
     def check_ip_dscp_range ip_dscp, name

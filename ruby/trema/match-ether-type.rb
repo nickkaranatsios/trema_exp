@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
@@ -24,9 +24,7 @@ module Trema
   # A field to match an ethernet type
   #
   class MatchEtherType < MatchField
-    def initialize ether_type
-      validate_create :ether_type, :presence => true, :validate_with => "check_unsigned_short", :value => ether_type
-    end
+    unsigned_short :ether_type, :presence => true, :validate_with => "check_unsigned_short"
   end
 end
 

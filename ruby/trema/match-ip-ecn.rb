@@ -16,17 +16,15 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 
 
 module Trema
   #
   # A match field to match an IP ECN value. Applicable only to IPv4 packets.
   #
-  class MatchIpEcn < MatchField
-    def initialize ip_ecn
-      validate_create :ip_ecn, :presence => true, :validate_with => "check_unsigned_char", :value => ip_ecn
-    end
+  class MatchIpEcn < AccessorBase
+    unsigned_char :ip_ecn, :presence => true, :validate_with => "check_unsigned_char"
   end
 end
 

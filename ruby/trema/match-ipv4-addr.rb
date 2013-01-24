@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-field"
+require "trema/accessor-base"
 require "ipaddr"
 
 
@@ -24,11 +24,9 @@ module Trema
   #
   # A base class for match IPv4 source and destination addresses classes.
   #
-  class MatchIpv4Addr < MatchField
-    def initialize ipv4_addr
-      validate_create :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :value => ipv4_addr
-      @ipv4_addr = IPAddr.new( ipv4_addr )
-    end
+  class MatchIpv4Addr < AccessorBase
+    user_object :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :object_class => IPAddr
+#      @ipv4_addr = IPAddr.new( ipv4_addr )
 
 
     def check_ipv4_addr ipv4_addr, name
