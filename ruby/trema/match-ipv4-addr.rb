@@ -16,8 +16,8 @@
 #
 
 
-require "trema/accessor-base"
 require "ipaddr"
+require "trema/accessor-base"
 
 
 module Trema
@@ -25,8 +25,7 @@ module Trema
   # A base class for match IPv4 source and destination addresses classes.
   #
   class MatchIpv4Addr < AccessorBase
-    user_object :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr", :object_class => IPAddr
-#      @ipv4_addr = IPAddr.new( ipv4_addr )
+    ipv4_addr :ipv4_addr, :presence => true, :validate_with => "check_ipv4_addr"
 
 
     def check_ipv4_addr ipv4_addr, name

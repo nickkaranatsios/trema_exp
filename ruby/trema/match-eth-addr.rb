@@ -16,18 +16,16 @@
 #
 
 
-require "trema/match-field"
 require "trema/mac"
+require "trema/accessor-base"
 
 
 module Trema
   #
   # A base class for match classes source and destination MAC addresses. 
   #
-  class MatchEthAddr < MatchField
-    def initialize mac_address
-      validate_create :mac_address, :presence => true, :value => Mac.new( mac_address )
-    end
+  class MatchEthAddr < AccessorBase
+    eth_addr :mac_address, :presence => true  
   end
 end
 

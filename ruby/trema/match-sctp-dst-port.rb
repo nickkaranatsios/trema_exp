@@ -24,9 +24,6 @@ module Trema
   # A match field to match a SCTP destination port
   #
   class MatchSctpDstPort < MatchTransportPort
-    def initialize transport_port
-      super
-    end
   end
 end
 

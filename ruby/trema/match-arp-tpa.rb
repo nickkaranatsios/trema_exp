@@ -16,7 +16,7 @@
 #
 
 
-require "trema/match-ipv4-addr"
+require "trema/match-ip-addr"
 
 
 module Trema
@@ -24,10 +24,7 @@ module Trema
   # A match field to match an ARP target protocol address,
   # a 32-bit Internet address
   #
-  class MatchArpTpa < MatchIpv4Addr
-    def initialize arp_tpa
-      super
-    end
+  class MatchArpTpa < MatchIpAddr
   end
 end
 

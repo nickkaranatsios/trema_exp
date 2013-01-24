@@ -16,17 +16,14 @@
 #
 
 
-require "trema/match-ipv4-addr"
+require "trema/match-ip-addr"
 
 
 module Trema
   #
   # A match field to match an IPv4 source address
   #
-  class MatchIpv4SrcAddr < MatchIpv4Addr
-    def initialize ipv4_addr
-      super
-    end
+  class MatchIpv4SrcAddr < MatchIpAddr
   end
 end
 

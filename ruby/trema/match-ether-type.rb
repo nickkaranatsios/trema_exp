@@ -23,7 +23,7 @@ module Trema
   #
   # A field to match an ethernet type
   #
-  class MatchEtherType < MatchField
+  class MatchEtherType < AccessorBase
     unsigned_short :ether_type, :presence => true, :validate_with => "check_unsigned_short"
   end
 end

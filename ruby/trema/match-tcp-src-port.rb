@@ -24,14 +24,6 @@ module Trema
   # A match field to match a TCP source port
   #
   class MatchTcpSrcPort < MatchTransportPort
-    def initialize transport_port
-      super
-    end
-
-
-    def append_match actions
-      append_match_tcp_src_port actions, @transport_port
-    end
   end
 end
 

@@ -25,9 +25,6 @@ module Trema
   # a 48-bit Ethernet address
   #
   class MatchArpSha < MatchEthAddr
-    def initialize mac_address
-      super
-    end
   end
 end
 

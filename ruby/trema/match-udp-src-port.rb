@@ -24,9 +24,6 @@ module Trema
   # A match field to match a UDP source port
   #
   class MatchUdpSrcPort < MatchTransportPort
-    def initialize transport_port
-      super
-    end
   end
 end
 

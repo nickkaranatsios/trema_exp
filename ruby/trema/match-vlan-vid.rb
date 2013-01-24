@@ -23,7 +23,7 @@ module Trema
   #
   # A match field to match a VLAN ID
   #
-  class MatchVlanVid < MatchField
+  class MatchVlanVid < AccessorBase
     unsigned_short :vlan_vid, :presence => true, :validate_with => "check_unsigned_short"
   end
 end

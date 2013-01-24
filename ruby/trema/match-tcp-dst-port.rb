@@ -24,9 +24,6 @@ module Trema
   # A match field to match a TCP destination port
   #
   class MatchTcpDstPort < MatchTransportPort
-    def initialize transport_port
-      super
-    end
   end
 end
 

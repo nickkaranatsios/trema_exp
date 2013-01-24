@@ -16,15 +16,23 @@
 #
 
 
-require "trema/match-ip-addr"
+require "ipaddr"
+require "trema/accessor-base"
 
 
 module Trema
   #
-  # A match field to match an ARP source protocol address,
-  # a 32-bit Internet address
+  # A base class to match all IP(v4/v6) source and destination addresses
   #
-  class MatchArpSpa < MatchIpAddr
+  class MatchIpAddr < AccessorBase
+    ip_addr :ip_addr, :presence => true, :validate_with => "check_ip_addr"
+
+
+    def check_ip_addr ip_addr, name
+      unless ip_addr.is_a? String
+        raise ArgumentError, "An IP(v4/v6) address must be a String"
+      end
+    end
   end
 end
 

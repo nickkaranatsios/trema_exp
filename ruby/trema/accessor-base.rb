@@ -18,50 +18,72 @@
 
 module Trema
   #
-  # A base match field class that exposes all the match set and action helper
-  # methods.
+  # A base class for defining user defined like accessors.
   #
   class AccessorBase
     include MatchSet
 
-    TYPE_SIZE = { 
-      "char" => 8, 
-      "short" => 16, 
-      "int" => 32, 
-      "long" => 64 
+    PRIMITIVE_TYPES = {
+      "char" => 8,
+      "short" => 16,
+      "int" => 32,
+      "long" => 64
     }
 
 
+    USER_DEFINED_TYPES = {
+      "ip_addr" => "IPAddr",
+      "eth_addr" => "Trema::Mac",
+    }
 
 
     class << self
       def inherited klass
-        TYPE_SIZE.keys.each do | type |
+        PRIMITIVE_TYPES.keys.each do | type |
           primitive_type type
           define_method :"check_unsigned_#{ type }" do | number, name |
-            unless number.send( "unsigned_#{ TYPE_SIZE[ type ] }bit?" )
+            unless number.send( "unsigned_#{ PRIMITIVE_TYPES[ type ] }bit?" )
               raise ArgumentError, "#{ name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
             end
           end
         end
+        USER_DEFINED_TYPES.each do | k, v |
+          user_defined_type k, v
+        end
       end
 
 
-      def primitive_type type
+      ############################################################################
+      private
+      ############################################################################
+
+
+      def primitive_type method
         self.class.class_eval do
-          define_method :"unsigned_#{ type }" do | *args |
+          define_method :"unsigned_#{ method }" do | *args |
             opts = extract_options!( args )
-            raise ArgumentError, "You need at least one attribute" if args.empty?
-            raise ArgumentError, "Too many attributes specified" if args.length > 1
-            opts.merge! :attributes => args.fetch( 0 )
-            attr_name = opts[ :attributes ]
-            define_accessor attr_name, opts
+            check_args args
+            opts.merge! :attributes => args[ 0 ]
+            define_accessor opts
           end
         end
       end
 
 
-      def define_accessor attr_name, opts
+      def user_defined_type method, vcls
+        self.class.class_eval do
+          define_method :"#{ method }" do | *args |
+            opts = extract_options!( args )
+            check_args args
+            opts.merge! :attributes => args[ 0 ], :user_defined => vcls
+            define_accessor opts
+          end
+        end
+      end
+
+
+      def define_accessor opts
+        attr_name = opts[ :attributes ]
         self.class_eval do
           define_method attr_name do
             instance_variable_get "@#{ attr_name }"
@@ -79,7 +101,11 @@ module Trema
             validation_methods.each do | key, method |
               __send__ method, v, attr_name
             end
-            instance_variable_set( "@#{ attr_name }", v )
+            if opts.has_key? :user_defined 
+              instance_variable_set( "@#{ attr_name }", eval( opts[ :user_defined ] ).new( v ) )
+            else
+               instance_variable_set( "@#{ attr_name }", v )
+            end
           end
         end
       end
@@ -91,6 +117,12 @@ module Trema
         else
           {}
         end
+      end
+
+
+      def check_args args
+        raise ArgumentError, "You need at least one attribute" if args.empty?
+        raise ArgumentError, "Too many attributes specified" if args.length > 1
       end
     end
 

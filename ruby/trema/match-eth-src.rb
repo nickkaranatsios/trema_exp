@@ -24,9 +24,6 @@ module Trema
   # A match field to match a MAC source address
   #
   class MatchEthSrc < MatchEthAddr
-    def initialize mac_address
-      super
-    end
   end
 end
 
