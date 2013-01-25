@@ -17,14 +17,14 @@
 
 
 require "ipaddr"
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A base class to match all IP(v4/v6) source and destination addresses
   #
-  class MatchIpAddr < AccessorBase
+  class MatchIpAddr < MatchAccessor
     ip_addr :ip_addr, :presence => true, :validate_with => "check_ip_addr"
 
 

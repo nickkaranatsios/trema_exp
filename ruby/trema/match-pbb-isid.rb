@@ -21,11 +21,11 @@ require "trema/match-accessor"
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match a provider backbone bridge(pbb "mac-in-mac") service
+  # identifier
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchPbbIsid < MatchAccessor
+    unsigned_int :pbb_isid, :presence => true, :validate_with => "check_unsigned_int"
   end
 end
 

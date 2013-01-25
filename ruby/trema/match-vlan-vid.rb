@@ -16,14 +16,14 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A match field to match a VLAN ID
   #
-  class MatchVlanVid < AccessorBase
+  class MatchVlanVid < MatchAccessor
     unsigned_short :vlan_vid, :presence => true, :validate_with => "check_unsigned_short"
   end
 end

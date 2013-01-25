@@ -19,6 +19,7 @@
 #include "trema.h"
 #include "ruby.h"
 #include "action-common.h"
+#include <arpa/inet.h>
 
 
 extern VALUE mTrema;
@@ -32,6 +33,30 @@ openflow_actions_ptr( VALUE self ) {
   return actions;
 }
 
+
+static const uint8_t *
+mac_addr_to_cstr( VALUE mac_addr ) {
+  uint8_t dl_addr[ OFP_ETH_ALEN ];
+  return ( const uint8_t * ) dl_addr_to_a( mac_addr, dl_addr );
+}
+
+
+static uint32_t
+ip_addr_to_i( VALUE ip_addr ) {
+  return nw_addr_to_i( ip_addr );
+}
+
+
+static struct in6_addr
+ipv6_addr_to_in6_addr( VALUE ipv6_addr ) {
+  struct in6_addr in6_addr;
+
+  VALUE ipv6_addr_str = rb_funcall( ipv6_addr, rb_intern( "to_s" ), 0 );
+  const char *dst = rb_string_value_cstr( &ipv6_addr_str );
+  inet_pton( AF_INET6, dst, &in6_addr );
+  return in6_addr;
+}
+  
 
 static VALUE
 append_match_in_port( VALUE self, VALUE r_actions, VALUE in_port ) {
@@ -55,19 +80,15 @@ append_match_metadata( VALUE self, VALUE r_actions, VALUE metadata ) {
 
 
 static VALUE
-append_match_eth_dst( VALUE self, VALUE r_actions, VALUE mac_address ) {
-  uint8_t eth_dst[ OFP_ETH_ALEN ];
-  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, eth_dst );
-  append_action_set_field_eth_dst( openflow_actions_ptr( r_actions ), ptr );
+append_match_eth_dst( VALUE self, VALUE r_actions, VALUE eth_dst ) {
+  append_action_set_field_eth_dst( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( eth_dst ) );
   return self;
 }
 
 
 static VALUE
 append_match_eth_src( VALUE self, VALUE r_actions, VALUE mac_address ) {
-  uint8_t eth_src[ OFP_ETH_ALEN ];
-  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, eth_src );
-  append_action_set_field_eth_src( openflow_actions_ptr( r_actions ), ptr );
+  append_action_set_field_eth_src( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( mac_address ) );
   return self;
 }
 
@@ -116,16 +137,14 @@ append_match_ip_proto( VALUE self, VALUE r_actions, VALUE ip_proto ) {
 
 static VALUE
 append_match_ipv4_src_addr( VALUE self, VALUE r_actions, VALUE ipv4_src_addr ) {
-  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( ipv4_src_addr );
-  append_action_set_field_ipv4_src( openflow_actions_ptr( r_actions ), ip_address );
+  append_action_set_field_ipv4_src( openflow_actions_ptr( r_actions ), ip_addr_to_i( ipv4_src_addr ) );
   return self;
 }
 
 
 static VALUE
 append_match_ipv4_dst_addr( VALUE self, VALUE r_actions, VALUE ipv4_dst_addr ) {
-  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( ipv4_dst_addr );
-  append_action_set_field_ipv4_dst( openflow_actions_ptr( r_actions ), ip_address );
+  append_action_set_field_ipv4_dst( openflow_actions_ptr( r_actions ), ip_addr_to_i( ipv4_dst_addr ) );
   return self;
 }
 
@@ -195,38 +214,130 @@ append_match_arp_op( VALUE self, VALUE r_actions, VALUE arp_op ) {
 
 static VALUE
 append_match_arp_spa( VALUE self, VALUE r_actions, VALUE arp_spa ) {
-  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( arp_spa );
-  append_action_set_field_arp_spa( openflow_actions_ptr( r_actions ), ip_address );
+  append_action_set_field_arp_spa( openflow_actions_ptr( r_actions ), ip_addr_to_i( arp_spa ) );
   return self;
 }
 
 
 static VALUE
 append_match_arp_tpa( VALUE self, VALUE r_actions, VALUE arp_tpa ) {
-  const uint32_t ip_address = ( const uint32_t ) nw_addr_to_i( arp_tpa );
-  append_action_set_field_arp_tpa( openflow_actions_ptr( r_actions ), ip_address );
+  append_action_set_field_arp_tpa( openflow_actions_ptr( r_actions ), ip_addr_to_i( arp_tpa ) );
   return self;
 }
 
 
 static VALUE
-append_match_arp_sha( VALUE self, VALUE r_actions, VALUE mac_address ) {
-  uint8_t arp_sha[ OFP_ETH_ALEN ];
-  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, arp_sha );
-  append_action_set_field_arp_sha( openflow_actions_ptr( r_actions ), ptr );
+append_match_arp_sha( VALUE self, VALUE r_actions, VALUE arp_sha ) {
+  append_action_set_field_arp_sha( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( arp_sha ) );
   return self;
 }
 
 
 static VALUE
-append_match_arp_tha( VALUE self, VALUE r_actions, VALUE mac_address ) {
-  uint8_t arp_tha[ OFP_ETH_ALEN ];
-  const uint8_t *ptr = ( const uint8_t * ) dl_addr_to_a( mac_address, arp_tha );
-  append_action_set_field_arp_tha( openflow_actions_ptr( r_actions ), ptr );
+append_match_arp_tha( VALUE self, VALUE r_actions, VALUE arp_tha ) {
+  append_action_set_field_arp_tha( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( arp_tha ) );
   return self;
 }
 
   
+static VALUE
+append_match_ipv6_src_addr( VALUE self, VALUE r_actions, VALUE ipv6_src_addr ) {
+  append_action_set_field_ipv6_src( openflow_actions_ptr( r_actions ), ipv6_addr_to_in6_addr( ipv6_src_addr ) ); 
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_dst_addr( VALUE self, VALUE r_actions, VALUE ipv6_dst_addr ) {
+  append_action_set_field_ipv6_dst( openflow_actions_ptr( r_actions ), ipv6_addr_to_in6_addr( ipv6_dst_addr ) ); 
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_flow_label( VALUE self, VALUE r_actions, VALUE ipv6_flow_label ) {
+  append_action_set_field_ipv6_flabel( openflow_actions_ptr( r_actions ), NUM2UINT( ipv6_flow_label ) );
+  return self;
+}
+
+
+static VALUE
+append_match_icmpv6_type( VALUE self, VALUE r_actions, VALUE icmpv6_type ) {
+  append_action_set_field_icmpv6_type( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( icmpv6_type ) );
+  return self;
+}
+
+
+static VALUE
+append_match_icmpv6_code( VALUE self, VALUE r_actions, VALUE icmpv6_code ) {
+  append_action_set_field_icmpv6_code( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( icmpv6_code ) );
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_nd_target( VALUE self, VALUE r_actions, VALUE ipv6_nd_target ) {
+  append_action_set_field_ipv6_nd_target( openflow_actions_ptr( r_actions ), ipv6_addr_to_in6_addr( ipv6_nd_target ) );
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_nd_sll( VALUE self, VALUE r_actions, VALUE ipv6_nd_sll ) {
+  append_action_set_field_ipv6_nd_sll( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( ipv6_nd_sll ) );
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_nd_tll( VALUE self, VALUE r_actions, VALUE ipv6_nd_tll ) {
+  append_action_set_field_ipv6_nd_tll( openflow_actions_ptr( r_actions ), mac_addr_to_cstr( ipv6_nd_tll ) );
+  return self;
+}
+
+
+static VALUE
+append_match_mpls_label( VALUE self, VALUE r_actions, VALUE mpls_label ) {
+  append_action_set_field_mpls_label( openflow_actions_ptr( r_actions ), NUM2UINT( mpls_label ) );
+  return self;
+}
+
+
+static VALUE
+append_match_mpls_tc( VALUE self, VALUE r_actions, VALUE mpls_tc ) {
+  append_action_set_field_mpls_tc( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( mpls_tc ) );
+  return self;
+}
+
+
+static VALUE
+append_match_mpls_bos( VALUE self, VALUE r_actions, VALUE mpls_bos ) {
+  append_action_set_field_mpls_bos( openflow_actions_ptr( r_actions ), ( const uint8_t ) NUM2UINT( mpls_bos ) );
+  return self;
+}
+
+
+static VALUE
+append_match_pbb_isid( VALUE self, VALUE r_actions, VALUE pbb_isid ) {
+  append_action_set_field_pbb_isid( openflow_actions_ptr( r_actions ), NUM2UINT( pbb_isid ) );
+  return self;
+}
+
+
+static VALUE
+append_match_tunnel_id( VALUE self, VALUE r_actions, VALUE tunnel_id ) {
+  append_action_set_field_tunnel_id( openflow_actions_ptr( r_actions ), rb_num2ull( tunnel_id ) );
+  return self;
+}
+
+
+static VALUE
+append_match_ipv6_exthdr( VALUE self, VALUE r_actions, VALUE ipv6_exthdr ) {
+  append_action_set_field_ipv6_exthdr( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( ipv6_exthdr ) );
+  return self;
+}
+
+
 void
 Init_match_set() {
   mMatchSet = rb_define_module_under( mTrema, "MatchSet" );
@@ -256,6 +367,20 @@ Init_match_set() {
   rb_define_module_function( mMatchSet, "append_match_arp_tpa", append_match_arp_tpa, 2 );
   rb_define_module_function( mMatchSet, "append_match_arp_sha", append_match_arp_sha, 2 );
   rb_define_module_function( mMatchSet, "append_match_arp_tha", append_match_arp_tha, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_src_addr", append_match_ipv6_src_addr, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_dst_addr", append_match_ipv6_dst_addr, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_flow_label", append_match_ipv6_flow_label, 2 );
+  rb_define_module_function( mMatchSet, "append_match_icmpv6_type", append_match_icmpv6_type, 2 );
+  rb_define_module_function( mMatchSet, "append_match_icmpv6_code", append_match_icmpv6_code, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_nd_target", append_match_ipv6_nd_target, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_nd_sll", append_match_ipv6_nd_sll, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_nd_tll", append_match_ipv6_nd_tll, 2 );
+  rb_define_module_function( mMatchSet, "append_match_mpls_label", append_match_mpls_label, 2 );
+  rb_define_module_function( mMatchSet, "append_match_mpls_tc", append_match_mpls_tc, 2 );
+  rb_define_module_function( mMatchSet, "append_match_mpls_bos", append_match_mpls_bos, 2 );
+  rb_define_module_function( mMatchSet, "append_match_pbb_isid", append_match_pbb_isid, 2 );
+  rb_define_module_function( mMatchSet, "append_match_tunnel_id", append_match_tunnel_id, 2 );
+  rb_define_module_function( mMatchSet, "append_match_ipv6_exthdr", append_match_ipv6_exthdr, 2 );
   rb_require( "trema/match-in-port" );
   rb_require( "trema/match-in-phy-port" );
   rb_require( "trema/match-metadata" );
@@ -282,6 +407,20 @@ Init_match_set() {
   rb_require( "trema/match-arp-tpa" );
   rb_require( "trema/match-arp-sha" );
   rb_require( "trema/match-arp-tha" );
+  rb_require( "trema/match-ipv6-src-addr" );
+  rb_require( "trema/match-ipv6-dst-addr" );
+  rb_require( "trema/match-ipv6-flow-label" );
+  rb_require( "trema/match-icmpv6-type" );
+  rb_require( "trema/match-icmpv6-code" );
+  rb_require( "trema/match-ipv6-nd-target" );
+  rb_require( "trema/match-ipv6-nd-sll" );
+  rb_require( "trema/match-ipv6-nd-tll" );
+  rb_require( "trema/match-mpls-label" );
+  rb_require( "trema/match-mpls-tc" );
+  rb_require( "trema/match-mpls-bos" );
+  rb_require( "trema/match-pbb-isid" );
+  rb_require( "trema/match-tunnel-id" );
+  rb_require( "trema/match-ipv6-exthdr" );
 }
 
 

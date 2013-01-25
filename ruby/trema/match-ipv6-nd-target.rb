@@ -16,16 +16,14 @@
 #
 
 
-require "trema/match-accessor"
+require "trema/match-ip-addr"
 
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match a neighbor target IPv6 address
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchIpv6NdTarget < MatchIpAddr
   end
 end
 

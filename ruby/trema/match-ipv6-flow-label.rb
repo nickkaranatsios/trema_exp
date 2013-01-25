@@ -21,11 +21,10 @@ require "trema/match-accessor"
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A field to match a 20-bit IPv6 flow label
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchIpv6FlowLabel < MatchAccessor
+    unsigned_int :ipv6_flow_label, :presence => true, :validate_with => "check_unsigned_int"
   end
 end
 

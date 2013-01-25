@@ -16,14 +16,14 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A match field to match a VLAN priority
   #
-  class MatchVlanPriority < AccessorBase
+  class MatchVlanPriority < MatchAccessor
     unsigned_char :vlan_priority, :presence => true, :validate_with => "check_unsigned_char"
   end
 end

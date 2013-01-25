@@ -16,14 +16,14 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A field to match an input physical port
   #
-  class MatchInPhyPort < AccessorBase
+  class MatchInPhyPort < MatchAccessor
     unsigned_int :in_phy_port, :presence => true, :validate_with => "check_unsigned_int"
   end
 end

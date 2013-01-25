@@ -17,14 +17,14 @@
 
 
 require "trema/mac"
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A base class for match classes source and destination MAC addresses. 
   #
-  class MatchEthAddr < AccessorBase
+  class MatchEthAddr < MatchAccessor
     eth_addr :mac_address, :presence => true  
   end
 end

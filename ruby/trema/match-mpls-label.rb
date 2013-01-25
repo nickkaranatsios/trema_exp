@@ -21,11 +21,12 @@ require "trema/match-accessor"
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match a Mulitprotocol Label Switching( MPLS ) label.
+  # For example a value of 0 refers to IPv4 Explicit NULL label. A label
+  # value is 20-bits.
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchMplsLabel < MatchAccessor
+    unsigned_int :mpls_label, :presence => true, :validate_with => "check_unsigned_int"
   end
 end
 

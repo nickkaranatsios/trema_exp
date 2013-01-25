@@ -21,11 +21,11 @@ require "trema/match-accessor"
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match an ICMPv6 type. For example a value of 1 signifies
+  # destination unreachable.
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchIcmpv6Type < MatchAccessor
+    unsigned_char :icmpv6_type, :presence => true, :validate_with => "check_unsigned_char"
   end
 end
 

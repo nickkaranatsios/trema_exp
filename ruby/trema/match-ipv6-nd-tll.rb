@@ -16,16 +16,14 @@
 #
 
 
-require "trema/match-accessor"
+require "trema/match-eth-addr"
 
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match an IPv6 neighbor target link-layer address
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchIpv6NdTll < MatchEthAddr
   end
 end
 

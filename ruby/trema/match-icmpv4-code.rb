@@ -16,7 +16,7 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
@@ -25,7 +25,7 @@ module Trema
   # a code field therefore this match field should be used in conjunction
   # with the MatchIcmpv4Type
   #
-  class MatchIcmpv4Code < AccessorBase
+  class MatchIcmpv4Code < MatchAccessor
     unsigned_char :icmpv4_code, :presence => true, :validate_with => "check_unsigned_char"
   end
 end

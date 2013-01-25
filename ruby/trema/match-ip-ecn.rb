@@ -16,14 +16,14 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
   #
   # A match field to match an IP ECN value. Applicable only to IPv4 packets.
   #
-  class MatchIpEcn < AccessorBase
+  class MatchIpEcn < MatchAccessor
     unsigned_char :ip_ecn, :presence => true, :validate_with => "check_unsigned_char"
   end
 end

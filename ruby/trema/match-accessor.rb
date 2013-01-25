@@ -16,16 +16,27 @@
 #
 
 
-require "trema/match-accessor"
+require "trema/accessor-base"
 
 
 module Trema
-  #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
-  #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchAccessor < AccessorBase
+    include MatchSet
+
+
+    def initialize params=nil
+      setter = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
+      public_send( setter[ 0 ], params )
+    end
+
+
+    def append_match actions
+      attributes = instance_variables
+      raise TypeError, "append_match accepts only a single argument" if attributes.length > 1
+      attr_value = instance_variable_get( attributes[ 0 ] )
+      method = "append_#{ self.class.name.demodulize.underscore }"
+      __send__ method, actions, attr_value
+    end
   end
 end
 

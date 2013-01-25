@@ -16,7 +16,7 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/match-accessor"
 
 
 module Trema
@@ -24,7 +24,7 @@ module Trema
   # A match field to match an ICMPv4 type. For example type 0 refers to echo
   # reply.
   #
-  class MatchIcmpv4Type < AccessorBase
+  class MatchIcmpv4Type < MatchAccessor
     unsigned_char :icmpv4_type, :presence => true, :validate_with => "check_unsigned_char"
   end
 end

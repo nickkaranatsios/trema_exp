@@ -21,11 +21,18 @@ require "trema/match-accessor"
 
 module Trema
   #
-  # A base class for all source and destination transport port subclasses
-  # (TCP/UDP/SCTP)
+  # A match field to match an MPLS bottom of stack bit(bos)
   #
-  class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+  class MatchMplsBos < MatchAccessor
+    unsigned_char :mpls_bos, :presence => true, :validate_with => "check_unsigned_char", :within => "check_mpls_bos_range"
+
+
+    def check_mpls_bos_range mpls_bos, name
+      range = 0..1
+      unless range.include? mpls_bos
+        raise ArgumentError, "#{ name } value must be >= #{ range.first } and <= #{ range.last }." 
+      end
+    end
   end
 end
 

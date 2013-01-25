@@ -21,8 +21,6 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class AccessorBase
-    include MatchSet
-
     PRIMITIVE_TYPES = {
       "char" => 8,
       "short" => 16,
@@ -39,11 +37,11 @@ module Trema
 
     class << self
       def inherited klass
-        PRIMITIVE_TYPES.keys.each do | type |
-          primitive_type type
-          define_method :"check_unsigned_#{ type }" do | number, name |
-            unless number.send( "unsigned_#{ PRIMITIVE_TYPES[ type ] }bit?" )
-              raise ArgumentError, "#{ name } must be an unsigned #{ TYPE_SIZE[ type ] }-bit integer."
+        PRIMITIVE_TYPES.keys.each do | each |
+          primitive_type each
+          define_method :"check_unsigned_#{ each }" do | number, name |
+            unless number.send( "unsigned_#{ PRIMITIVE_TYPES[ each ] }bit?" )
+              raise ArgumentError, "#{ name } must be an unsigned #{ PRIMITIVE_TYPES[ each ] }-bit integer."
             end
           end
         end
@@ -124,21 +122,6 @@ module Trema
         raise ArgumentError, "You need at least one attribute" if args.empty?
         raise ArgumentError, "Too many attributes specified" if args.length > 1
       end
-    end
-
-
-    def initialize params=nil
-      setter = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
-      public_send( setter[ 0 ], params )
-    end
-
-
-    def append_match actions
-      attributes = instance_variables
-      raise TypeError, "append_match accepts only a single argument" if attributes.length > 1
-      attr_value = instance_variable_get( attributes[ 0 ] )
-      method = "append_#{ self.class.name.demodulize.underscore }"
-      __send__ method, actions, attr_value
     end
   end
 end
