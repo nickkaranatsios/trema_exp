@@ -1,5 +1,30 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
+#class MyTest
+#  attr_accessor :a, :b, :c
+#  def initialize *params
+#    @a, @b, @c = *params
+#  end
+#  def accept_args a, b, c
+#    puts "#{a }, #{b}, #{c}"
+#  end
+#
+#  def accept_action
+#    params = []
+#    instance_variables.each do | each |
+#      params << instance_variable_get( each )
+#    end
+#    __send__ :accept_args, *params
+#  end
+#end
+#
+#t = MyTest.new( 1, 2, 3 )
+#puts t.inspect
+#t.accept_action
+#exit
+  
+
+
 require "trema"
 module Trema
   class Test < Controller
@@ -48,8 +73,16 @@ module Trema
       ]
       test_match_set ms
     end
+    def action_list
+      al = [
+        SendOutPort.new( :port_number => 1, :max_len => 2**9 )
+      ]
+      test_action_list al
+    end
   end
 end
 
 t = Trema::Test.new
+t.action_list
 t.match_set
+
