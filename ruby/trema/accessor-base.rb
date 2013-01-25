@@ -123,6 +123,12 @@ module Trema
         raise ArgumentError, "Too many attributes specified" if args.length > 1
       end
     end
+   
+
+    def initialize params=nil
+      setter = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
+      public_send( setter[ 0 ], params )
+    end
   end
 end
 

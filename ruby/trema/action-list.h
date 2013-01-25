@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,22 +16,20 @@
  */
 
 
-#include "controller.h"
-#include "match-set.h"
-#include "action-list.h"
+#ifndef ACTION_LIST_H
+#define ACTION_LIST_H
 
 
-VALUE mTrema;
+#include "ruby.h"
 
 
-void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
+extern VALUE mActionList;
 
-  Init_controller();
-  Init_match_set();
-  Init_action_list();
-}
+
+void Init_action_list( void );
+
+
+#endif // ACTION_LIST_H
 
 
 /*

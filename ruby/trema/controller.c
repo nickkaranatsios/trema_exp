@@ -471,13 +471,53 @@ printf("no.of actions added %d\n", actions->n_actions );
   }
   return self;
 }
+
+
+static VALUE
+controller_test_action_list( VALUE self, VALUE action_list ) {
+  openflow_actions *actions = create_actions();
+  VALUE cActions;
+
+
+  if ( action_list != Qnil ) {
+    switch ( TYPE( action_list ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( action_list );
+          int i;
+          
+          if ( RARRAY_LEN( action_list ) ) {
+            cActions = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
+          }
+          for ( i = 0; i < RARRAY_LEN( action_list ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "append_action" ) ) ) {
+              rb_funcall( each[ i ], rb_intern( "append_action" ), 1, cActions );
+            }
+          }
+          Data_Get_Struct( cActions, openflow_actions, actions );
+printf("no.of actions added %d\n", actions->n_actions );
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( rb_obj_class( action_list ), rb_intern( ":append_action" ) ) ) {
+          cActions = Data_Wrap_Struct( action_list, NULL, delete_actions, actions );
+          rb_funcall( action_list, rb_intern( "append_action" ), 1, cActions );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "action list argument must be an Array or an Action object" );
+    }
+  }
+  return self;
+}
+
+
 /********************************************************************************
  * Init Controller module.
  ********************************************************************************/
 
 void
 Init_controller() {
-  rb_require( "trema/send-out-port" );
   rb_require( "trema/group-action" );
   rb_require( "trema/copy-ttl-in" );
   rb_require( "trema/copy-ttl-out" );
@@ -492,6 +532,7 @@ Init_controller() {
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
   rb_define_method( cController, "test_match_set", controller_test_match_set, 1 );
+  rb_define_method( cController, "test_action_list", controller_test_action_list, 1 );
 
   rb_require( "trema/controller" );
 }

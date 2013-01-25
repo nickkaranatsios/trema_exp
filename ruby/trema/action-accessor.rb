@@ -20,16 +20,17 @@ require "trema/accessor-base"
 
 
 module Trema
-  class MatchAccessor < AccessorBase
-    include MatchSet
+  class ActionAccessor < AccessorBase
+    include ActionList
 
 
-    def append_match actions
-      attributes = instance_variables
-      raise TypeError, "append_match accepts only a single argument" if attributes.length > 1
-      attr_value = instance_variable_get( attributes[ 0 ] )
+    def append_action actions
+      params = []
+      instance_variables.each do | each |
+        params << instance_variable_get( each )
+      end
       method = "append_#{ self.class.name.demodulize.underscore }"
-      __send__ method, actions, attr_value
+      __send__ method, actions, *params
     end
   end
 end

@@ -16,16 +16,19 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
   #
   # An action to output a packet to a port.
   #
-  class SendOutPort < Action
+  class SendOutPort < ActionAccessor
     DEFAULT_MAX_LEN = 2 ** 16 - 1
+
+
+    unsigned_short :port_number, :presence => true, :validate_with => "check_unsigned_short"
+    unsigned_short :max_len, :validate_with => "check_unsigned_short"
 
 
     #
@@ -64,8 +67,7 @@ module Trema
           raise "Invalid option"
       end
 
-      validate_create :port_number, :presence => true, :validate_with => "check_unsigned_short", :value => port_option
-      validate_create :max_len, :validate_with => "check_unsigned_short", :value => max_len_option
+      @port_number, @max_len = port_option, max_len_option
       alias :port :port_number
     end
 

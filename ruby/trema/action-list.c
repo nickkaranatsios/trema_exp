@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper around libtrema.
- *
  * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,21 +16,35 @@
  */
 
 
-#include "controller.h"
-#include "match-set.h"
-#include "action-list.h"
+#include "trema.h"
+#include "ruby.h"
+#include "action-common.h"
 
 
-VALUE mTrema;
+extern VALUE mTrema;
+VALUE mActionList;
+
+
+static openflow_actions *
+openflow_actions_ptr( VALUE self ) {
+  openflow_actions *actions;
+  Data_Get_Struct( self, openflow_actions, actions );
+  return actions;
+}
+
+
+static VALUE
+append_output( VALUE self, VALUE r_actions, VALUE port_number, VALUE max_len ) {
+  append_action_output( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( port_number ), ( const uint16_t ) NUM2UINT( max_len ) );
+  return self;
+}
 
 
 void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-
-  Init_controller();
-  Init_match_set();
-  Init_action_list();
+Init_action_list() {
+  mActionList = rb_define_module_under( mTrema, "ActionList" );
+  rb_define_module_function( mActionList, "append_output", append_output, 3 );
+  rb_require( "trema/send-out-port" );
 }
 
 
