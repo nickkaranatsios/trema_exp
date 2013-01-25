@@ -43,7 +43,7 @@ append_output( VALUE self, VALUE r_actions, VALUE port_number, VALUE max_len ) {
 void
 Init_action_list() {
   mActionList = rb_define_module_under( mTrema, "ActionList" );
-  rb_define_module_function( mActionList, "append_output", append_output, 3 );
+  rb_define_module_function( mActionList, "append_send_out_port", append_output, 3 );
   rb_require( "trema/send-out-port" );
 }
 
