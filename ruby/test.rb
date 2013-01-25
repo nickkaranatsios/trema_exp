@@ -31,6 +31,20 @@ module Trema
         MatchArpTpa.new( "1.1.1.2" ),
         MatchArpSha.new( "11:22:33:44:55:67" ),
         MatchArpTha.new( "11:22:33:44:55:68" ),
+        MatchIpv6SrcAddr.new( "ffe1::1" ),
+        MatchIpv6DstAddr.new( "ffe2::2" ),
+        MatchIpv6FlowLabel.new( 10 ),
+        MatchIcmpv6Type.new( 1 ), # destination unreachable
+        MatchIcmpv6Code.new( 3 ), # address unreachable if as above type.
+        MatchIpv6NdTarget.new( "ffe3::3" ),
+        MatchIpv6NdSll.new( "11:22:33:44:55:69" ),
+        MatchIpv6NdTll.new( "11:22:33:44:55:70" ),
+        MatchMplsLabel.new( 0 ), # IPv4 Explicit NULL label
+        MatchMplsTc.new( 1 ), # TC refers to traffic class
+        MatchMplsBos.new( 1 ), # Bottom of stack a bit on/off.
+        MatchPbbIsid.new( 10 ), # Provider Backbone bridge i-sid ( service identifier ) 3 bytes
+        MatchTunnelId.new( rand(2**64) ), # Tunnel id applies to GRE packets with RFC2890 key extension
+        MatchIpv6Exthdr.new( rand( 2**16 ) ),
       ]
       test_match_set ms
     end
