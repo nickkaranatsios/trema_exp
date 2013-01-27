@@ -100,9 +100,9 @@ module Trema
               __send__ method, v, attr_name
             end
             if opts.has_key? :user_defined 
-              instance_variable_set( "@#{ attr_name }", eval( opts[ :user_defined ] ).new( v ) )
+              instance_variable_set "@#{ attr_name }", eval( opts[ :user_defined ] ).new( v )
             else
-               instance_variable_set( "@#{ attr_name }", v )
+              instance_variable_set "@#{ attr_name }", v
             end
           end
         end
@@ -125,9 +125,33 @@ module Trema
     end
    
 
-    def initialize params=nil
-      setter = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
-      public_send( setter[ 0 ], params )
+    def initialize options=nil
+      setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
+      case options
+        when Hash
+          setters.each do | each |
+            opt_key = each.to_s.sub( '=', '' ).to_sym
+            if options.has_key? opt_key
+              public_send each, options[ opt_key ]
+            end
+          end
+        when Integer, String
+          public_send setters[ 0 ], options
+        else
+          "Invalid option specified"
+      end
+      set_default setters
+    end
+
+
+    def set_default setters
+      setters.each do | each |
+        opt_key = each.to_s.sub( '=', '' ).to_sym
+        default_opt_key = ( 'DEFAULT_' + opt_key.to_s.upcase ).to_sym
+        if self.class.constants.include? default_opt_key
+          public_send each, self.class.const_get( default_opt_key )
+        end
+      end
     end
   end
 end

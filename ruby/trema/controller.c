@@ -254,7 +254,7 @@ append_action( openflow_actions *actions, VALUE action ) {
     append_action_group( actions, group_id );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::CopyTtlIn" ) ) == Qtrue ) {
-    append_action_copy_ttl_out( actions );
+    append_action_copy_ttl_in( actions );
   }
   else if ( rb_funcall( action, rb_intern( "is_a?" ), 1, rb_path2class( "Trema::CopyTtlOut" ) ) == Qtrue ) {
     append_action_copy_ttl_out( actions );
@@ -518,10 +518,6 @@ printf("no.of actions added %d\n", actions->n_actions );
 
 void
 Init_controller() {
-  rb_require( "trema/group-action" );
-  rb_require( "trema/copy-ttl-in" );
-  rb_require( "trema/copy-ttl-out" );
-  rb_require( "trema/set-mpls-ttl" );
   rb_require( "trema/app" );
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );

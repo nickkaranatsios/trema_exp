@@ -34,8 +34,27 @@ openflow_actions_ptr( VALUE self ) {
 
 
 static VALUE
-append_output( VALUE self, VALUE r_actions, VALUE port_number, VALUE max_len ) {
+append_output( VALUE self, VALUE r_actions, VALUE options ) {
+  VALUE port_number = rb_hash_aref( options, ID2SYM( rb_intern( "port_number" ) ) );
+  VALUE max_len = rb_hash_aref( options, ID2SYM( rb_intern( "max_len" ) ) );
+printf( "port(%u) max_len(%u)\n", NUM2UINT(port_number), NUM2UINT(max_len) );
   append_action_output( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( port_number ), ( const uint16_t ) NUM2UINT( max_len ) );
+  return self;
+}
+
+
+static VALUE
+append_group( VALUE self, VALUE r_actions, VALUE options ) {
+  VALUE group_id = rb_hash_aref( options, ID2SYM( rb_intern( "group_id" ) ) );
+  append_action_group( openflow_actions_ptr( r_actions ), NUM2UINT( group_id ) );
+  return self;
+}
+
+
+static VALUE
+append_copy_ttl_in( VALUE self, VALUE r_actions, VALUE options ) {
+  UNUSED( options );
+  append_action_copy_ttl_in( openflow_actions_ptr( r_actions ) );
   return self;
 }
 
@@ -43,8 +62,12 @@ append_output( VALUE self, VALUE r_actions, VALUE port_number, VALUE max_len ) {
 void
 Init_action_list() {
   mActionList = rb_define_module_under( mTrema, "ActionList" );
-  rb_define_module_function( mActionList, "append_send_out_port", append_output, 3 );
+  rb_define_module_function( mActionList, "append_send_out_port", append_output, 2 );
+  rb_define_module_function( mActionList, "append_group_action", append_group, 2 );
+  rb_define_module_function( mActionList, "append_copy_ttl_in", append_copy_ttl_in, 2 );
   rb_require( "trema/send-out-port" );
+  rb_require( "trema/group-action" );
+  rb_require( "trema/copy-ttl-in" );
 }
 
 

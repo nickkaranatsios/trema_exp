@@ -21,16 +21,20 @@ require "trema/accessor-base"
 
 module Trema
   class ActionAccessor < AccessorBase
-    include ActionList
+  include ActionList
 
 
+    #
+    # depending how the attributes are set the order can quaranteed therefore
+    # we create a hash of options to pass to append_xxx method
+    #
     def append_action actions
-      params = []
+      params = {}
       instance_variables.each do | each |
-        params << instance_variable_get( each )
+        params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
       end
       method = "append_#{ self.class.name.demodulize.underscore }"
-      __send__ method, actions, *params
+      __send__ method, actions, params
     end
   end
 end

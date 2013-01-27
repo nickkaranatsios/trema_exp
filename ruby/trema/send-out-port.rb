@@ -29,6 +29,7 @@ module Trema
 
     unsigned_short :port_number, :presence => true, :validate_with => "check_unsigned_short"
     unsigned_short :max_len, :validate_with => "check_unsigned_short"
+    alias :port :port_number
 
 
     #
@@ -55,21 +56,21 @@ module Trema
     # @raise [ArgumentError] if port_number is not an unsigned 16-bit integer.
     # @raise [ArgumentError] if max_len is not an unsigned 16-bit integer.
     #
-    def initialize options={}
-      case options
-        when Hash
-          port_option = options[ :port_number ] || options[ :port ]
-          max_len_option = options[ :max_len ] || DEFAULT_MAX_LEN
-        when Integer
-          port_option = options
-          max_len_option = DEFAULT_MAX_LEN
-        else
-          raise "Invalid option"
-      end
+#    def initialize options={}
+#      case options
+#        when Hash
+#          port_option = options[ :port_number ] || options[ :port ]
+#          max_len_option = options[ :max_len ] || DEFAULT_MAX_LEN
+#        when Integer
+#          port_option = options
+#          max_len_option = DEFAULT_MAX_LEN
+#        else
+#          raise "Invalid option"
+#      end
 
-      @port_number, @max_len = port_option, max_len_option
-      alias :port :port_number
-    end
+#      @port_number, @max_len = port_option, max_len_option
+#      @port_number = port_option
+#    end
 
 
     def to_s

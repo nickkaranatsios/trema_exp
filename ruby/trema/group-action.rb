@@ -16,8 +16,7 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
@@ -26,7 +25,7 @@ module Trema
   # entry instance. A group table entry contains the group type, counters and
   # action buckets that modify the flow pipeline processing.
   #
-  class GroupAction < Action
+  class GroupAction < ActionAccessor
     #
     # An action to execute the action buckets defined in the group table
     # referenced by this action group identifier. The user must ensure
@@ -41,10 +40,7 @@ module Trema
     # @raise [ArgumentError] if group_id is not specified.
     # @raise [ArgumentError] if group_id is not an unsigned 32-bit integer.
     #
-    def initialize group_id = nil
-      # @return [Fixnum] the value of attribute {#group_id}
-      validate_create :group_id, :presence => true, :validate_with => "check_unsigned_int", :value => group_id
-    end
+    unsigned_int :group_id, :presence => true, :validate_with => "check_unsigned_int"
   end
 end
 
