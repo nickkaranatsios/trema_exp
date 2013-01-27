@@ -22,7 +22,6 @@ $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) 
 #puts t.inspect
 #t.accept_action
 #exit
-  
 
 
 require "trema"
@@ -75,7 +74,9 @@ module Trema
     end
     def action_list
       al = [
-        SendOutPort.new( :port_number => 1, :max_len => 2**9 )
+        SendOutPort.new( :port_number => 2, :max_len => 2**7 ),
+        GroupAction.new( :group_id => 1 ),
+        CopyTtlIn.new,
       ]
       test_action_list al
     end
