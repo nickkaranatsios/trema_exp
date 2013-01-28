@@ -1,35 +1,11 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
-#class MyTest
-#  attr_accessor :a, :b, :c
-#  def initialize *params
-#    @a, @b, @c = *params
-#  end
-#  def accept_args a, b, c
-#    puts "#{a }, #{b}, #{c}"
-#  end
-#
-#  def accept_action
-#    params = []
-#    instance_variables.each do | each |
-#      params << instance_variable_get( each )
-#    end
-#    __send__ :accept_args, *params
-#  end
-#end
-#
-#t = MyTest.new( 1, 2, 3 )
-#puts t.inspect
-#t.accept_action
-#exit
-
-
 require "trema"
 module Trema
   class Test < Controller
     def match_set
       ms = [ 
-        MatchInPort.new( 1 ), 
+        MatchInPort.new( 2 ),
         MatchInPhyPort.new( 2 ), 
         MatchMetadata.new( 2**34 ),
         MatchEthDst.new( "11:22:33:44:55:66" ),
@@ -67,7 +43,7 @@ module Trema
         MatchMplsTc.new( 1 ), # TC refers to traffic class
         MatchMplsBos.new( 1 ), # Bottom of stack a bit on/off.
         MatchPbbIsid.new( 10 ), # Provider Backbone bridge i-sid ( service identifier ) 3 bytes
-        MatchTunnelId.new( rand(2**64) ), # Tunnel id applies to GRE packets with RFC2890 key extension
+        MatchTunnelId.new( rand( 2**64 ) ), # Tunnel id applies to GRE packets with RFC2890 key extension
         MatchIpv6Exthdr.new( rand( 2**16 ) ),
       ]
       test_match_set ms
@@ -77,6 +53,18 @@ module Trema
         SendOutPort.new( :port_number => 2, :max_len => 2**7 ),
         GroupAction.new( :group_id => 1 ),
         CopyTtlIn.new,
+        CopyTtlOut.new,
+        SetMplsTtl.new( 10 ),
+        DecMplsTtl.new,
+        PushVlan.new( 0x88a8 ),
+        PopVlan.new,
+        PushMpls.new( 0x8847 ),
+        PopMpls.new( 0x8848 ),
+        SetQueue.new( rand( 2**32 ) ),
+        SetIpTtl.new( rand( 2** 8 ) ),
+        PushPbb.new( rand( 2**16 ) ),
+        PopPbb.new,
+        ExperimenterAction.new( :experimenter => rand( 2 ** 32 ), :body => "abcdef".unpack( "C*" ) ),
       ]
       test_action_list al
     end
