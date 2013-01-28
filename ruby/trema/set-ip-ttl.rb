@@ -16,8 +16,7 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
@@ -25,7 +24,7 @@ module Trema
   # An action that replaces an existing IP TTL. This action ony applies to
   # IPv4 packets.
   #
-  class SetIpTtl < Action
+  class SetIpTtl < ActionAccessor
     #
     # An action that replaces an existing IP TTL value. The packet checksum
     # must be re-calculated.
@@ -39,15 +38,7 @@ module Trema
     # @raise [ArgumentError] if ip_ttl is not specified.
     # @raise [ArgumentError] if ip_ttl is not an unsigned 8-bit integer.
     #
-    def initialize ip_ttl
-      if ip_ttl.nil?
-        raise ArgumentError, "IP TTL is a mandatory option."
-      end
-      unless ip_ttl.unsigned_8bit?
-        raise ArgumentError, "IP TTL must be an unsigned 8-bit integer."
-      end
-      @ip_ttl = ip_ttl
-    end
+    unsigned_int8 :ip_ttl, :presence => true
   end
 end
 

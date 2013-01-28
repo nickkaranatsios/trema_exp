@@ -25,7 +25,7 @@ module Trema
   # The traffic class field is 3 bits.
   #
   class MatchMplsTc < MatchAccessor
-    unsigned_char :mpls_tc, :presence => true, :validate_with => "check_unsigned_char", :within => "check_mpls_tc_range"
+    unsigned_int8 :mpls_tc, :presence => true, :within => :check_mpls_tc_range
 
 
     def check_mpls_tc_range mpls_tc, name

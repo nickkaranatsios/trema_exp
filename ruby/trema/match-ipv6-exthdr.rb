@@ -25,7 +25,7 @@ module Trema
   # zero one or more extension headers
   #
   class MatchIpv6Exthdr < MatchAccessor
-    unsigned_short :ipv6_exthdr, :presence => true, :validate_with => "check_unsigned_short"
+    unsigned_int16 :ipv6_exthdr, :presence => true
   end
 end
 

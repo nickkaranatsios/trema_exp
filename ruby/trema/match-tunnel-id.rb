@@ -24,7 +24,7 @@ module Trema
   # A match field to match a tunnel id. This for example applies to GRE packets
   #
   class MatchTunnelId < MatchAccessor
-    unsigned_long :tunnel_id, :presence => true, :validate_with => "check_unsigned_long"
+    unsigned_int64 :tunnel_id, :presence => true
   end
 end
 

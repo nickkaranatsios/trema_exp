@@ -16,15 +16,26 @@
 #
 
 
-require "trema/match-accessor"
+require "trema/action-accessor"
 
 
 module Trema
-  #
-  # A match field to match a VLAN ID
-  #
-  class MatchVlanVid < MatchAccessor
-    unsigned_int16 :vlan_vid, :presence => true
+  class Mpls < ActionAccessor
+    #
+    # 0x8847 - Multiprotocol Label Switching
+    # 0x8848 - Multiprotocol Label Switching with Upstream-assigned Label
+    #
+    MPLS_ETHER_TAGS = [ 0x8847, 0x8848 ]
+
+
+    unsigned_int16 :ether_type, :presence => true, :within => :check_mpls_ether_type
+
+
+    def check_mpls_ether_type ether_type, name 
+      unless MPLS_ETHER_TAGS.include? ether_type
+        raise ArgumentError, "Invalid #{ name } specified." 
+      end
+    end
   end
 end
 

@@ -25,7 +25,7 @@ module Trema
   # identifier
   #
   class MatchPbbIsid < MatchAccessor
-    unsigned_int :pbb_isid, :presence => true, :validate_with => "check_unsigned_int"
+    unsigned_int32 :pbb_isid, :presence => true
   end
 end
 

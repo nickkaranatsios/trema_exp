@@ -24,7 +24,7 @@ module Trema
   # A match field to match any arbitrary 64-bit data
   #
   class MatchMetadata < MatchAccessor
-    unsigned_long :metadata, :presence => true, :validate_with => "check_unsigned_long"
+    unsigned_int64 :metadata, :presence => true
   end
 end
 

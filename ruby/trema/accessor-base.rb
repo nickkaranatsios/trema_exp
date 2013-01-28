@@ -21,27 +21,28 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class AccessorBase
-    PRIMITIVE_TYPES = {
-      "char" => 8,
-      "short" => 16,
-      "int" => 32,
-      "long" => 64
-    }
+    PRIMITIVE_SIZES = [
+      8,
+      16,
+      32,
+      64
+    ]
 
 
     USER_DEFINED_TYPES = {
       "ip_addr" => "IPAddr",
       "eth_addr" => "Trema::Mac",
+      "array" => "Array",
     }
 
 
     class << self
       def inherited klass
-        PRIMITIVE_TYPES.keys.each do | each |
+        PRIMITIVE_SIZES.each do | each |
           primitive_type each
-          define_method :"check_unsigned_#{ each }" do | number, name |
-            unless number.send( "unsigned_#{ PRIMITIVE_TYPES[ each ] }bit?" )
-              raise ArgumentError, "#{ name } must be an unsigned #{ PRIMITIVE_TYPES[ each ] }-bit integer."
+          define_method :"check_unsigned#{ each }" do | number, name |
+            unless number.send( "unsigned_#{ each }bit?" )
+              raise ArgumentError, "#{ name } must be an unsigned #{ each }-bit integer."
             end
           end
         end
@@ -56,12 +57,12 @@ module Trema
       ############################################################################
 
 
-      def primitive_type method
+      def primitive_type size_value
         self.class.class_eval do
-          define_method :"unsigned_#{ method }" do | *args |
+          define_method :"unsigned_int#{ size_value }" do | *args |
             opts = extract_options!( args )
             check_args args
-            opts.merge! :attributes => args[ 0 ]
+            opts.merge! :attributes => args[ 0 ], :validate_with => "check_unsigned#{ size_value }"
             define_accessor opts
           end
         end
@@ -82,6 +83,7 @@ module Trema
 
       def define_accessor opts
         attr_name = opts[ :attributes ]
+puts "attr_name = #{ attr_name }"
         self.class_eval do
           define_method attr_name do
             instance_variable_get "@#{ attr_name }"
@@ -127,6 +129,7 @@ module Trema
 
     def initialize options=nil
       setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
+puts setters.inspect
       case options
         when Hash
           setters.each do | each |
@@ -148,7 +151,7 @@ module Trema
       setters.each do | each |
         opt_key = each.to_s.sub( '=', '' ).to_sym
         default_opt_key = ( 'DEFAULT_' + opt_key.to_s.upcase ).to_sym
-        if self.class.constants.include? default_opt_key
+        if self.class.constants.include? default_opt_key and instance_variable_get( "@#{ opt_key }" ).nil?
           public_send each, self.class.const_get( default_opt_key )
         end
       end

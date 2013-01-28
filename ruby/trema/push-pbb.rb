@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require "trema/action-accessor"
 
 
 module Trema
@@ -28,17 +28,14 @@ module Trema
   # @example
   #   PushPbb.new
   #
-  class PushPbb < Action
+  class PushPbb < ActionAccessor
     #
     # The PPB ethertype is 0x88e7.
     #
-    PBB_ETHER_TAG = 0x88e7
+    DEFAULT_ETHER_TYPE = 0x88e7
 
 
-    def initialize
-      ether_type = PBB_ETHER_TAG
-      validate_create :ether_type, :value => ether_type 
-    end
+    unsigned_int16 :ether_type
   end
 end
 

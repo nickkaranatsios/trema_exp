@@ -40,7 +40,7 @@ module Trema
     # @raise [ArgumentError] if group_id is not specified.
     # @raise [ArgumentError] if group_id is not an unsigned 32-bit integer.
     #
-    unsigned_int :group_id, :presence => true, :validate_with => "check_unsigned_int"
+    unsigned_int32 :group_id, :presence => true
   end
 end
 

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require "trema/action-accessor"
 
 
 module Trema
@@ -24,10 +24,7 @@ module Trema
   # An action that decrements the MPLS TTL. This action only applies to packets
   # with an existing MPLS shim header.
   #
-  class DecMplsTtl < Action
-    def initialize
-      # Do nothing
-    end
+  class DecMplsTtl < ActionAccessor
   end
 end
 

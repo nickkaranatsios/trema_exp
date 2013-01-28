@@ -25,7 +25,7 @@ module Trema
   # destination unreachable.
   #
   class MatchIcmpv6Type < MatchAccessor
-    unsigned_char :icmpv6_type, :presence => true, :validate_with => "check_unsigned_char"
+    unsigned_int8 :icmpv6_type, :presence => true
   end
 end
 

@@ -24,7 +24,7 @@ module Trema
   # A match field to match an IP protocol value.
   #
   class MatchIpProto < MatchAccessor
-    unsigned_char :ip_proto, :presence => true, :validate_with => "check_unsigned_char"
+    unsigned_int8 :ip_proto, :presence => true
   end
 end
 

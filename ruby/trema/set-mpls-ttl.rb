@@ -16,15 +16,13 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
-  class SetMplsTtl < Action
+  class SetMplsTtl < ActionAccessor
     # @return [Fixnum] the value of attribute {#mpls_ttl}
-    attr_reader :mpls_ttl
-  
+    unsigned_int8 :mpls_ttl, :presence => true
     #
     # An action that replaces an existing MPLS TTL. This action applies to
     # packets with an existing MPLS shim header.
@@ -38,15 +36,6 @@ module Trema
     # @raise [ArgumentError] if mpls_ttl is not specified.
     # @raise [ArgumentError] if mpls_ttl is not an unsigned 8-bit integer.
     #
-    def initialize mpls_ttl
-      if mpls_ttl.nil?
-        raise ArgumentError, "MPLS TTL is a mandatory option"
-      end
-      unless mpls_ttl.unsigned_8bit?
-        raise ArgumentError, "MPLS TTL must be an unsigned 8-bit integer."
-      end
-      @mpls_ttl = mpls_ttl
-    end
   end
 end
 

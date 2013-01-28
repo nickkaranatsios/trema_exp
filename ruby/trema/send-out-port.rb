@@ -27,8 +27,8 @@ module Trema
     DEFAULT_MAX_LEN = 2 ** 16 - 1
 
 
-    unsigned_short :port_number, :presence => true, :validate_with => "check_unsigned_short"
-    unsigned_short :max_len, :validate_with => "check_unsigned_short"
+    unsigned_int16 :port_number, :presence => true
+    unsigned_int16 :max_len
     alias :port :port_number
 
 

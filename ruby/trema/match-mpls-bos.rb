@@ -24,7 +24,7 @@ module Trema
   # A match field to match an MPLS bottom of stack bit(bos)
   #
   class MatchMplsBos < MatchAccessor
-    unsigned_char :mpls_bos, :presence => true, :validate_with => "check_unsigned_char", :within => "check_mpls_bos_range"
+    unsigned_int8 :mpls_bos, :presence => true, :within => :check_mpls_bos_range
 
 
     def check_mpls_bos_range mpls_bos, name

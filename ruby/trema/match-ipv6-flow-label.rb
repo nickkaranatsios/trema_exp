@@ -24,7 +24,7 @@ module Trema
   # A field to match a 20-bit IPv6 flow label
   #
   class MatchIpv6FlowLabel < MatchAccessor
-    unsigned_int :ipv6_flow_label, :presence => true, :validate_with => "check_unsigned_int"
+    unsigned_int32 :ipv6_flow_label, :presence => true
   end
 end
 

@@ -26,7 +26,7 @@ module Trema
   # value is 20-bits.
   #
   class MatchMplsLabel < MatchAccessor
-    unsigned_int :mpls_label, :presence => true, :validate_with => "check_unsigned_int"
+    unsigned_int32 :mpls_label, :presence => true
   end
 end
 

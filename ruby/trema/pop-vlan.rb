@@ -16,17 +16,14 @@
 #
 
 
-require "trema/action"
+require "trema/action-accessor"
 
 
 module Trema
   #
   # An action that pops the outermost VLAN header from the packet.
   #
-  class PopVlan < Action
-    def initialize
-      # Do nothing.
-    end
+  class PopVlan < ActionAccessor
   end
 end
 

@@ -16,17 +16,14 @@
 #
 
 
-require "trema/action"
+require "trema/action-accessor"
 
 
 module Trema
   #
   # An action that pops the outermost PBB header from the packet.
   #
-  class PopPbb < Action
-    def initialize
-      # Do nothing.
-    end
+  class PopPbb < ActionAccessor
   end
 end
 

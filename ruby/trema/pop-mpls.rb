@@ -16,15 +16,21 @@
 #
 
 
-require "trema/match-accessor"
+require "trema/mpls"
 
 
 module Trema
   #
-  # A match field to match a VLAN ID
+  # An action that pops an MPLS shim header from the packet.
+  # Only ethernet type 0x8847(mpls) and 0x8848(mpls-ual) should be used.
   #
-  class MatchVlanVid < MatchAccessor
-    unsigned_int16 :vlan_vid, :presence => true
+  # @example
+  #   PopMpls.new( 0x8847 )
+  #
+  # @param [Integer] ethertype
+  #   the ethertype to set to.
+  #
+  class PopMpls < Mpls
   end
 end
 

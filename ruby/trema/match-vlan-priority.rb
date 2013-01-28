@@ -24,7 +24,7 @@ module Trema
   # A match field to match a VLAN priority
   #
   class MatchVlanPriority < MatchAccessor
-    unsigned_char :vlan_priority, :presence => true, :validate_with => "check_unsigned_char"
+    unsigned_int8 :vlan_priority, :presence => true
   end
 end
 

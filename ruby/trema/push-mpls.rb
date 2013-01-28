@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require "trema/mpls"
 
 
 module Trema
@@ -30,24 +30,7 @@ module Trema
   # @param [Integer] ethertype
   #   the ethertype to set to.
   #
-  class PushMpls < Action
-    #
-    # 0x8847 - Multiprotocol Label Switching
-    # 0x8848 - Multiprotocol Label Switching with Upstream-assigned Label
-    #
-    MPLS_ETHER_TAGS = [ 0x8847, 0x8848 ]
-
-
-    def initialize ether_type = nil
-      validate_create :ether_type, :presence => true, :validate_with => "check_unsigned_short", :within => "check_mpls_ether_type", :value => ether_type
-    end
-
-
-    def check_mpls_ether_type ether_type, name 
-      unless MPLS_ETHER_TAGS.include? ether_type
-        raise ArgumentError, "Invalid #{ name } specified." 
-      end
-    end
+  class PushMpls < Mpls
   end
 end
 

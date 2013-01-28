@@ -25,7 +25,7 @@ module Trema
   # A base class to match all IP(v4/v6) source and destination addresses
   #
   class MatchIpAddr < MatchAccessor
-    ip_addr :ip_addr, :presence => true, :validate_with => "check_ip_addr"
+    ip_addr :ip_addr, :presence => true, :validate_with => :check_ip_addr
 
 
     def check_ip_addr ip_addr, name

@@ -16,7 +16,7 @@
 #
 
 
-require "trema/action"
+require "trema/action-accessor"
 
 
 module Trema
@@ -30,7 +30,7 @@ module Trema
   # @param [Integer] ethertype
   #   the ethertype to set to.
   #
-  class PushVlan < Action
+  class PushVlan < ActionAccessor
     #
     # 0x8100 - Customer VLAN tag type (ctag)
     # 0x88a8 - Service VLAN tag identifier (stag)
@@ -38,13 +38,9 @@ module Trema
     VLAN_ETHER_TAGS = [ 0x8100, 0x88a8 ]
 
 
-    def initialize ether_type
-      validate_create :ether_type, :presence => true, :validate_with => "check_unsigned_short", :within => "check_vlan_ether_type", :value => ether_type
-      super ether_type
-    end
+    unsigned_int16 :ether_type, :presence => true, :within => :check_vlan_ether_type
 
-
-     def check_vlan_ether_type ether_type, name
+    def check_vlan_ether_type ether_type, name
       unless VLAN_ETHER_TAGS.include? ether_type
         raise ArgumentError, "Invalid #{ name } specified." 
       end

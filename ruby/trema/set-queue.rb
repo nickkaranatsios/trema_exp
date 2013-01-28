@@ -16,15 +16,14 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
   #
   # An action that sets the queue id for the packet.
   #
-  class SetQueue < Action
+  class SetQueue < ActionAccessor
     #
     # An action that sets the queue id for the packet.
     #
@@ -37,10 +36,8 @@ module Trema
     # @raise [ArgumentError] if queue_id is not specified.
     # @raise [ArgumentError] if queue_id is not an unsigned 32-bit integer.
     #
-    def initialize queue_id
-      # @return [Fixnum] the value of attribute {#queue_id}
-      validate_create :queue_id, :presence => true, :validate_with => "check_unsigned_int", :value => queue_id
-    end
+    # @return [Fixnum] the value of attribute {#queue_id}
+    unsigned_int32 :queue_id, :presence => true
   end
 end
 

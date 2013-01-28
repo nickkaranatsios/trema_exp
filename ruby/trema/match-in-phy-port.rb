@@ -24,7 +24,7 @@ module Trema
   # A field to match an input physical port
   #
   class MatchInPhyPort < MatchAccessor
-    unsigned_int :in_phy_port, :presence => true, :validate_with => "check_unsigned_int"
+    unsigned_int32 :in_phy_port, :presence => true
   end
 end
 

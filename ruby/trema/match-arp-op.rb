@@ -24,7 +24,7 @@ module Trema
   # A match field to match an ARP operation code. For example 1 for REQUEST.
   #
   class MatchArpOp < MatchAccessor
-    unsigned_short :arp_op, :presence => true, :validate_with => "check_unsigned_short"
+    unsigned_int16 :arp_op, :presence => true
   end
 end
 

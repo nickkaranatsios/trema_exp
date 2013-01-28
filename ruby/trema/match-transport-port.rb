@@ -25,7 +25,7 @@ module Trema
   # (TCP/UDP/SCTP)
   #
   class MatchTransportPort < MatchAccessor
-    unsigned_short :transport_port, :presence => true, :validate_with => "check_unsigned_short"
+    unsigned_int16 :transport_port, :presence => true
   end
 end
 

@@ -25,7 +25,7 @@ module Trema
   # within 0 to 63.
   #
   class MatchIpDscp < MatchAccessor
-    unsigned_char :ip_dscp, :presence => true, :validate_with => "check_unsigned_char", :within => "check_ip_dscp_range"
+    unsigned_int8 :ip_dscp, :presence => true, :within => :check_ip_dscp_range
 
 
     def check_ip_dscp_range ip_dscp, name

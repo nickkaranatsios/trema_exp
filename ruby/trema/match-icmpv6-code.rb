@@ -25,7 +25,7 @@ module Trema
   # information on the type and should be used together.
   #
   class MatchIcmpv6Code < MatchAccessor
-    unsigned_char :icmpv6_code, :presence => true, :validate_with => "check_unsigned_char"
+    unsigned_int8 :icmpv6_code, :presence => true
   end
 end
 

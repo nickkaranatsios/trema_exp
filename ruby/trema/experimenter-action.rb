@@ -16,24 +16,14 @@
 #
 
 
-require "trema/action"
-require "trema/monkey-patch/integer"
+require "trema/action-accessor"
 
 
 module Trema
   #
   # An action to set an experimenter action.
   #
-  class ExperimenterAction < Action
-    #
-    # @return [Array<Fixnum>] the value of attribute {#body} that represents
-    #   binary data as an array of bytes.
-    #
-    attr_reader :body
-    # @return [Integer] the value of attribute {#experimenter}
-    attr_reader :experimenter
-
-
+  class ExperimenterAction < ActionAccessor
     #
     # Creates an action to set an experimenter action.
     #
@@ -49,10 +39,14 @@ module Trema
     # @raise [ArgumentError] if experimeter is not an unsigned 32-bit Integer.
     # @raise [TypeError] if body is not an Array.
     #
-    def initialize experimenter, body = nil
-      validate_create :experimenter, :presence => true, :validate_with => "check_unsigned_int", :value =>experimenter
-      validate_create :body, :validate_with => "check_body", :value => body
-    end
+
+    #
+    # @return [Array<Fixnum>] the value of attribute {#body} that represents
+    #   binary data as an array of bytes.
+    #
+    # @return [Integer] the value of attribute {#experimenter}
+    unsigned_int32 :experimenter, :presence => true
+    array :body, :validate_with => :check_body
 
 
     def check_body body, name

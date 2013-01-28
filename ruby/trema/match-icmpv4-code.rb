@@ -26,7 +26,7 @@ module Trema
   # with the MatchIcmpv4Type
   #
   class MatchIcmpv4Code < MatchAccessor
-    unsigned_char :icmpv4_code, :presence => true, :validate_with => "check_unsigned_char"
+    unsigned_int8 :icmpv4_code, :presence => true
   end
 end
 
