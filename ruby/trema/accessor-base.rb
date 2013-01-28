@@ -16,6 +16,8 @@
 #
 
 
+
+
 module Trema
   #
   # A base class for defining user defined like accessors.
@@ -32,11 +34,16 @@ module Trema
     USER_DEFINED_TYPES = {
       "ip_addr" => "IPAddr",
       "eth_addr" => "Trema::Mac",
-      "array" => "Array",
+      "array" => "Array"
     }
 
 
     class << self
+      def required_attributes
+        @@required_attributes ||= []
+      end
+
+
       def inherited klass
         PRIMITIVE_SIZES.each do | each |
           primitive_type each
@@ -64,6 +71,7 @@ module Trema
             check_args args
             opts.merge! :attributes => args[ 0 ], :validate_with => "check_unsigned#{ size_value }"
             define_accessor opts
+            required_attributes << args[ 0 ] if opts.has_key? :presence
           end
         end
       end
@@ -76,6 +84,7 @@ module Trema
             check_args args
             opts.merge! :attributes => args[ 0 ], :user_defined => vcls
             define_accessor opts
+            required_attributes << args[ 0 ] if opts.has_key? :presence
           end
         end
       end
@@ -83,7 +92,6 @@ module Trema
 
       def define_accessor opts
         attr_name = opts[ :attributes ]
-puts "attr_name = #{ attr_name }"
         self.class_eval do
           define_method attr_name do
             instance_variable_get "@#{ attr_name }"
@@ -130,6 +138,8 @@ puts "attr_name = #{ attr_name }"
     def initialize options=nil
       setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
 puts setters.inspect
+puts self.class.required_attributes
+exit
       case options
         when Hash
           setters.each do | each |
