@@ -87,6 +87,7 @@ Rake::Builder.new do | builder |
 end
 
 
+#desc "build cmockery library"
 #task "vendor:cmockery" => Trema.libcmockery_a
 #file Trema.libcmockery_a do
 #  sh "tar -xzf #{ Trema.vendor_cmockery }.tar.gz -C #{ Trema.vendor }"
@@ -95,6 +96,7 @@ end
 #    sh "make install"
 #  end
 #end
+#Rake::Task[ "vendor:cmockery" ].invoke
  
   
 Rake::Builder.new do | builder |
