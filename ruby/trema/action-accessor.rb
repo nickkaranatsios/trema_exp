@@ -21,7 +21,7 @@ require "trema/accessor-base"
 
 module Trema
   class ActionAccessor < AccessorBase
-  include ActionList
+    include ActionList
 
 
     #

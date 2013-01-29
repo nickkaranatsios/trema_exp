@@ -48,7 +48,6 @@ static VALUE
 append_output( VALUE self, VALUE r_actions, VALUE options ) {
   VALUE port_number = rb_hash_aref( options, sym_port_number );
   VALUE max_len = rb_hash_aref( options, sym_max_len );
-printf( "port(%u) max_len(%u)\n", NUM2UINT(port_number), NUM2UINT(max_len) );
   append_action_output( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( port_number ), ( const uint16_t ) NUM2UINT( max_len ) );
   return self;
 }
@@ -145,7 +144,6 @@ append_set_ip_ttl( VALUE self, VALUE r_actions, VALUE options ) {
 static VALUE
 append_push_pbb( VALUE self, VALUE r_actions, VALUE options ) {
   VALUE ether_type = rb_hash_aref( options, sym_ether_type );
-printf( "push_pbb_ether_type %u\n", NUM2UINT( ether_type ) );
   append_action_push_pbb( openflow_actions_ptr( r_actions ), ( const uint16_t ) NUM2UINT( ether_type ) );
   return self;
 }
@@ -170,16 +168,13 @@ append_experimenter_action( VALUE self, VALUE r_actions, VALUE options ) {
     buffer *body = alloc_buffer_with_length( length );
     void *p = append_back_buffer( body, length );
     for ( int i = 0; i < length; i++ ) {
-printf( "body 0x%x\n", ( uint8_t) FIX2INT( RARRAY_PTR( rbody )[ i ] ) );
       ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
     }
-printf( "experimenter(%u) \n", NUM2UINT( experimenter ) );
     append_action_experimenter( openflow_actions_ptr( r_actions ), NUM2UINT( experimenter ), body );
     free_buffer( body );
     
   }
   else {
-printf( "experimenter(%u)\n", NUM2UINT( experimenter ) );
     append_action_experimenter( openflow_actions_ptr( r_actions ), NUM2UINT( experimenter ), NULL );
   }
   return self;

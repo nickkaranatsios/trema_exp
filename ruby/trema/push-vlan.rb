@@ -40,6 +40,7 @@ module Trema
 
     unsigned_int16 :ether_type, :presence => true, :within => :check_vlan_ether_type
 
+
     def check_vlan_ether_type ether_type, name
       unless VLAN_ETHER_TAGS.include? ether_type
         raise ArgumentError, "Invalid #{ name } specified." 

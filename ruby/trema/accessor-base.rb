@@ -23,14 +23,6 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class AccessorBase
-    PRIMITIVE_SIZES = [
-      8,
-      16,
-      32,
-      64
-    ]
-
-
     USER_DEFINED_TYPES = {
       "ip_addr" => "IPAddr",
       "eth_addr" => "Trema::Mac",
@@ -38,14 +30,17 @@ module Trema
     }
 
 
+    attr_accessor :required_attributes
+
+
     class << self
       def required_attributes
-        @@required_attributes ||= []
+        @required_attributes ||= []
       end
 
 
       def inherited klass
-        PRIMITIVE_SIZES.each do | each |
+        primitive_sizes.each do | each |
           primitive_type each
           define_method :"check_unsigned#{ each }" do | number, name |
             unless number.send( "unsigned_#{ each }bit?" )
@@ -64,6 +59,11 @@ module Trema
       ############################################################################
 
 
+      def primitive_sizes
+        ( 8..64 ).step( 8 ).select{ | i | i.to_s( 2 ).count( '1' ) == 1 }
+      end
+
+
       def primitive_type size_value
         self.class.class_eval do
           define_method :"unsigned_int#{ size_value }" do | *args |
@@ -71,7 +71,7 @@ module Trema
             check_args args
             opts.merge! :attributes => args[ 0 ], :validate_with => "check_unsigned#{ size_value }"
             define_accessor opts
-            required_attributes << args[ 0 ] if opts.has_key? :presence
+            self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
         end
       end
@@ -84,7 +84,7 @@ module Trema
             check_args args
             opts.merge! :attributes => args[ 0 ], :user_defined => vcls
             define_accessor opts
-            required_attributes << args[ 0 ] if opts.has_key? :presence
+            self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
         end
       end
@@ -136,22 +136,32 @@ module Trema
    
 
     def initialize options=nil
-      setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].*=$/ }
-puts setters.inspect
-puts self.class.required_attributes
-exit
+      setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].+=$/ }.delete_if{ | i | i.to_s =~ /required_attributes=/ }
+      required_attributes = self.class.required_attributes
+      if required_attributes.empty?
+        required_attributes = self.class.superclass.required_attributes
+      end
+
       case options
         when Hash
           setters.each do | each |
             opt_key = each.to_s.sub( '=', '' ).to_sym
             if options.has_key? opt_key
               public_send each, options[ opt_key ]
+            else
+              raise ArgumentError, "Required option #{ opt_key } is missing for #{ self.class.name }" if required_attributes.include? opt_key
             end
           end
         when Integer, String
-          public_send setters[ 0 ], options
+          unless setters.empty?
+            public_send setters[ 0 ], options
+          else
+            raise ArgumentError, "#{ self.class.name } accepts no options"
+          end
         else
-          "Invalid option specified"
+          unless required_attributes.empty?
+            raise ArgumentError, "Required option #{ required_attributes.first } missing for #{ self.class.name }"
+          end
       end
       set_default setters
     end
