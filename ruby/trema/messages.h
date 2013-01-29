@@ -16,20 +16,14 @@
  */
 
 
-#ifndef ACTION_LIST_H
-#define ACTION_LIST_H
+#ifndef MESSAGES_H
+#define MESSAGES_H
 
 
-#include "ruby.h"
+void Init_messages( void );
 
 
-extern VALUE mActionList;
-
-
-void Init_action_list( void );
-
-
-#endif // ACTION_LIST_H
+#endif // MESSAGES_H
 
 
 /*

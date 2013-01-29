@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008-2013 NEC Corporation
+ * Ruby wrapper class of OpenFlow hello message.
+ *
+ * Copyright (C) 2008-2013 NEC Corporation 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,24 +18,24 @@
  */
 
 
-#ifndef ACTION_LIST_H
-#define ACTION_LIST_H
+#ifndef HELLO_H
+#define HELLO_H
 
 
 #include "ruby.h"
 
 
-extern VALUE mActionList;
+extern VALUE cHello;
 
 
-void Init_action_list( void );
+void Init_hello( void );
 
 
-#endif // ACTION_LIST_H
+#endif // HELLO_H
 
 
 /*
- * Local variables:
+ * Local variables: 
  * c-basic-offset: 2
  * indent-tabs-mode: nil
  * End:

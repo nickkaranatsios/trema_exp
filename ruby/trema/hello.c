@@ -16,20 +16,27 @@
  */
 
 
-#ifndef ACTION_LIST_H
-#define ACTION_LIST_H
-
-
+#include "trema.h"
 #include "ruby.h"
 
 
-extern VALUE mActionList;
+extern VALUE mTrema;
+VALUE cHello;
 
 
-void Init_action_list( void );
+static VALUE
+hello_alloc( VALUE klass ) {
+  const uint32_t ofp_versions[] = { OFP_VERSION };
+  buffer *hello = create_hello_elem_versionbitmap( 0, ofp_versions, sizeof( ofp_versions ) / sizeof( ofp_versions[ 0 ] ) );
+  return Data_Wrap_Struct( klass, NULL, free_buffer, hello );
+}
 
 
-#endif // ACTION_LIST_H
+void
+Init_hello() {
+  cHello = rb_define_class_under( mTrema, "Hello", rb_cObject );
+  rb_define_alloc_func( cHello, hello_alloc );
+}
 
 
 /*

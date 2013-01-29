@@ -16,20 +16,15 @@
  */
 
 
-#ifndef ACTION_LIST_H
-#define ACTION_LIST_H
-
-
+#include "trema.h"
 #include "ruby.h"
+#include "hello.h"
 
 
-extern VALUE mActionList;
-
-
-void Init_action_list( void );
-
-
-#endif // ACTION_LIST_H
+void
+Init_messages() {
+  Init_hello();
+}
 
 
 /*
