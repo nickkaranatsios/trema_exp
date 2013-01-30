@@ -72,6 +72,9 @@ module Trema
       ml = [
         Messages::Hello.new( :transaction_id => 123, :version => [ 0x4 ] ),
         Messages::EchoRequest.new( :transaction_id => 123, :user_data => "abcdefgh".unpack( "C" ) ),
+        Messages::FeaturesRequest.new( :transaction_id => 123 ),
+        Messages::GetConfigRequest.new( :transaction_id => 123 ),
+        Messages::SetConfig.new( :transaction_id => 123, :flags => Messages::OFPC_FRAG_NORMAL, :miss_send_len => Messages::OFPCML_NO_BUFFER ),
       ]
       send_message 0x1, ml
     end
