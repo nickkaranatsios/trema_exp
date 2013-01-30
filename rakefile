@@ -59,7 +59,10 @@ Rake::Builder.new do | builder |
   builder.target_prerequisites = [ 
     "#{ File.expand_path 'objects/lib/libtrema.a' }"
   ]
-  builder.source_search_paths = [ 'ruby/trema' ]
+  builder.source_search_paths = [ 
+    'ruby/trema',
+    'ruby/trema/messages',
+  ]
   builder.installable_headers = [ 'src/lib' ]
   ruby_includes = [ 
     RbConfig::CONFIG[ 'rubyhdrdir' ] + '/' + RbConfig::CONFIG[ 'arch' ],
