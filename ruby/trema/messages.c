@@ -101,11 +101,7 @@ Init_messages() {
   rb_define_const( mMessages, "OFPCML_MAX", INT2NUM( OFPCML_MAX ) );
   rb_define_const( mMessages, "OFPCML_NO_BUFFER", INT2NUM( OFPCML_NO_BUFFER ) );
 
-  rb_require( "trema/messages/hello" );
-  rb_require( "trema/messages/echo-request" );
-  rb_require( "trema/messages/features-request" );
-  rb_require( "trema/messages/get-config-request" );
-  rb_require( "trema/messages/set-config" );
+  rb_require( "trema/messages" );
 }
 
 
