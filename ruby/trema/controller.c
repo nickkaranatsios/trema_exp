@@ -52,10 +52,32 @@ handle_timer_event( void *self ) {
  *     the message to be sent.
  */
 static VALUE
-controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
-  buffer *buf;
-  Data_Get_Struct( message, buffer, buf );
-  send_openflow_message( NUM2ULL( datapath_id ), buf );
+controller_send_message( VALUE self, VALUE datapath_id, VALUE messages ) {
+  VALUE id_pack_msg = rb_intern( "pack_msg" );
+
+  if ( messages != Qnil ) {
+    switch ( TYPE( messages ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( messages );
+          int i;
+          
+          for ( i = 0; i < RARRAY_LEN( messages ); i++ ) {
+            if ( rb_respond_to( each[ i ], id_pack_msg ) ) {
+              rb_funcall( each[ i ], id_pack_msg, 1, datapath_id );
+            }
+          }
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( rb_obj_class( messages ), id_pack_msg ) ) {
+          rb_funcall( messages, id_pack_msg, 1, datapath_id );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "messages argument must be an Array or a message object" );
+    }
+  }
   return self;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Ruby wrapper class of OpenFlow hello message.
+ * Ruby wrapper class of OpenFlow echo request message.
  *
  * Copyright (C) 2008-2013 NEC Corporation 
  *
@@ -18,20 +18,17 @@
  */
 
 
-#ifndef HELLO_H
-#define HELLO_H
+#ifndef ECHO_REQUEST_H
+#define ECHO_REQUEST_H
 
 
 #include "ruby.h"
 
 
-extern VALUE cHello;
+buffer *pack_echo_request( VALUE self, VALUE options );
 
 
-void Init_hello( void );
-
-
-#endif // HELLO_H
+#endif // ECHO_REQUEST_H
 
 
 /*

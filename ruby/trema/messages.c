@@ -18,12 +18,53 @@
 
 #include "trema.h"
 #include "ruby.h"
-#include "hello.h"
+#include "messages/hello.h"
+#include "messages/echo-request.h"
+
+
+extern VALUE mTrema;
+VALUE mMessages;
+
+
+static uint64_t
+datapath_id( VALUE options ) {
+  VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
+  VALUE dpid_ruby = rb_hash_aref( options, sym_datapath_id );
+  return NUM2ULL( dpid_ruby );
+}
+
+
+static void
+send_msg( uint64_t datapath_id, buffer *msg ) {
+  UNUSED( datapath_id );
+  UNUSED( msg );
+//  send_openflow_message( datapath_id, msg );
+}
+
+
+static VALUE
+pack_hello_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_hello( self, options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_echo_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_echo_request( self, options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
 
 
 void
 Init_messages() {
-  Init_hello();
+  mMessages = rb_define_module_under( mTrema, "Messages" );
+  rb_define_module_function( mMessages, "pack_hello_msg", pack_hello_msg, 1 );
+  rb_define_module_function( mMessages, "pack_echo_request_msg", pack_echo_request_msg, 1 );
+  rb_require( "trema/messages/hello" );
+  rb_require( "trema/messages/echo-request" );
 }
 
 

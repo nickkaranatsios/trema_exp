@@ -68,10 +68,18 @@ module Trema
       ]
       test_action_list al
     end
+    def message_list
+      ml = [
+        Messages::Hello.new( :transaction_id => 123, :version => [ 0x4 ] ),
+        Messages::EchoRequest.new( :transaction_id => 123, :user_data => "abcdefgh".unpack( "C" ) ),
+      ]
+      send_message 0x1, ml
+    end
   end
 end
 
 t = Trema::Test.new
 t.action_list
 t.match_set
+t.message_list
 

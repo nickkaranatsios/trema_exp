@@ -20,6 +20,9 @@
 #define MESSAGES_H
 
 
+extern VALUE mMessages;
+
+
 void Init_messages( void );
 
 

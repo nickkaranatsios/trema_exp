@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008-2013 NEC Corporation
+ * Ruby wrapper class of OpenFlow hello message.
+ *
+ * Copyright (C) 2008-2013 NEC Corporation 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,31 +18,21 @@
  */
 
 
-#include "trema.h"
+#ifndef HELLO_H
+#define HELLO_H
+
+
 #include "ruby.h"
 
 
-extern VALUE mTrema;
-VALUE cHello;
+buffer *pack_hello( VALUE self, VALUE options );
 
 
-static VALUE
-hello_alloc( VALUE klass ) {
-  const uint32_t ofp_versions[] = { OFP_VERSION };
-  buffer *hello = create_hello_elem_versionbitmap( 0, ofp_versions, sizeof( ofp_versions ) / sizeof( ofp_versions[ 0 ] ) );
-  return Data_Wrap_Struct( klass, NULL, free_buffer, hello );
-}
-
-
-void
-Init_hello() {
-  cHello = rb_define_class_under( mTrema, "Hello", rb_cObject );
-  rb_define_alloc_func( cHello, hello_alloc );
-}
+#endif // HELLO_H
 
 
 /*
- * Local variables:
+ * Local variables: 
  * c-basic-offset: 2
  * indent-tabs-mode: nil
  * End:
