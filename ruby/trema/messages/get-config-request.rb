@@ -21,14 +21,8 @@ require "trema/message-accessor"
 
 module Trema
   module Messages
-    class Hello < MessageAccessor 
+    class GetConfigRequest < MessageAccessor 
       unsigned_int32 :transaction_id
-      array :version, :validate_with => :check_version
-
-
-      def check_version version, name
-        raise ArgumentError, "Invalid #{ name } specified" if version.length > 1 
-      end
     end
   end
 end

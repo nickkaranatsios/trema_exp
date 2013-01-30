@@ -16,17 +16,17 @@
  */
 
 
-#ifndef HELLO_H
-#define HELLO_H
+#ifndef SET_CONFIG_H
+#define SET_CONFIG_H
 
 
 #include "ruby.h"
 
 
-buffer *pack_hello( VALUE options );
+buffer *pack_set_config( VALUE options );
 
 
-#endif // HELLO_H
+#endif // SET_CONFIG_H
 
 
 /*

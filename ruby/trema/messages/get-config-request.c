@@ -21,33 +21,14 @@
 
 
 buffer *
-pack_echo_request( VALUE options ) {
+pack_get_config_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
   VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
   if ( xid_r != Qnil ) {
     xid = NUM2UINT( xid_r );
   }
 
-  VALUE body_r = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
-  buffer *body = NULL;
-  if ( body_r != Qnil ) {
-    if ( TYPE( body_r ) == T_ARRAY ) {
-        uint16_t buffer_len = ( uint16_t ) RARRAY_LEN( body_r );
-
-        body = alloc_buffer_with_length( ( size_t ) RARRAY_LEN( body_r ) );
-        append_back_buffer( body, buffer_len );
-        uint8_t *buf = body->data;
-
-        
-        for ( int i = 0; i < buffer_len && i < RARRAY_LEN( body_r ); i++ ) {
-          buf[ i ]= ( uint8_t ) FIX2INT( RARRAY_PTR( body_r )[ i ] );
-        }
-    }
-    else {
-      rb_raise( rb_eTypeError, "echo request user data must be specified as an array of bytes" );
-    }
-  }
-  return create_echo_request( xid, body );
+  return create_get_config_request( xid );
 }
 
 

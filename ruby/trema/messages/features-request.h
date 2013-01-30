@@ -16,17 +16,17 @@
  */
 
 
-#ifndef HELLO_H
-#define HELLO_H
+#ifndef FEATURES_REQUEST_H
+#define FEATURES_REQUEST_H
 
 
 #include "ruby.h"
 
 
-buffer *pack_hello( VALUE options );
+buffer *pack_features_request( VALUE options );
 
 
-#endif // HELLO_H
+#endif // FEATURES_REQUEST_H
 
 
 /*

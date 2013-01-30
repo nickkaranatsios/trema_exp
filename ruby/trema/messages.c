@@ -20,6 +20,9 @@
 #include "ruby.h"
 #include "messages/hello.h"
 #include "messages/echo-request.h"
+#include "messages/features-request.h"
+#include "messages/get-config-request.h"
+#include "messages/set-config.h"
 
 
 extern VALUE mTrema;
@@ -44,7 +47,7 @@ send_msg( uint64_t datapath_id, buffer *msg ) {
 
 static VALUE
 pack_hello_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_hello( self, options );
+  buffer *msg = pack_hello( options );
   send_msg( datapath_id( options ), msg );
   return self;
 }
@@ -52,7 +55,31 @@ pack_hello_msg( VALUE self, VALUE options ) {
 
 static VALUE
 pack_echo_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_echo_request( self, options );
+  buffer *msg = pack_echo_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_features_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_features_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_get_config_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_get_config_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_set_config_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_set_config( options );
   send_msg( datapath_id( options ), msg );
   return self;
 }
@@ -63,8 +90,22 @@ Init_messages() {
   mMessages = rb_define_module_under( mTrema, "Messages" );
   rb_define_module_function( mMessages, "pack_hello_msg", pack_hello_msg, 1 );
   rb_define_module_function( mMessages, "pack_echo_request_msg", pack_echo_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_features_request_msg", pack_features_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_get_config_request_msg", pack_get_config_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_set_config_msg", pack_set_config_msg, 1 );
+
+  rb_define_const( mMessages, "OFPC_FRAG_NORMAL", INT2NUM( OFPC_FRAG_NORMAL ) );
+  rb_define_const( mMessages, "OFPC_FRAG_DROP", INT2NUM( OFPC_FRAG_DROP ) );
+  rb_define_const( mMessages, "OFPC_FRAG_REASM", INT2NUM( OFPC_FRAG_REASM ) );
+  rb_define_const( mMessages, "OFPC_FRAG_MASK", INT2NUM( OFPC_FRAG_MASK ) );
+  rb_define_const( mMessages, "OFPCML_MAX", INT2NUM( OFPCML_MAX ) );
+  rb_define_const( mMessages, "OFPCML_NO_BUFFER", INT2NUM( OFPCML_NO_BUFFER ) );
+
   rb_require( "trema/messages/hello" );
   rb_require( "trema/messages/echo-request" );
+  rb_require( "trema/messages/features-request" );
+  rb_require( "trema/messages/get-config-request" );
+  rb_require( "trema/messages/set-config" );
 }
 
 

@@ -21,33 +21,28 @@
 
 
 buffer *
-pack_echo_request( VALUE options ) {
+pack_set_config( VALUE options ) {
+  VALUE sym_transaction_id = ID2SYM( rb_intern( "transaction_id" ) );
+  VALUE sym_flags = ID2SYM( rb_intern( "flags" ) );
+  VALUE sym_miss_send_len = ID2SYM( rb_intern( "miss_send_len" ) );
+
   uint32_t xid = get_transaction_id();
-  VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  VALUE xid_r = rb_hash_aref( options, sym_transaction_id );
   if ( xid_r != Qnil ) {
     xid = NUM2UINT( xid_r );
   }
 
-  VALUE body_r = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
-  buffer *body = NULL;
-  if ( body_r != Qnil ) {
-    if ( TYPE( body_r ) == T_ARRAY ) {
-        uint16_t buffer_len = ( uint16_t ) RARRAY_LEN( body_r );
-
-        body = alloc_buffer_with_length( ( size_t ) RARRAY_LEN( body_r ) );
-        append_back_buffer( body, buffer_len );
-        uint8_t *buf = body->data;
-
-        
-        for ( int i = 0; i < buffer_len && i < RARRAY_LEN( body_r ); i++ ) {
-          buf[ i ]= ( uint8_t ) FIX2INT( RARRAY_PTR( body_r )[ i ] );
-        }
-    }
-    else {
-      rb_raise( rb_eTypeError, "echo request user data must be specified as an array of bytes" );
-    }
+  uint16_t flags = 0;
+  VALUE flags_r = rb_hash_aref( options, sym_flags );
+  if ( flags_r != Qnil ) {
+    flags = ( uint16_t ) NUM2UINT( flags_r );
   }
-  return create_echo_request( xid, body );
+ 
+  uint16_t miss_send_len;
+  VALUE miss_send_len_r = rb_hash_aref( options, sym_miss_send_len );
+  miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_r );
+
+  return create_set_config( xid, flags, miss_send_len );
 }
 
 

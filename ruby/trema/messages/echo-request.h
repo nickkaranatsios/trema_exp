@@ -1,6 +1,4 @@
 /*
- * Ruby wrapper class of OpenFlow echo request message.
- *
  * Copyright (C) 2008-2013 NEC Corporation 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +23,7 @@
 #include "ruby.h"
 
 
-buffer *pack_echo_request( VALUE self, VALUE options );
+buffer *pack_echo_request( VALUE options );
 
 
 #endif // ECHO_REQUEST_H

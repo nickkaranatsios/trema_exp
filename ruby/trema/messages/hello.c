@@ -21,11 +21,8 @@
 
 
 buffer *
-pack_hello( VALUE self, VALUE options ) {
-  UNUSED( self );
-  
+pack_hello( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  Check_Type( options, T_HASH );
   VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
   if ( xid_r != Qnil ) {
     xid = NUM2UINT( xid_r );
