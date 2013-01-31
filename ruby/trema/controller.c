@@ -23,6 +23,7 @@
 #include "openflow.h"
 #include "ruby.h"
 #include "trema.h"
+#include "action-common.h"
 
 
 extern VALUE mTrema;
@@ -497,40 +498,47 @@ printf("no.of actions added %d\n", actions->n_actions );
 
 static VALUE
 controller_test_action_list( VALUE self, VALUE action_list ) {
-  openflow_actions *actions = create_actions();
-  VALUE cActions;
+  append_actions( action_list );
+  return self;
+}
 
 
-  if ( action_list != Qnil ) {
-    switch ( TYPE( action_list ) ) {
+static VALUE
+controller_test_instruction_list( VALUE self, VALUE instruction_list ) {
+  openflow_instructions *instructions = create_instructions();
+  VALUE cInstruction;
+
+  if ( instruction_list != Qnil ) {
+    switch ( TYPE( instruction_list ) ) {
       case T_ARRAY:
         {
-          VALUE *each = RARRAY_PTR( action_list );
+          VALUE *each = RARRAY_PTR( instruction_list );
           int i;
-          
-          if ( RARRAY_LEN( action_list ) ) {
-            cActions = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
+
+          if ( RARRAY_LEN( instruction_list ) ) {
+            cInstruction = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_instructions, instructions );
           }
-          for ( i = 0; i < RARRAY_LEN( action_list ); i++ ) {
-            if ( rb_respond_to( each[ i ], rb_intern( "append_action" ) ) ) {
-              rb_funcall( each[ i ], rb_intern( "append_action" ), 1, cActions );
+          for ( i = 0; i < RARRAY_LEN( instruction_list ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "append_instruction" ) ) ) {
+              rb_funcall( each[ i ], rb_intern( "append_instruction" ), 1, cInstruction );
             }
           }
-          Data_Get_Struct( cActions, openflow_actions, actions );
-printf("no.of actions added %d\n", actions->n_actions );
+          Data_Get_Struct( cInstruction, openflow_instructions, instructions );
+printf("no.of instructions added %d\n", instructions->n_instructions );
         }
         break;
       case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( action_list ), rb_intern( ":append_action" ) ) ) {
-          cActions = Data_Wrap_Struct( action_list, NULL, delete_actions, actions );
-          rb_funcall( action_list, rb_intern( "append_action" ), 1, cActions );
+        if ( rb_respond_to( rb_obj_class( instruction_list ), rb_intern( "append_instruction" ) ) ) {
+          cInstruction = Data_Wrap_Struct( instruction_list, NULL, delete_instructions, instructions );
+          rb_funcall( instruction_list, rb_intern( "append_instruction" ), 1, cInstruction );
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "action list argument must be an Array or an Action object" );
+        rb_raise( rb_eTypeError, "instruction list argument must be either an Array or an Instruction object" );
     }
   }
   return self;
+     
 }
 
 
@@ -551,6 +559,7 @@ Init_controller() {
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
   rb_define_method( cController, "test_match_set", controller_test_match_set, 1 );
   rb_define_method( cController, "test_action_list", controller_test_action_list, 1 );
+  rb_define_method( cController, "test_instruction_list", controller_test_instruction_list, 1 );
 
   rb_require( "trema/controller" );
 }

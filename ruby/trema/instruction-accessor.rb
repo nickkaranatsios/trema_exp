@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,15 +16,25 @@
 #
 
 
-require "trema/action-accessor"
+require "trema/accessor-base"
 
 
 module Trema
-  #
-  # An action that decrements the MPLS TTL. This action only applies to packets
-  # with an existing MPLS shim header.
-  #
-  class DecMplsTtl < ActionAccessor
+  class InstructionAccessor < AccessorBase
+    include InstructionList
+
+
+    #
+    # appends its instruction into a list of instructions
+    #
+    def append_instruction instructions
+      params = {}
+      instance_variables.each do | each |
+        params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
+      end
+      method = "append_#{ self.class.name.demodulize.underscore }_instruction"
+      __send__ method, instructions, params
+    end
   end
 end
 

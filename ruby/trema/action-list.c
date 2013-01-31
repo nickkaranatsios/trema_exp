@@ -158,30 +158,27 @@ append_pop_pbb( VALUE self, VALUE r_actions, VALUE options ) {
 
   
 static VALUE
-append_experimenter_action( VALUE self, VALUE r_actions, VALUE options ) {
+append_experimenter( VALUE self, VALUE r_actions, VALUE options ) {
   VALUE experimenter = rb_hash_aref( options, sym_experimenter );
-  VALUE rbody = Qnil;
+  VALUE body_r = Qnil;
 
-  if ( ( rbody = rb_hash_aref( options, sym_body ) ) != Qnil ) {
-    Check_Type( rbody, T_ARRAY );
-    uint16_t length = ( uint16_t ) RARRAY_LEN( rbody );
+  if ( ( body_r = rb_hash_aref( options, sym_body ) ) != Qnil ) {
+    Check_Type( body_r, T_ARRAY );
+    uint16_t length = ( uint16_t ) RARRAY_LEN( body_r );
     buffer *body = alloc_buffer_with_length( length );
     void *p = append_back_buffer( body, length );
     for ( int i = 0; i < length; i++ ) {
-      ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( rbody )[ i ] );
+      ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( body_r )[ i ] );
     }
     append_action_experimenter( openflow_actions_ptr( r_actions ), NUM2UINT( experimenter ), body );
     free_buffer( body );
-    
   }
   else {
     append_action_experimenter( openflow_actions_ptr( r_actions ), NUM2UINT( experimenter ), NULL );
   }
   return self;
 }
-  
-  
-  
+
 
 void
 Init_action_list() {
@@ -211,22 +208,8 @@ Init_action_list() {
   rb_define_module_function( mActionList, "append_set_ip_ttl", append_set_ip_ttl, 2 );
   rb_define_module_function( mActionList, "append_push_pbb", append_push_pbb, 2 );
   rb_define_module_function( mActionList, "append_pop_pbb", append_pop_pbb, 2 );
-  rb_define_module_function( mActionList, "append_experimenter_action", append_experimenter_action, 2 );
-  rb_require( "trema/send-out-port" );
-  rb_require( "trema/group-action" );
-  rb_require( "trema/copy-ttl-in" );
-  rb_require( "trema/copy-ttl-out" );
-  rb_require( "trema/set-mpls-ttl" );
-  rb_require( "trema/dec-mpls-ttl" );
-  rb_require( "trema/push-vlan" );
-  rb_require( "trema/pop-vlan" );
-  rb_require( "trema/push-mpls" );
-  rb_require( "trema/pop-mpls" );
-  rb_require( "trema/set-queue" );
-  rb_require( "trema/set-ip-ttl" );
-  rb_require( "trema/push-pbb" );
-  rb_require( "trema/pop-pbb" );
-  rb_require( "trema/experimenter-action" );
+  rb_define_module_function( mActionList, "append_experimenter", append_experimenter, 2 );
+  rb_require( "trema/action-list" );
 }
 
 

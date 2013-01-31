@@ -28,6 +28,9 @@ module Trema
 
 
       def check_flags flags, name
+        unless Messages.config_flags.include? flags
+          raise ArgumentError, "#{ name } must be >= #{ Messages.config_flags.first } and <= #{ Messages.config_flags.last }"
+        end
       end
     end
   end

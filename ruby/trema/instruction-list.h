@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,19 +16,20 @@
  */
 
 
-#ifndef ACTION_COMMON_H
-#define ACTION_COMMON_H
+#ifndef INSTRUCTION_LIST_H
+#define INSTRUCTION_LIST_H
 
 
-#include <stdint.h>
+#include "ruby.h"
 
 
-uint32_t nw_addr_to_i( VALUE nw_addr );
-uint8_t *dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr );
-openflow_actions *append_actions( VALUE action_list );
+extern VALUE mInstructionList;
 
 
-#endif // ACTION_COMMON_H
+void Init_instruction_list( void );
+
+
+#endif // INSTRUCTION_LIST_H
 
 
 /*

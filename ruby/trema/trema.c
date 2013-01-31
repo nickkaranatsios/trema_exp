@@ -21,7 +21,9 @@
 #include "controller.h"
 #include "match-set.h"
 #include "action-list.h"
+#include "instruction-list.h"
 #include "messages.h"
+
 
 
 VALUE mTrema;
@@ -34,6 +36,7 @@ Init_trema() {
   Init_controller();
   Init_match_set();
   Init_action_list();
+  Init_instruction_list();
   Init_messages();
 }
 

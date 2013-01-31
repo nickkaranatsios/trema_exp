@@ -17,6 +17,7 @@
 
 
 #include <stdint.h>
+#include "trema.h"
 #include "ruby.h"
 
 
@@ -35,6 +36,45 @@ dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr ) {
     ret_dl_addr[ i ] = ( uint8_t ) ( NUM2INT( RARRAY_PTR( mac_arr )[ i ] ) );
   }
   return ret_dl_addr;
+}
+
+
+openflow_actions *
+append_actions( VALUE action_list ) {
+  openflow_actions *actions = create_actions();
+  VALUE cAction;
+
+  if ( action_list != Qnil ) {
+    switch ( TYPE( action_list ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( action_list );
+          int i;
+          
+          if ( RARRAY_LEN( action_list ) ) {
+            cAction = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
+          }
+          for ( i = 0; i < RARRAY_LEN( action_list ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "append_action" ) ) ) {
+              rb_funcall( each[ i ], rb_intern( "append_action" ), 1, cAction );
+            }
+          }
+          Data_Get_Struct( cAction, openflow_actions, actions );
+printf("no.of actions added %d\n", actions->n_actions );
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( rb_obj_class( action_list ), rb_intern( "append_action" ) ) ) {
+          cAction = Data_Wrap_Struct( action_list, NULL, delete_actions, actions );
+          rb_funcall( action_list, rb_intern( "append_action" ), 1, cAction );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "action list argument must be either an Array or an Action object" );
+        break;
+    }
+  }
+  return actions;
 }
 
 

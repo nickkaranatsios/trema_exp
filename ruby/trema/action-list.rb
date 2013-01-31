@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,16 +16,21 @@
 #
 
 
-require "trema/action-accessor"
-
-
-module Trema
-  #
-  # An action that pops the outermost VLAN header from the packet.
-  #
-  class PopVlan < ActionAccessor
-  end
-end
+require "trema/action-list/send-out-port"
+require "trema/action-list/group-action"
+require "trema/action-list/copy-ttl-in"
+require "trema/action-list/copy-ttl-out"
+require "trema/action-list/set-mpls-ttl"
+require "trema/action-list/dec-mpls-ttl"
+require "trema/action-list/push-vlan"
+require "trema/action-list/pop-vlan"
+require "trema/action-list/push-mpls"
+require "trema/action-list/pop-mpls"
+require "trema/action-list/set-queue"
+require "trema/action-list/set-ip-ttl"
+require "trema/action-list/push-pbb"
+require "trema/action-list/pop-pbb"
+require "trema/action-list/experimenter"
 
 
 ### Local variables:

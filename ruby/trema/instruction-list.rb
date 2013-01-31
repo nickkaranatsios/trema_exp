@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,21 +16,13 @@
 #
 
 
-require "trema/action-accessor"
-
-
-module Trema
-  #
-  # Copy TTL outwards.
-  #
-  class CopyTtlOut < ActionAccessor
-    #
-    # Creates an action that copies the TTL from next-to-outermost to outermost
-    # header with TTL. The copy applies to IP-to-IP, MPLS-to-MPLS and
-    # IP-to-MPLS packets.
-    #
-  end
-end
+require "trema/instruction-list/goto-table"
+require "trema/instruction-list/write-metadata"
+require "trema/instruction-list/write-actions"
+require "trema/instruction-list/apply-actions"
+require "trema/instruction-list/clear-actions"
+require "trema/instruction-list/meter"
+require "trema/instruction-list/experimenter"
 
 
 ### Local variables:

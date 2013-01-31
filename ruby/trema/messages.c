@@ -29,6 +29,12 @@ extern VALUE mTrema;
 VALUE mMessages;
 
 
+static VALUE
+get_config_flags( VALUE self ) {
+  return rb_iv_get( self, "@config_flags" );
+}
+
+
 static uint64_t
 datapath_id( VALUE options ) {
   VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
@@ -85,9 +91,12 @@ pack_set_config_msg( VALUE self, VALUE options ) {
 }
 
 
+
+
 void
 Init_messages() {
   mMessages = rb_define_module_under( mTrema, "Messages" );
+  rb_define_module_function( mMessages, "config_flags", get_config_flags, 0 );
   rb_define_module_function( mMessages, "pack_hello_msg", pack_hello_msg, 1 );
   rb_define_module_function( mMessages, "pack_echo_request_msg", pack_echo_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_features_request_msg", pack_features_request_msg, 1 );
@@ -98,6 +107,10 @@ Init_messages() {
   rb_define_const( mMessages, "OFPC_FRAG_DROP", INT2NUM( OFPC_FRAG_DROP ) );
   rb_define_const( mMessages, "OFPC_FRAG_REASM", INT2NUM( OFPC_FRAG_REASM ) );
   rb_define_const( mMessages, "OFPC_FRAG_MASK", INT2NUM( OFPC_FRAG_MASK ) );
+
+  VALUE config_flags = rb_range_new( INT2NUM( OFPC_FRAG_NORMAL ), INT2NUM( OFPC_FRAG_MASK ), false );
+  rb_iv_set( mMessages, "@config_flags", config_flags );
+
   rb_define_const( mMessages, "OFPCML_MAX", INT2NUM( OFPCML_MAX ) );
   rb_define_const( mMessages, "OFPCML_NO_BUFFER", INT2NUM( OFPCML_NO_BUFFER ) );
 

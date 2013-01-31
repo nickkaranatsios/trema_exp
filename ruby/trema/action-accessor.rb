@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -25,8 +25,7 @@ module Trema
 
 
     #
-    # depending how the attributes are set the order can quaranteed therefore
-    # we create a hash of options to pass to append_xxx method
+    # appends its action into a list of actions
     #
     def append_action actions
       params = {}

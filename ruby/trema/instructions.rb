@@ -1,7 +1,0 @@
-require "instructions/goto-table"
-require "instructions/write-metadata"
-require "instructions/write-actions"
-require "instructions/apply-actions"
-require "instructions/clear-actions"
-require "instructions/meter"
-require "instructions/experimenter"
