@@ -49,24 +49,7 @@ module Trema
       test_match_set ms
     end
     def action_list
-      al = [
-        SendOutPort.new( :port_number => 2, :max_len => 2**7 ),
-        GroupAction.new( :group_id => 1 ),
-        CopyTtlIn.new,
-        CopyTtlOut.new,
-        SetMplsTtl.new( 10 ),
-        DecMplsTtl.new,
-        PushVlan.new( 0x88a8 ),
-        PopVlan.new,
-        PushMpls.new( 0x8847 ),
-        PopMpls.new( 0x8848 ),
-        SetQueue.new( rand( 2**32 ) ),
-        SetIpTtl.new( rand( 2** 8 ) ),
-        PushPbb.new( rand( 2**16 ) ),
-        PopPbb.new,
-        ExperimenterAction.new( :experimenter => rand( 2 ** 32 ), :body => "abcdef".unpack( "C*" ) ),
-      ]
-      test_action_list al
+      test_action_list build_action_list
     end
     def message_list
       ml = [
@@ -78,6 +61,39 @@ module Trema
       ]
       send_message 0x1, ml
     end
+    def instruction_list
+      il = [
+        InstructionList::GotoTable.new( :table_id => 2 ),
+        InstructionList::WriteMetadata.new( :metadata => rand( 2**64 ), :metadata_mask => rand( 2**64 ) ),
+        InstructionList::WriteActions.new( :actions => build_action_list ),
+        InstructionList::ApplyActions.new( :actions => build_action_list ),
+        InstructionList::ClearActions.new,
+        InstructionList::Meter.new( rand( 2**32 ) ),
+        InstructionList::Experimenter.new( :experimenter => rand( 2 ** 32 ), :user_data => rand( 36**10 ).to_s( 36 ).unpack( "C" ) ),
+      ]
+      test_instruction_list il
+    end
+
+
+    def build_action_list
+      [
+        ActionList::SendOutPort.new( :port_number => 2, :max_len => 2**7 ),
+        ActionList::GroupAction.new( :group_id => 1 ),
+        ActionList::CopyTtlIn.new,
+        ActionList::CopyTtlOut.new,
+        ActionList::SetMplsTtl.new( 10 ),
+        ActionList::DecMplsTtl.new,
+        ActionList::PushVlan.new( 0x88a8 ),
+        ActionList::PopVlan.new,
+        ActionList::PushMpls.new( 0x8847 ),
+        ActionList::PopMpls.new( 0x8848 ),
+        ActionList::SetQueue.new( rand( 2**32 ) ),
+        ActionList::SetIpTtl.new( rand( 2** 8 ) ),
+        ActionList::PushPbb.new( rand( 2**16 ) ),
+        ActionList::PopPbb.new,
+        ActionList::Experimenter.new( :experimenter => rand( 2 ** 32 ), :body => "abcdef".unpack( "C*" ) ),
+      ]
+    end
   end
 end
 
@@ -85,4 +101,5 @@ t = Trema::Test.new
 t.action_list
 t.match_set
 t.message_list
+t.instruction_list
 
