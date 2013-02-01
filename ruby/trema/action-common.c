@@ -39,6 +39,13 @@ dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr ) {
 }
 
 
+uint8_t *
+mac_addr_to_cstr( VALUE mac_addr ) {
+  uint8_t dl_addr[ OFP_ETH_ALEN ];
+  return dl_addr_to_a( mac_addr, dl_addr );
+}
+
+
 openflow_actions *
 append_actions( VALUE action_list ) {
   openflow_actions *actions = create_actions();

@@ -458,7 +458,7 @@ controller_start_trema( VALUE self ) {
 
 
 static VALUE
-controller_test_match_set( VALUE self, VALUE match_set ) {
+controller_test_action_set( VALUE self, VALUE match_set ) {
   openflow_actions *actions = create_actions();
   VALUE cActions;
 
@@ -474,8 +474,8 @@ controller_test_match_set( VALUE self, VALUE match_set ) {
             cActions = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
           }
           for ( i = 0; i < RARRAY_LEN( match_set ); i++ ) {
-            if ( rb_respond_to( each[ i ], rb_intern( "append_match" ) ) ) {
-              rb_funcall( each[ i ], rb_intern( "append_match" ), 1, cActions );
+            if ( rb_respond_to( each[ i ], rb_intern( "append_action_set" ) ) ) {
+              rb_funcall( each[ i ], rb_intern( "append_action_set" ), 1, cActions );
             }
           }
           Data_Get_Struct( cActions, openflow_actions, actions );
@@ -483,13 +483,13 @@ printf("no.of actions added %d\n", actions->n_actions );
         }
         break;
       case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( match_set ), rb_intern( ":append_match" ) ) ) {
+        if ( rb_respond_to( rb_obj_class( match_set ), rb_intern( "append_action_set" ) ) ) {
           cActions = Data_Wrap_Struct( match_set, NULL, delete_actions, actions );
-          rb_funcall( match_set, rb_intern( "append_match" ), 1, cActions );
+          rb_funcall( match_set, rb_intern( "append_action_set" ), 1, cActions );
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "match field argument must be an Array or an MatchXXX object" );
+        rb_raise( rb_eTypeError, "action set field argument must be an Array or a FlexibleAction object" );
     }
   }
   return self;
@@ -557,7 +557,7 @@ Init_controller() {
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
-  rb_define_method( cController, "test_match_set", controller_test_match_set, 1 );
+  rb_define_method( cController, "test_action_set", controller_test_action_set, 1 );
   rb_define_method( cController, "test_action_list", controller_test_action_list, 1 );
   rb_define_method( cController, "test_instruction_list", controller_test_instruction_list, 1 );
 
