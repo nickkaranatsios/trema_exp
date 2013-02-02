@@ -26,7 +26,8 @@
 uint32_t nw_addr_to_i( VALUE nw_addr );
 uint8_t *dl_addr_to_a( VALUE dl_addr, uint8_t *ret_dl_addr );
 uint8_t *mac_addr_to_cstr( VALUE mac_addr );
-openflow_actions *append_actions( VALUE action_list );
+openflow_actions *pack_basic_action( VALUE action );
+oxm_matches *pack_flexible_action( VALUE action );
 
 
 #endif // ACTION_COMMON_H

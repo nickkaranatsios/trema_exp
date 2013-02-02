@@ -46,10 +46,10 @@ module Trema
         Actions::TunnelId.new( rand( 2**64 ) ), # Tunnel id applies to GRE packets with RFC2890 key extension
         Actions::Ipv6Exthdr.new( rand( 2**16 ) ),
       ]
-      test_action_set ms
+      test_flexible_action [ Actions::VlanVid.new( rand( 2**12 ) ) ]
     end
     def basic_actions
-      test_action_list build_basic_actions
+      test_basic_action build_basic_actions
     end
     def message_list
       ml = [

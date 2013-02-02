@@ -24,23 +24,13 @@ module Trema
     include Actions
 
 
-    def append_action_set actions
-      attributes = instance_variables
-      method_name = __method__
-      raise TypeError, "#{ method_name } accepts only a single argument" if attributes.length != 1
-      attr_value = instance_variable_get( attributes[ 0 ] )
-      method = "#{ method_name }_#{ self.class.name.demodulize.underscore }"
-      __send__ method, actions, attr_value
-    end
-
-
-    def append_match match
-      attributes = instance_variables
-      method_name = __method__
-      raise TypeError, "#{ method_name } accepts only a single argument" if attributes.length != 1
-      attr_value = instance_variable_get( attributes[ 0 ] )
-      method = "#{ method_name }_#{ self.class.name.demodulize.underscore }"
-      __send__ method, actions, attr_value
+    def pack_match oxm_match
+      params = {}
+      instance_variables.each do | each |
+        params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
+      end
+      method = "pack_#{ self.class.name.demodulize.underscore }"
+      __send__ method, oxm_match, params
     end
   end
 end

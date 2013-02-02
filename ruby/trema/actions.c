@@ -194,21 +194,21 @@ Init_actions() {
   sym_body = ID2SYM( rb_intern( "body" ) );
 
 
-  rb_define_module_function( mActions, "append_send_out_port", append_output, 2 );
-  rb_define_module_function( mActions, "append_group_action", append_group, 2 );
-  rb_define_module_function( mActions, "append_copy_ttl_in", append_copy_ttl_in, 2 );
-  rb_define_module_function( mActions, "append_copy_ttl_out", append_copy_ttl_out, 2 );
-  rb_define_module_function( mActions, "append_set_mpls_ttl", append_set_mpls_ttl, 2 );
-  rb_define_module_function( mActions, "append_dec_mpls_ttl", append_dec_mpls_ttl, 2 );
-  rb_define_module_function( mActions, "append_push_vlan", append_push_vlan, 2 );
-  rb_define_module_function( mActions, "append_pop_vlan", append_pop_vlan, 2 );
-  rb_define_module_function( mActions, "append_push_mpls", append_push_mpls, 2 );
-  rb_define_module_function( mActions, "append_pop_mpls", append_pop_mpls, 2 );
-  rb_define_module_function( mActions, "append_set_queue", append_set_queue, 2 );
-  rb_define_module_function( mActions, "append_set_ip_ttl", append_set_ip_ttl, 2 );
-  rb_define_module_function( mActions, "append_push_pbb", append_push_pbb, 2 );
-  rb_define_module_function( mActions, "append_pop_pbb", append_pop_pbb, 2 );
-  rb_define_module_function( mActions, "append_experimenter", append_experimenter, 2 );
+  rb_define_module_function( mActions, "pack_send_out_port", append_output, 2 );
+  rb_define_module_function( mActions, "pack_group_action", append_group, 2 );
+  rb_define_module_function( mActions, "pack_copy_ttl_in", append_copy_ttl_in, 2 );
+  rb_define_module_function( mActions, "pack_copy_ttl_out", append_copy_ttl_out, 2 );
+  rb_define_module_function( mActions, "pack_set_mpls_ttl", append_set_mpls_ttl, 2 );
+  rb_define_module_function( mActions, "pack_dec_mpls_ttl", append_dec_mpls_ttl, 2 );
+  rb_define_module_function( mActions, "pack_push_vlan", append_push_vlan, 2 );
+  rb_define_module_function( mActions, "pack_pop_vlan", append_pop_vlan, 2 );
+  rb_define_module_function( mActions, "pack_push_mpls", append_push_mpls, 2 );
+  rb_define_module_function( mActions, "pack_pop_mpls", append_pop_mpls, 2 );
+  rb_define_module_function( mActions, "pack_set_queue", append_set_queue, 2 );
+  rb_define_module_function( mActions, "pack_set_ip_ttl", append_set_ip_ttl, 2 );
+  rb_define_module_function( mActions, "pack_push_pbb", append_push_pbb, 2 );
+  rb_define_module_function( mActions, "pack_pop_pbb", append_pop_pbb, 2 );
+  rb_define_module_function( mActions, "pack_experimenter", append_experimenter, 2 );
   rb_require( "trema/actions" );
 }
 

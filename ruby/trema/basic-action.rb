@@ -22,32 +22,36 @@ require "trema/accessor-base"
 module Trema
   class BasicAction < AccessorBase
     include Actions
-
-
     #
     # appends its action into a list of actions
     #
-    def append_action action
+    def pack_action action
       params = {}
       instance_variables.each do | each |
         params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
       end
-      if self.instance_of? Actions::SetField
-        return append_set_field action, params
+      if instance_of? Actions::SetField
+        return pack_field action, params
       end
-      method = "append_#{ self.class.name.demodulize.underscore }"
+      method = "pack_#{ self.class.name.demodulize.underscore }"
       __send__ method, action, params
     end
 
 
-    def append_set_field set_field, params
+    private
+
+
+    def pack_field set_field, params
       options = {}
       params.each do | k, v |
-        v.each.instance_variables.each do | attr |
-          options[ attr.to_s.sub( '@', '' ).to_sym ] = v.each.instance_variable_get( attr )
+        v.each do | action |
+          action.instance_variables.each do | attr |
+            options[ attr.to_s.sub( '@', '' ).to_sym ] = action.instance_variable_get( attr )
+          end
+          method = "pack_#{ action.class.name.demodulize.underscore }"
+         action.__send__ method, set_field, options
         end
       end
-puts options.inspect
     end
   end
 end

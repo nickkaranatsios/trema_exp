@@ -47,41 +47,74 @@ mac_addr_to_cstr( VALUE mac_addr ) {
 
 
 openflow_actions *
-append_actions( VALUE action_list ) {
+pack_basic_action( VALUE action ) {
   openflow_actions *actions = create_actions();
-  VALUE cAction;
+  VALUE cAction = Qnil;
 
-  if ( action_list != Qnil ) {
-    switch ( TYPE( action_list ) ) {
+  if ( action != Qnil ) {
+    switch ( TYPE( action ) ) {
       case T_ARRAY:
         {
-          VALUE *each = RARRAY_PTR( action_list );
-          int i;
-          
-          if ( RARRAY_LEN( action_list ) ) {
-            cAction = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_actions, actions );
-          }
-          for ( i = 0; i < RARRAY_LEN( action_list ); i++ ) {
-            if ( rb_respond_to( each[ i ], rb_intern( "append_action" ) ) ) {
-              rb_funcall( each[ i ], rb_intern( "append_action" ), 1, cAction );
+          VALUE *each = RARRAY_PTR( action );
+
+          for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "pack_action" ) ) ) {
+              cAction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, actions );
+              rb_funcall( each[ i ], rb_intern( "pack_action" ), 1, cAction );
             }
           }
-          Data_Get_Struct( cAction, openflow_actions, actions );
-printf("no.of actions added %d\n", actions->n_actions );
         }
         break;
       case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( action_list ), rb_intern( "append_action" ) ) ) {
-          cAction = Data_Wrap_Struct( action_list, NULL, delete_actions, actions );
-          rb_funcall( action_list, rb_intern( "append_action" ), 1, cAction );
+        if ( rb_respond_to( action, rb_intern( "pack_action" ) ) ) {
+          cAction = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, actions );
+          rb_funcall( action, rb_intern( "pack_action" ), 1, cAction );
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "action list argument must be either an Array or an Action object" );
+        rb_raise( rb_eTypeError, "action argument must be either an Array or an Action object" );
         break;
     }
   }
+  Data_Get_Struct( cAction, openflow_actions, actions );
+  printf("no.of basic actions added %d\n", actions->n_actions );
   return actions;
+}
+
+
+oxm_matches *
+pack_flexible_action( VALUE action ) {
+  oxm_matches *oxm_match = create_oxm_matches();
+  VALUE cOxmMatch = Qnil;
+
+  if ( action != Qnil ) {
+    switch ( TYPE( action ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( action );
+
+          for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "pack_match" ) ) ) {
+              cOxmMatch = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, oxm_match );
+              rb_funcall( each[ i ], rb_intern( "pack_match" ), 1, cOxmMatch );
+            }
+          }
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( action, rb_intern( "pack_match" ) ) ) {
+          cOxmMatch = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, oxm_match );
+          rb_funcall( action, rb_intern( "pack_match" ), 1, cOxmMatch );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "action argument must be either an Array or an Action object" );
+        break;
+    }
+  }
+  Data_Get_Struct( cOxmMatch, oxm_matches, oxm_match );
+  printf("no.of flexible actions added %d\n", oxm_match->n_matches );
+  return oxm_match;
 }
 
 

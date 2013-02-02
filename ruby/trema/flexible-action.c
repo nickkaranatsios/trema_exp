@@ -23,6 +23,19 @@
 
 
 extern VALUE mActions;
+static VALUE basic_action_eval;
+static VALUE flexible_action_eval;
+static VALUE sym_in_port;
+static VALUE sym_in_phy_port;
+static VALUE sym_metadata;
+static VALUE sym_mac_address;
+static VALUE sym_ether_type;
+static VALUE sym_vlan_vid;
+static VALUE sym_vlan_priority;
+static VALUE sym_ip_dscp;
+static VALUE sym_ip_ecn;
+static VALUE sym_ip_proto;
+static VALUE sym_ip_addr;
 
 
 static openflow_actions *
@@ -59,92 +72,165 @@ ipv6_addr_to_in6_addr( VALUE ipv6_addr ) {
   
 
 static VALUE
-append_action_set_in_port( VALUE self, VALUE actions, VALUE in_port ) {
-  append_action_set_field_in_port( openflow_actions_ptr( actions ), NUM2UINT( in_port ) );
+pack_in_port( VALUE self, VALUE actions, VALUE options ) {
+  VALUE in_port = rb_hash_aref( options, sym_in_port );
+  if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_in_port( oxm_match_ptr( actions ), NUM2UINT( in_port ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_in_phy_port( VALUE self, VALUE actions, VALUE in_phy_port ) {
-  append_action_set_field_in_phy_port( openflow_actions_ptr( actions ), NUM2UINT( in_phy_port ) );
+pack_in_phy_port( VALUE self, VALUE actions, VALUE options ) {
+  VALUE in_phy_port = rb_hash_aref( options, sym_in_phy_port );
+  if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_in_phy_port( oxm_match_ptr( actions ), NUM2UINT( in_phy_port ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_metadata( VALUE self, VALUE actions, VALUE metadata ) {
-  append_action_set_field_metadata( openflow_actions_ptr( actions ), rb_num2ull( metadata ) );
+pack_metadata( VALUE self, VALUE actions, VALUE options ) {
+  VALUE metadata = rb_hash_aref( options, sym_metadata );
+  if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_metadata( oxm_match_ptr( actions ), rb_num2ull( metadata ), 0 );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_eth_dst( VALUE self, VALUE actions, VALUE eth_dst ) {
-  append_action_set_field_eth_dst( openflow_actions_ptr( actions ), mac_addr_to_cstr( eth_dst ) );
+pack_eth_dst( VALUE self, VALUE actions, VALUE options ) {
+  VALUE mac_address = rb_hash_aref( options, sym_mac_address );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_eth_dst( openflow_actions_ptr( actions ), mac_addr_to_cstr( mac_address ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    uint8_t eth_dst_mask[ OFP_ETH_ALEN ] = { 0 };
+    append_oxm_match_eth_dst( oxm_match_ptr( actions ), mac_addr_to_cstr( mac_address ),  eth_dst_mask );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_eth_src( VALUE self, VALUE actions, VALUE mac_address ) {
-  append_action_set_field_eth_src( openflow_actions_ptr( actions ), mac_addr_to_cstr( mac_address ) );
+pack_eth_src( VALUE self, VALUE actions, VALUE options ) {
+  VALUE mac_address = rb_hash_aref( options, sym_mac_address );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_eth_src( openflow_actions_ptr( actions ), mac_addr_to_cstr( mac_address ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    uint8_t eth_src_mask[ OFP_ETH_ALEN ] = { 0 };
+    append_oxm_match_eth_src( oxm_match_ptr( actions ), mac_addr_to_cstr( mac_address ), eth_src_mask );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ether_type( VALUE self, VALUE actions, VALUE ether_type ) {
-  append_action_set_field_eth_type( openflow_actions_ptr( actions ), ( const uint16_t ) NUM2UINT( ether_type ) );
+pack_ether_type( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ether_type = rb_hash_aref( options, sym_ether_type );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_eth_type( openflow_actions_ptr( actions ), ( const uint16_t ) NUM2UINT( ether_type ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_eth_type( oxm_match_ptr( actions ), ( uint16_t ) NUM2UINT( ether_type ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_vlan_vid( VALUE self, VALUE actions, VALUE vlan_vid ) {
-  append_action_set_field_vlan_vid( openflow_actions_ptr( actions ), ( const uint16_t ) NUM2UINT( vlan_vid ) );
+pack_vlan_vid( VALUE self, VALUE actions, VALUE options ) {
+  VALUE vlan_vid = rb_hash_aref( options, sym_vlan_vid );
+  printf( "vlan vid %u\n", NUM2UINT( vlan_vid ) );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_vlan_vid( openflow_actions_ptr( actions ), ( const uint16_t ) NUM2UINT( vlan_vid ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_vlan_vid( oxm_match_ptr( actions ), ( const uint16_t ) NUM2UINT( vlan_vid ), 0 );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_vlan_priority( VALUE self, VALUE actions, VALUE vlan_priority ) {
-  append_action_set_field_vlan_pcp( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( vlan_priority ) );
+pack_vlan_priority( VALUE self, VALUE actions, VALUE options ) {
+  VALUE vlan_priority = rb_hash_aref( options, sym_vlan_priority );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_vlan_pcp( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( vlan_priority ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_vlan_pcp( oxm_match_ptr( actions ), ( uint8_t ) NUM2UINT( vlan_priority ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ip_dscp( VALUE self, VALUE actions, VALUE ip_dscp ) {
-  append_action_set_field_ip_dscp( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_dscp ) );
+pack_ip_dscp( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ip_dscp = rb_hash_aref( options, sym_ip_dscp );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_ip_dscp( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_dscp ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_ip_dscp( oxm_match_ptr( actions ), ( uint8_t ) ip_dscp );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ip_ecn( VALUE self, VALUE actions, VALUE ip_ecn ) {
-  append_action_set_field_ip_ecn( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_ecn ) );
+pack_ip_ecn( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ip_ecn = rb_hash_aref( options, sym_ip_ecn );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_ip_ecn( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_ecn ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_ip_ecn( oxm_match_ptr( actions ), ( uint8_t ) NUM2UINT( ip_ecn ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ip_proto( VALUE self, VALUE actions, VALUE ip_proto ) {
-  append_action_set_field_ip_proto( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_proto ) );
+pack_ip_proto( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ip_proto = rb_hash_aref( options, sym_ip_proto );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_ip_proto( openflow_actions_ptr( actions ), ( const uint8_t ) NUM2UINT( ip_proto ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_ip_proto( oxm_match_ptr( actions ), ( uint8_t ) NUM2UINT( ip_proto ) );
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ipv4_src_addr( VALUE self, VALUE actions, VALUE ipv4_src_addr ) {
-  append_action_set_field_ipv4_src( openflow_actions_ptr( actions ), ip_addr_to_i( ipv4_src_addr ) );
+pack_ipv4_src_addr( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ip_addr = rb_hash_aref( options, sym_ip_addr );
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_ipv4_src( openflow_actions_ptr( actions ), ip_addr_to_i( ip_addr ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_ipv4_src( oxm_match_ptr( actions ), ip_addr_to_i( ip_addr ), 0 ); 
+  }
   return self;
 }
 
 
 static VALUE
-append_action_set_ipv4_dst_addr( VALUE self, VALUE actions, VALUE ipv4_dst_addr ) {
-  append_action_set_field_ipv4_dst( openflow_actions_ptr( actions ), ip_addr_to_i( ipv4_dst_addr ) );
+pack_ipv4_dst_addr( VALUE self, VALUE actions, VALUE options ) {
+  VALUE ip_addr = rb_hash_aref( options, sym_ip_addr ); 
+  if ( rb_obj_is_kind_of( actions, basic_action_eval ) ) {
+    append_action_set_field_ipv4_dst( openflow_actions_ptr( actions ), ip_addr_to_i( ip_addr ) );
+  }
+  else if ( rb_obj_is_kind_of( actions, flexible_action_eval ) ) {
+    append_oxm_match_ipv4_dst( oxm_match_ptr( actions ), ip_addr_to_i( ip_addr ), 0 );
+  }
+
   return self;
 }
 
@@ -347,48 +433,63 @@ append_match_in_port( VALUE self, VALUE oxm_match, VALUE in_port ) {
 
 void
 Init_flexible_action() {
-  rb_define_module_function( mActions, "append_action_set_in_port", append_action_set_in_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_in_phy_port", append_action_set_in_phy_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_metadata", append_action_set_metadata, 2 );
-  rb_define_module_function( mActions, "append_action_set_eth_dst", append_action_set_eth_dst, 2 );
-  rb_define_module_function( mActions, "append_action_set_eth_src", append_action_set_eth_src, 2 );
-  rb_define_module_function( mActions, "append_action_set_ether_type", append_action_set_ether_type, 2 );
-  rb_define_module_function( mActions, "append_action_set_vlan_vid", append_action_set_vlan_vid, 2 );
-  rb_define_module_function( mActions, "append_action_set_vlan_priority", append_action_set_vlan_priority, 2 );
-  rb_define_module_function( mActions, "append_action_set_ip_dscp", append_action_set_ip_dscp, 2 );
-  rb_define_module_function( mActions, "append_action_set_ip_ecn", append_action_set_ip_ecn, 2 );
-  rb_define_module_function( mActions, "append_action_set_ip_proto", append_action_set_ip_proto, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv4_src_addr", append_action_set_ipv4_src_addr, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv4_dst_addr", append_action_set_ipv4_dst_addr, 2 );
-  rb_define_module_function( mActions, "append_action_set_tcp_src_port", append_action_set_tcp_src_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_tcp_dst_port", append_action_set_tcp_dst_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_udp_src_port", append_action_set_udp_src_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_udp_dst_port", append_action_set_udp_dst_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_sctp_src_port", append_action_set_sctp_src_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_sctp_dst_port", append_action_set_sctp_dst_port, 2 );
-  rb_define_module_function( mActions, "append_action_set_icmpv4_type", append_action_set_icmpv4_type, 2 );
-  rb_define_module_function( mActions, "append_action_set_icmpv4_code", append_action_set_icmpv4_code, 2 );
-  rb_define_module_function( mActions, "append_action_set_arp_op", append_action_set_arp_op, 2 );
-  rb_define_module_function( mActions, "append_action_set_arp_spa", append_action_set_arp_spa, 2 );
-  rb_define_module_function( mActions, "append_action_set_arp_tpa", append_action_set_arp_tpa, 2 );
-  rb_define_module_function( mActions, "append_action_set_arp_sha", append_action_set_arp_sha, 2 );
-  rb_define_module_function( mActions, "append_action_set_arp_tha", append_action_set_arp_tha, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_src_addr", append_action_set_ipv6_src_addr, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_dst_addr", append_action_set_ipv6_dst_addr, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_flow_label", append_action_set_ipv6_flow_label, 2 );
-  rb_define_module_function( mActions, "append_action_set_icmpv6_type", append_action_set_icmpv6_type, 2 );
-  rb_define_module_function( mActions, "append_action_set_icmpv6_code", append_action_set_icmpv6_code, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_nd_target", append_action_set_ipv6_nd_target, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_nd_sll", append_action_set_ipv6_nd_sll, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_nd_tll", append_action_set_ipv6_nd_tll, 2 );
-  rb_define_module_function( mActions, "append_action_set_mpls_label", append_action_set_mpls_label, 2 );
-  rb_define_module_function( mActions, "append_action_set_mpls_tc", append_action_set_mpls_tc, 2 );
-  rb_define_module_function( mActions, "append_action_set_mpls_bos", append_action_set_mpls_bos, 2 );
-  rb_define_module_function( mActions, "append_action_set_pbb_isid", append_action_set_pbb_isid, 2 );
-  rb_define_module_function( mActions, "append_action_set_tunnel_id", append_action_set_tunnel_id, 2 );
-  rb_define_module_function( mActions, "append_action_set_ipv6_exthdr", append_action_set_ipv6_exthdr, 2 );
+  basic_action_eval = rb_eval_string( "Trema::BasicAction" );
+  flexible_action_eval = rb_eval_string( "Trema::FlexibleAction" );
 
-  rb_define_module_function( mActions, "append_match_in_port", append_match_in_port, 2 );
+  sym_in_port = ID2SYM( rb_intern( "in_port" ) );
+  sym_in_phy_port = ID2SYM( rb_intern( "in_phy_port" ) );
+  sym_metadata = ID2SYM( rb_intern( "metadata" ) );
+  sym_vlan_vid = ID2SYM( rb_intern( "vlan_vid" ) );
+  sym_vlan_priority = ID2SYM( rb_intern( "vlan_priority" ) );
+  sym_mac_address = ID2SYM( rb_intern( "mac_address" ) );
+  sym_ether_type = ID2SYM( rb_intern( "ether_type" ) );
+  sym_ip_dscp = ID2SYM( rb_intern( "ip_dscp" ) );
+  sym_ip_ecn = ID2SYM( rb_intern( "ip_ecn" ) );
+  sym_ip_proto = ID2SYM( rb_intern( "ip_proto" ) );
+  sym_ip_addr = ID2SYM( rb_intern( "ip_addr" ) );
+
+  rb_define_module_function( mActions, "pack_in_port", pack_in_port, 2 );
+  rb_define_module_function( mActions, "pack_in_phy_port", pack_in_phy_port, 2 );
+  rb_define_module_function( mActions, "pack_metadata", pack_metadata, 2 );
+  rb_define_module_function( mActions, "pack_eth_dst", pack_eth_dst, 2 );
+  rb_define_module_function( mActions, "pack_eth_src", pack_eth_src, 2 );
+  rb_define_module_function( mActions, "pack_ether_type", pack_ether_type, 2 );
+  rb_define_module_function( mActions, "pack_vlan_vid", pack_vlan_vid, 2 );
+  rb_define_module_function( mActions, "pack_vlan_priority", pack_vlan_priority, 2 );
+  rb_define_module_function( mActions, "pack_ip_dscp", pack_ip_dscp, 2 );
+  rb_define_module_function( mActions, "pack_ip_ecn", pack_ip_ecn, 2 );
+  rb_define_module_function( mActions, "pack_ip_proto", pack_ip_proto, 2 );
+  rb_define_module_function( mActions, "pack_ipv4_src_addr", pack_ipv4_src_addr, 2 );
+  rb_define_module_function( mActions, "pack_ipv4_dst_addr", pack_ipv4_dst_addr, 2 );
+  rb_define_module_function( mActions, "pack_action_set_tcp_src_port", append_action_set_tcp_src_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_tcp_dst_port", append_action_set_tcp_dst_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_udp_src_port", append_action_set_udp_src_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_udp_dst_port", append_action_set_udp_dst_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_sctp_src_port", append_action_set_sctp_src_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_sctp_dst_port", append_action_set_sctp_dst_port, 2 );
+  rb_define_module_function( mActions, "pack_action_set_icmpv4_type", append_action_set_icmpv4_type, 2 );
+  rb_define_module_function( mActions, "pack_action_set_icmpv4_code", append_action_set_icmpv4_code, 2 );
+  rb_define_module_function( mActions, "pack_action_set_arp_op", append_action_set_arp_op, 2 );
+  rb_define_module_function( mActions, "pack_action_set_arp_spa", append_action_set_arp_spa, 2 );
+  rb_define_module_function( mActions, "pack_action_set_arp_tpa", append_action_set_arp_tpa, 2 );
+  rb_define_module_function( mActions, "pack_action_set_arp_sha", append_action_set_arp_sha, 2 );
+  rb_define_module_function( mActions, "pack_action_set_arp_tha", append_action_set_arp_tha, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_src_addr", append_action_set_ipv6_src_addr, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_dst_addr", append_action_set_ipv6_dst_addr, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_flow_label", append_action_set_ipv6_flow_label, 2 );
+  rb_define_module_function( mActions, "pack_action_set_icmpv6_type", append_action_set_icmpv6_type, 2 );
+  rb_define_module_function( mActions, "pack_action_set_icmpv6_code", append_action_set_icmpv6_code, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_nd_target", append_action_set_ipv6_nd_target, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_nd_sll", append_action_set_ipv6_nd_sll, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_nd_tll", append_action_set_ipv6_nd_tll, 2 );
+  rb_define_module_function( mActions, "pack_action_set_mpls_label", append_action_set_mpls_label, 2 );
+  rb_define_module_function( mActions, "pack_action_set_mpls_tc", append_action_set_mpls_tc, 2 );
+  rb_define_module_function( mActions, "pack_action_set_mpls_bos", append_action_set_mpls_bos, 2 );
+  rb_define_module_function( mActions, "pack_action_set_pbb_isid", append_action_set_pbb_isid, 2 );
+  rb_define_module_function( mActions, "pack_action_set_tunnel_id", append_action_set_tunnel_id, 2 );
+  rb_define_module_function( mActions, "pack_action_set_ipv6_exthdr", append_action_set_ipv6_exthdr, 2 );
+
+  rb_define_module_function( mActions, "pack_match_in_port", append_match_in_port, 2 );
 }
 
 

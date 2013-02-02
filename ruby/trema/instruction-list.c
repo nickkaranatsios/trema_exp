@@ -67,7 +67,7 @@ append_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE optio
 static VALUE
 append_write_actions_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE action_list = rb_hash_aref( options, sym_actions );
-  openflow_actions *actions = append_actions( action_list );
+  openflow_actions *actions = pack_basic_action( action_list );
   append_instructions_write_actions( instructions_ptr( instructions_r ), actions );
   return self;
 }
@@ -76,7 +76,7 @@ append_write_actions_instruction( VALUE self, VALUE instructions_r, VALUE option
 static VALUE
 append_apply_actions_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE action_list = rb_hash_aref( options, sym_actions );
-  openflow_actions *actions = append_actions( action_list );
+  openflow_actions *actions = pack_basic_action( action_list );
   append_instructions_apply_actions( instructions_ptr( instructions_r ), actions );
   return self;
 }
