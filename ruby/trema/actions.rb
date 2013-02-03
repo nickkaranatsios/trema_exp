@@ -16,10 +16,6 @@
 #
 
 
-require "trema/basic-action"
-require "trema/flexible-action"
-
-
 # basic actions
 require "trema/actions/mpls"
 require "trema/actions/send-out-port"

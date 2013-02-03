@@ -1,7 +1,5 @@
 /*
- * Ruby wrapper around libtrema.
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -18,25 +16,17 @@
  */
 
 
-#include "controller.h"
-#include "actions.h"
-#include "instruction-list.h"
-#include "messages.h"
+#ifndef BASIC_ACTION_H
+#define BASIC_ACTION_H
 
 
+#include "ruby.h"
 
-VALUE mTrema;
+
+void Init_basic_action( void );
 
 
-void
-Init_trema() {
-  mTrema = rb_define_module( "Trema" );
-
-  Init_controller();
-  Init_actions();
-  Init_instruction_list();
-  Init_messages();
-}
+#endif // BASIC_ACTION_H
 
 
 /*
