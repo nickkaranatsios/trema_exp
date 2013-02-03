@@ -190,7 +190,7 @@ controller_test_flexible_action( VALUE self, VALUE oxm_match ) {
 
 
 static VALUE
-controller_test_instruction_list( VALUE self, VALUE instruction_list ) {
+controller_test_instructions( VALUE self, VALUE instruction_list ) {
   openflow_instructions *instructions = create_instructions();
   VALUE cInstruction;
 
@@ -245,7 +245,7 @@ Init_controller() {
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
   rb_define_method( cController, "test_basic_action", controller_test_basic_action, 1 );
   rb_define_method( cController, "test_flexible_action", controller_test_flexible_action, 1 );
-  rb_define_method( cController, "test_instruction_list", controller_test_instruction_list, 1 );
+  rb_define_method( cController, "test_instructions", controller_test_instructions, 1 );
 
   rb_require( "trema/controller" );
 }

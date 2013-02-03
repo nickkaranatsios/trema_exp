@@ -16,14 +16,10 @@
 #
 
 
-require "trema/instruction-accessor"
-
-
 module Trema
-  module InstructionList
-    class WriteMetadata < InstructionAccessor
-      unsigned_int64 :metadata, :presence => true
-      unsigned_int64 :metadata_mask
+  module Instructions
+    class GotoTable < InstructionAccessor
+      unsigned_int8 :table_id, :presence => true
     end
   end
 end

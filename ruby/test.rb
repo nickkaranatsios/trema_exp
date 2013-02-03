@@ -63,15 +63,15 @@ module Trema
     end
     def instruction_list
       il = [
-        InstructionList::GotoTable.new( :table_id => 2 ),
-        InstructionList::WriteMetadata.new( :metadata => rand( 2**64 ), :metadata_mask => rand( 2**64 ) ),
-        InstructionList::WriteActions.new( :actions => build_action_list ),
-        InstructionList::ApplyActions.new( :actions => build_action_list ),
-        InstructionList::ClearActions.new,
-        InstructionList::Meter.new( rand( 2**32 ) ),
-        InstructionList::Experimenter.new( :experimenter => rand( 2 ** 32 ), :user_data => rand( 36**10 ).to_s( 36 ).unpack( "C" ) ),
+        Instructions::GotoTable.new( :table_id => 2 ),
+        Instructions::WriteMetadata.new( :metadata => rand( 2**64 ), :metadata_mask => rand( 2**64 ) ),
+        Instructions::WriteAction.new( :actions => build_basic_actions ),
+        Instructions::ApplyAction.new( :actions => build_basic_actions ),
+        Instructions::ClearAction.new,
+        Instructions::Meter.new( rand( 2**32 ) ),
+        Instructions::Experimenter.new( :experimenter => rand( 2 ** 32 ), :user_data => rand( 36**10 ).to_s( 36 ).unpack( "C" ) ),
       ]
-      test_instruction_list il
+      test_instructions il
     end
 
 
@@ -102,5 +102,5 @@ t = Trema::Test.new
 t.basic_actions
 t.flexible_actions
 #t.message_list
-#t.instruction_list
+t.instruction_list
 

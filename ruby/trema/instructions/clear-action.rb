@@ -16,21 +16,9 @@
 #
 
 
-require "trema/instruction-accessor"
-
-
 module Trema
-  module InstructionList
-    class Experimenter < InstructionAccessor
-      unsigned_int32 :experimenter, :presence => true
-      array :user_data, :validate_with => :check_user_data
-
-
-      def check_user_data user_data, name
-        if ( not user_data.nil? )  and ( not user_data.is_a?( Array ) )
-          raise ArgumentError, "#{ name } must be an Array"
-        end
-      end
+  module Instructions
+    class ClearAction < InstructionAccessor
     end
   end
 end

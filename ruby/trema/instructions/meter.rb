@@ -16,18 +16,10 @@
 #
 
 
-require "trema/instruction-accessor"
-
-
 module Trema
-  module InstructionList
-    class InstructionActions < InstructionAccessor
-      array :actions, :presence => true, :validate_with => :check_actions
-    end
-
-
-    def check_actions actions, name
-      raise ArgumentError, "At least one action object must be specified for #{ name }" if actions.empty?
+  module Instructions
+    class Meter < InstructionAccessor
+      unsigned_int32 :meter, :presence => true
     end
   end
 end

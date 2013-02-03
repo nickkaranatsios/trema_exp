@@ -16,15 +16,15 @@
 #
 
 
-require "trema/instruction-list/instruction-actions"
-
-
-module Trema
-  module InstructionList
-    class WriteActions < InstructionActions
-    end
-  end
-end
+require "trema/instruction-accessor"
+require "trema/instructions/instruction-action"
+require "trema/instructions/goto-table"
+require "trema/instructions/write-metadata"
+require "trema/instructions/write-action"
+require "trema/instructions/apply-action"
+require "trema/instructions/clear-action"
+require "trema/instructions/meter"
+require "trema/instructions/experimenter"
 
 
 ### Local variables:

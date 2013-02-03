@@ -22,7 +22,7 @@
 
 
 extern VALUE mTrema;
-VALUE mInstructionList;
+VALUE mInstructions;
 
 
 static VALUE sym_table_id;
@@ -65,7 +65,7 @@ append_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE optio
 
 
 static VALUE
-append_write_actions_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+append_write_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE action_list = rb_hash_aref( options, sym_actions );
   openflow_actions *actions = pack_basic_action( action_list );
   append_instructions_write_actions( instructions_ptr( instructions_r ), actions );
@@ -74,7 +74,7 @@ append_write_actions_instruction( VALUE self, VALUE instructions_r, VALUE option
 
 
 static VALUE
-append_apply_actions_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+append_apply_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE action_list = rb_hash_aref( options, sym_actions );
   openflow_actions *actions = pack_basic_action( action_list );
   append_instructions_apply_actions( instructions_ptr( instructions_r ), actions );
@@ -83,7 +83,7 @@ append_apply_actions_instruction( VALUE self, VALUE instructions_r, VALUE option
 
 
 static VALUE
-append_clear_actions_instruction( VALUE self, VALUE instruction_r, VALUE options ) {
+append_clear_action_instruction( VALUE self, VALUE instruction_r, VALUE options ) {
   UNUSED( options );
   append_instructions_clear_actions( instructions_ptr( instruction_r ) );
   return self;
@@ -122,8 +122,8 @@ append_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options
 
 
 void
-Init_instruction_list() {
-  mInstructionList = rb_define_module_under( mTrema, "InstructionList" );
+Init_instructions() {
+  mInstructions = rb_define_module_under( mTrema, "Instructions" );
 
   sym_table_id = ID2SYM( rb_intern( "table_id" ) );
   sym_metadata = ID2SYM( rb_intern( "metadata" ) );
@@ -133,14 +133,14 @@ Init_instruction_list() {
   sym_experimenter = ID2SYM( rb_intern( "experimenter" ) );
   sym_user_data = ID2SYM( rb_intern( "user_data" ) );
 
-  rb_define_module_function( mInstructionList, "append_goto_table_instruction", append_goto_table_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_write_metadata_instruction", append_write_metadata_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_write_actions_instruction", append_write_actions_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_apply_actions_instruction", append_apply_actions_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_clear_actions_instruction", append_clear_actions_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_meter_instruction", append_meter_instruction, 2 );
-  rb_define_module_function( mInstructionList, "append_experimenter_instruction", append_experimenter_instruction, 2 );
-  rb_require( "trema/instruction-list" );
+  rb_define_module_function( mInstructions, "append_goto_table_instruction", append_goto_table_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_write_metadata_instruction", append_write_metadata_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_write_action_instruction", append_write_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_apply_action_instruction", append_apply_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_clear_action_instruction", append_clear_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_meter_instruction", append_meter_instruction, 2 );
+  rb_define_module_function( mInstructions, "append_experimenter_instruction", append_experimenter_instruction, 2 );
+  rb_require( "trema/instructions" );
 }
 
 

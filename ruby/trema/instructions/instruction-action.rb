@@ -16,13 +16,18 @@
 #
 
 
-require "trema/instruction-list/goto-table"
-require "trema/instruction-list/write-metadata"
-require "trema/instruction-list/write-actions"
-require "trema/instruction-list/apply-actions"
-require "trema/instruction-list/clear-actions"
-require "trema/instruction-list/meter"
-require "trema/instruction-list/experimenter"
+module Trema
+  module Instructions
+    class InstructionAction < InstructionAccessor
+      array :actions, :presence => true, :validate_with => :check_actions
+    end
+
+
+    def check_actions actions, name
+      raise ArgumentError, "At least one action object must be specified for #{ name }" if actions.empty?
+    end
+  end
+end
 
 
 ### Local variables:

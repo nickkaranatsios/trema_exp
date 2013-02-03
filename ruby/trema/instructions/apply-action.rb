@@ -16,12 +16,9 @@
 #
 
 
-require "trema/instruction-accessor"
-
-
 module Trema
-  module InstructionList
-    class ClearActions < InstructionAccessor
+  module Instructions
+    class ApplyAction < InstructionAction
     end
   end
 end

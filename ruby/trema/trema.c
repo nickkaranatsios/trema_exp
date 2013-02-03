@@ -20,7 +20,7 @@
 
 #include "controller.h"
 #include "actions.h"
-#include "instruction-list.h"
+#include "instructions.h"
 #include "messages.h"
 
 
@@ -34,7 +34,7 @@ Init_trema() {
 
   Init_controller();
   Init_actions();
-  Init_instruction_list();
+  Init_instructions();
   Init_messages();
 }
 

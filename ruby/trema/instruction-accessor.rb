@@ -21,7 +21,7 @@ require "trema/accessor-base"
 
 module Trema
   class InstructionAccessor < AccessorBase
-    include InstructionList
+    include Instructions
 
 
     #

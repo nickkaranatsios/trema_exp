@@ -16,12 +16,9 @@
 #
 
 
-require "trema/instruction-list/instruction-actions"
-
-
 module Trema
-  module InstructionList
-    class ApplyActions < InstructionActions
+  module Instructions
+    class WriteAction < InstructionAction
     end
   end
 end

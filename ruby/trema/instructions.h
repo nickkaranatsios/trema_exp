@@ -16,20 +16,20 @@
  */
 
 
-#ifndef INSTRUCTION_LIST_H
-#define INSTRUCTION_LIST_H
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
 
 
 #include "ruby.h"
 
 
-extern VALUE mInstructionList;
+extern VALUE mInstructions;
 
 
-void Init_instruction_list( void );
+void Init_instructions( void );
 
 
-#endif // INSTRUCTION_LIST_H
+#endif // INSTRUCTIONS_H
 
 
 /*
