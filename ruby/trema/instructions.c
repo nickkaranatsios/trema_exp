@@ -43,7 +43,7 @@ instructions_ptr( VALUE self ) {
 
 
 static VALUE
-append_goto_table_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+pack_goto_table_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE table_id = rb_hash_aref( options, sym_table_id );
   append_instructions_goto_table( instructions_ptr( instructions_r ), ( uint8_t ) NUM2UINT( table_id ) ); 
   return self;
@@ -51,7 +51,7 @@ append_goto_table_instruction( VALUE self, VALUE instructions_r, VALUE options )
 
 
 static VALUE
-append_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+pack_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE metadata = rb_hash_aref( options, sym_metadata );
   uint64_t metadata_mask = 0;
   VALUE metadata_mask_r = rb_hash_aref( options, sym_metadata_mask );
@@ -65,16 +65,16 @@ append_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE optio
 
 
 static VALUE
-append_write_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE action_list = rb_hash_aref( options, sym_actions );
-  openflow_actions *actions = pack_basic_action( action_list );
+pack_write_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+  VALUE basic_actions = rb_hash_aref( options, sym_actions );
+  openflow_actions *actions = pack_basic_action( basic_actions );
   append_instructions_write_actions( instructions_ptr( instructions_r ), actions );
   return self;
 }
 
 
 static VALUE
-append_apply_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+pack_apply_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE action_list = rb_hash_aref( options, sym_actions );
   openflow_actions *actions = pack_basic_action( action_list );
   append_instructions_apply_actions( instructions_ptr( instructions_r ), actions );
@@ -83,7 +83,7 @@ append_apply_action_instruction( VALUE self, VALUE instructions_r, VALUE options
 
 
 static VALUE
-append_clear_action_instruction( VALUE self, VALUE instruction_r, VALUE options ) {
+pack_clear_action_instruction( VALUE self, VALUE instruction_r, VALUE options ) {
   UNUSED( options );
   append_instructions_clear_actions( instructions_ptr( instruction_r ) );
   return self;
@@ -91,7 +91,7 @@ append_clear_action_instruction( VALUE self, VALUE instruction_r, VALUE options 
 
 
 static VALUE
-append_meter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+pack_meter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE meter = rb_hash_aref( options, sym_meter );
   append_instructions_meter( instructions_ptr( instructions_r ), NUM2UINT( meter ) );
   return self;
@@ -99,7 +99,7 @@ append_meter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
 
 
 static VALUE
-append_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
+pack_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
   VALUE experimenter = rb_hash_aref( options, sym_experimenter );
   VALUE user_data_r = Qnil;
 
@@ -133,13 +133,13 @@ Init_instructions() {
   sym_experimenter = ID2SYM( rb_intern( "experimenter" ) );
   sym_user_data = ID2SYM( rb_intern( "user_data" ) );
 
-  rb_define_module_function( mInstructions, "append_goto_table_instruction", append_goto_table_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_write_metadata_instruction", append_write_metadata_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_write_action_instruction", append_write_action_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_apply_action_instruction", append_apply_action_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_clear_action_instruction", append_clear_action_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_meter_instruction", append_meter_instruction, 2 );
-  rb_define_module_function( mInstructions, "append_experimenter_instruction", append_experimenter_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_goto_table_instruction", pack_goto_table_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_write_metadata_instruction", pack_write_metadata_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_write_action_instruction", pack_write_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_apply_action_instruction", pack_apply_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_clear_action_instruction", pack_clear_action_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_meter_instruction", pack_meter_instruction, 2 );
+  rb_define_module_function( mInstructions, "pack_experimenter_instruction", pack_experimenter_instruction, 2 );
   rb_require( "trema/instructions" );
 }
 

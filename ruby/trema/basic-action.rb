@@ -16,11 +16,11 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/accessor"
 
 
 module Trema
-  class BasicAction < AccessorBase
+  class BasicAction < Accessor
     include Actions
     #
     # appends its action into a list of actions

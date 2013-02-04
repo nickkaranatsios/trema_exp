@@ -22,7 +22,7 @@ module Trema
   #
   # A base class for defining user defined like accessors.
   #
-  class AccessorBase
+  class Accessor
     USER_DEFINED_TYPES = {
       "ip_addr" => "IPAddr",
       "eth_addr" => "Trema::Mac",

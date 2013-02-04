@@ -53,17 +53,16 @@ handle_timer_event( void *self ) {
  *     the message to be sent.
  */
 static VALUE
-controller_send_message( VALUE self, VALUE datapath_id, VALUE messages ) {
+controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
   VALUE id_pack_msg = rb_intern( "pack_msg" );
 
-  if ( messages != Qnil ) {
-    switch ( TYPE( messages ) ) {
+  if ( message != Qnil ) {
+    switch ( TYPE( message ) ) {
       case T_ARRAY:
         {
-          VALUE *each = RARRAY_PTR( messages );
-          int i;
+          VALUE *each = RARRAY_PTR( message );
           
-          for ( i = 0; i < RARRAY_LEN( messages ); i++ ) {
+          for ( int i = 0; i < RARRAY_LEN( message ); i++ ) {
             if ( rb_respond_to( each[ i ], id_pack_msg ) ) {
               rb_funcall( each[ i ], id_pack_msg, 1, datapath_id );
             }
@@ -71,12 +70,13 @@ controller_send_message( VALUE self, VALUE datapath_id, VALUE messages ) {
         }
         break;
       case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( messages ), id_pack_msg ) ) {
-          rb_funcall( messages, id_pack_msg, 1, datapath_id );
+        if ( rb_respond_to( rb_obj_class( message ), id_pack_msg ) ) {
+          rb_funcall( message, id_pack_msg, 1, datapath_id );
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "messages argument must be an Array or a message object" );
+        rb_raise( rb_eTypeError, "Message argument must be an Array or a Message object" );
+        break;
     }
   }
   return self;
@@ -190,41 +190,9 @@ controller_test_flexible_action( VALUE self, VALUE oxm_match ) {
 
 
 static VALUE
-controller_test_instructions( VALUE self, VALUE instruction_list ) {
-  openflow_instructions *instructions = create_instructions();
-  VALUE cInstruction;
-
-  if ( instruction_list != Qnil ) {
-    switch ( TYPE( instruction_list ) ) {
-      case T_ARRAY:
-        {
-          VALUE *each = RARRAY_PTR( instruction_list );
-          int i;
-
-          if ( RARRAY_LEN( instruction_list ) ) {
-            cInstruction = Data_Wrap_Struct( rb_obj_class( each[ 0 ] ), NULL, delete_instructions, instructions );
-          }
-          for ( i = 0; i < RARRAY_LEN( instruction_list ); i++ ) {
-            if ( rb_respond_to( each[ i ], rb_intern( "append_instruction" ) ) ) {
-              rb_funcall( each[ i ], rb_intern( "append_instruction" ), 1, cInstruction );
-            }
-          }
-          Data_Get_Struct( cInstruction, openflow_instructions, instructions );
-printf("no.of instructions added %d\n", instructions->n_instructions );
-        }
-        break;
-      case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( instruction_list ), rb_intern( "append_instruction" ) ) ) {
-          cInstruction = Data_Wrap_Struct( instruction_list, NULL, delete_instructions, instructions );
-          rb_funcall( instruction_list, rb_intern( "append_instruction" ), 1, cInstruction );
-        }
-        break;
-      default:
-        rb_raise( rb_eTypeError, "instruction list argument must be either an Array or an Instruction object" );
-    }
-  }
+controller_test_instruction( VALUE self, VALUE instruction ) {
+  pack_instruction( instruction );
   return self;
-     
 }
 
 
@@ -245,7 +213,7 @@ Init_controller() {
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
   rb_define_method( cController, "test_basic_action", controller_test_basic_action, 1 );
   rb_define_method( cController, "test_flexible_action", controller_test_flexible_action, 1 );
-  rb_define_method( cController, "test_instructions", controller_test_instructions, 1 );
+  rb_define_method( cController, "test_instruction", controller_test_instruction, 1 );
 
   rb_require( "trema/controller" );
 }

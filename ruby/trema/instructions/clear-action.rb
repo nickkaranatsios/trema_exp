@@ -18,7 +18,7 @@
 
 module Trema
   module Instructions
-    class ClearAction < InstructionAccessor
+    class ClearAction < Instruction
     end
   end
 end

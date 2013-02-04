@@ -18,7 +18,7 @@
 
 module Trema
   module Instructions
-    class GotoTable < InstructionAccessor
+    class GotoTable < Instruction
       unsigned_int8 :table_id, :presence => true
     end
   end

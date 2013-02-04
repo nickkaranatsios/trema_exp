@@ -16,12 +16,12 @@
 #
 
 
-require "trema/message-accessor"
+require "trema/message"
 
 
 module Trema
   module Messages
-    class GetConfigRequest < MessageAccessor 
+    class GetConfigRequest < Message
       unsigned_int32 :transaction_id
     end
   end

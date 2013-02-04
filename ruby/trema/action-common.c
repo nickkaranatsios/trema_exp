@@ -72,7 +72,7 @@ pack_basic_action( VALUE action ) {
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "action argument must be either an Array or an Action object" );
+        rb_raise( rb_eTypeError, "Action argument must be either an Array or an Action object" );
         break;
     }
   }
@@ -108,13 +108,49 @@ pack_flexible_action( VALUE action ) {
         }
         break;
       default:
-        rb_raise( rb_eTypeError, "action argument must be either an Array or an Action object" );
+        rb_raise( rb_eTypeError, "Action argument must be either an Array or an Action object" );
         break;
     }
   }
   Data_Get_Struct( cOxmMatch, oxm_matches, oxm_match );
   printf("no.of flexible actions added %d\n", oxm_match->n_matches );
   return oxm_match;
+}
+
+
+openflow_instructions *
+pack_instruction( VALUE instruction ) {
+  openflow_instructions *instructions = create_instructions();
+  VALUE cInstruction;
+
+  if ( instruction != Qnil ) {
+    switch ( TYPE( instruction ) ) {
+      case T_ARRAY:
+        {
+          VALUE *each = RARRAY_PTR( instruction );
+
+          for ( int i = 0; i < RARRAY_LEN( instruction ); i++ ) {
+            if ( rb_respond_to( each[ i ], rb_intern( "pack_instruction" ) ) ) {
+              cInstruction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, instructions );
+              rb_funcall( each[ i ], rb_intern( "pack_instruction" ), 1, cInstruction );
+            }
+          }
+        }
+        break;
+      case T_OBJECT:
+        if ( rb_respond_to( rb_obj_class( instruction ), rb_intern( "pack_instruction" ) ) ) {
+          cInstruction = Data_Wrap_Struct( instruction, NULL, NULL, instructions );
+          rb_funcall( instruction, rb_intern( "pack_instruction" ), 1, cInstruction );
+        }
+        break;
+      default:
+        rb_raise( rb_eTypeError, "Instruction argument must be either an Array or an Instruction object" );
+        break;
+    }
+  }
+  Data_Get_Struct( cInstruction, openflow_instructions, instructions );
+  printf("no.of instructions added %d\n", instructions->n_instructions );
+  return instructions;
 }
 
 

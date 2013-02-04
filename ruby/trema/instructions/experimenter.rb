@@ -18,7 +18,7 @@
 
 module Trema
   module Instructions
-    class Experimenter < InstructionAccessor
+    class Experimenter < Instruction
       unsigned_int32 :experimenter, :presence => true
       array :user_data, :validate_with => :check_user_data
 

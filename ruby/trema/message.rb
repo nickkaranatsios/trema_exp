@@ -16,11 +16,11 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/accessor"
 
 
 module Trema
-  class MessageAccessor < AccessorBase
+  class Message < Accessor
     include Messages
 
 

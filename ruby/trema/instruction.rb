@@ -16,23 +16,23 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/accessor"
 
 
 module Trema
-  class InstructionAccessor < AccessorBase
+  class Instruction < Accessor
     include Instructions
 
 
     #
-    # appends its instruction into a list of instructions
+    # packs its instruction into a list of instructions
     #
-    def append_instruction instructions
+    def pack_instruction instructions
       params = {}
       instance_variables.each do | each |
         params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
       end
-      method = "append_#{ self.class.name.demodulize.underscore }_instruction"
+      method = "pack_#{ self.class.name.demodulize.underscore }_instruction"
       __send__ method, instructions, params
     end
   end

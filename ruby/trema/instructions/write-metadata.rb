@@ -18,7 +18,7 @@
 
 module Trema
   module Instructions
-    class WriteMetadata < InstructionAccessor
+    class WriteMetadata < Instruction
       unsigned_int64 :metadata, :presence => true
       unsigned_int64 :metadata_mask
     end

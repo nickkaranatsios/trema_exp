@@ -16,12 +16,12 @@
 #
 
 
-require "trema/message-accessor"
+require "trema/message"
 
 
 module Trema
   module Messages
-    class FlowMod < MessageAccessor 
+    class FlowMod < Message
       unsigned_int64 :cookie
       unsigned_int64 :cookie_mask
       unsigned_int8 :command

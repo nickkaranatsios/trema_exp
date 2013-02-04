@@ -16,11 +16,11 @@
 #
 
 
-require "trema/accessor-base"
+require "trema/accessor"
 
 
 module Trema
-  class FlexibleAction < AccessorBase
+  class FlexibleAction < Accessor
     include Actions
 
 

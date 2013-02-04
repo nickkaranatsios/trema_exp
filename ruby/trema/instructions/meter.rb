@@ -18,7 +18,7 @@
 
 module Trema
   module Instructions
-    class Meter < InstructionAccessor
+    class Meter < Instruction
       unsigned_int32 :meter, :presence => true
     end
   end

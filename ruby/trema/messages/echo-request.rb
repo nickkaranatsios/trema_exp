@@ -16,12 +16,12 @@
 #
 
 
-require "trema/message-accessor"
+require "trema/message"
 
 
 module Trema
   module Messages
-    class EchoRequest < MessageAccessor 
+    class EchoRequest < Message
       unsigned_int32 :transaction_id
       array :user_data
     end

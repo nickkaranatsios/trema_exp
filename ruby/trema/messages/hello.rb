@@ -16,12 +16,12 @@
 #
 
 
-require "trema/message-accessor"
+require "trema/message"
 
 
 module Trema
   module Messages
-    class Hello < MessageAccessor 
+    class Hello < Message
       unsigned_int32 :transaction_id
       array :version, :validate_with => :check_version
 

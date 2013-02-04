@@ -16,7 +16,7 @@
 #
 
 
-require "trema/instruction-accessor"
+require "trema/instruction"
 require "trema/instructions/instruction-action"
 require "trema/instructions/goto-table"
 require "trema/instructions/write-metadata"
