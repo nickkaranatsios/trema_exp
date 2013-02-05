@@ -21,6 +21,7 @@ doc
 
 # other generated files
 *.dependency
+*.o
 /tmp
 GPATH
 GRTAGS
