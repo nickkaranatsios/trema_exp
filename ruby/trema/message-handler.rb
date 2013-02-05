@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Hiroyasu OHYAMA
+# Copyright C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -16,36 +16,8 @@
 #
 
 
-require "trema/hardware-switch"
-
-
 module Trema
-  class CustomSwitch < HardwareSwitch
-    include Trema::Daemon
-
-
-    log_file { |vswitch| "customswitch.#{ vswitch.name }.log" }
-
-    
-    def initialize stanza
-      super stanza
-    end
-
-
-    def command
-      patched_path = File.join( Trema.home, "objects/switch/switch/switch" )
-      "sudo -E #{ patched_path } -i #{ dpid_short } -e eth0 > #{ log_file } &"
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def path
-      File.join( Trema.home, @stanza[ :path ] )
-    end
+  module MessageHandler
   end
 end
 

@@ -23,7 +23,7 @@
 #include "ruby.h"
 
 
-void Init_message_handler( void );
+void Init_message_handlers( void );
 
 
 #endif // MESSAGE_HANDLER_H

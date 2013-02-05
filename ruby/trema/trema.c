@@ -23,6 +23,7 @@
 #include "actions.h"
 #include "instructions.h"
 #include "messages.h"
+#include "message-handler.h"
 
 
 
@@ -37,6 +38,7 @@ Init_trema() {
   Init_actions();
   Init_instructions();
   Init_messages();
+  Init_message_handlers();
 }
 
 

@@ -109,6 +109,8 @@ Init_packet_in() {
  */
 void
 handle_packet_in( uint64_t datapath_id, packet_in message ) {
+printf("handle_packet_in is called\n");
+return;
   VALUE controller = ( VALUE ) message.user_data;
   if ( !rb_respond_to( controller, rb_intern( "packet_in" ) ) ) {
     return;
