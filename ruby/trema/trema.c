@@ -19,6 +19,7 @@
 
 
 #include "controller.h"
+#include "message-handler.h"
 #include "actions.h"
 #include "instructions.h"
 #include "messages.h"

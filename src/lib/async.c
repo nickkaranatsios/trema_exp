@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,81 +16,71 @@
  */
 
 
+#include <assert.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <fcntl.h>
-#include "log.h"
-#include "array-util.h"
+#include <unistd.h>
+#include "array_util.h"
 #include "async.h"
-#include "async-util.h"
+#include "log.h"
 
 
-static int main_thread_set;
-static pthread_t main_thread;
-static pthread_key_t async_key;
-
-
-static NORETURN void 
-die_async() {
-  struct async *async;
-
-  if ( !pthread_equal( main_thread, pthread_self() ) ) {
-    async = pthread_getspecific( async_key );
-    if ( async->proc_in >= 0 ) {
-      close(async->proc_in);
-    }
-    if ( async->proc_out >= 0 ) {
-      close( async->proc_out );
-    }
-    pthread_key_delete( async_key );
-    pthread_exit( ( void * ) 128 );
-  }
-  exit( 128 );
-}
+static int main_thread_set = 0;
+static pthread_t main_thread = 0;
+static pthread_key_t async_key = 0;
 
 
 int
-finish_async(struct async *async) {
-  void *ret = ( void * ) ( intptr_t ) ( -1 );
+finish_async( struct async *async ) {
+  assert( async != NULL );
 
-  if ( pthread_join( async->tid, &ret ) ) {
-    error( "pthread_join failed" );
+  void *thread_ret = ( void * ) ( intptr_t ) ( -1 );
+  int ret = pthread_join( async->tid, &thread_ret );
+  if ( ret != 0 ) {
+    char buf[ 256 ];
+    char *error_string = strerror_r( ret, buf, sizeof( buf ) );
+    error( "Failed to join a thread ( %s [%d] ).", error_string, ret );
   }
-  return (int) (intptr_t) ret;
+
+  return ( int ) ( intptr_t ) thread_ret;
 }
 
 
-void 
-*run_thread( void *data ) {
+static void *
+run_thread( void *data ) {
+  assert( data != NULL );
+
   struct async *async = data;
-  intptr_t ret;
 
   pthread_setspecific( async_key, data );
-  ret = async->proc( async->data );
+  intptr_t ret = async->proc( async->data );
+
   return ( void * ) ret;
 }
 
 
 int 
 start_async( struct async *async ) {
-  int err;
+  assert( async != NULL );
 
   if ( !main_thread_set ) {
     main_thread_set = 1;
-    main_thread = pthread_self(); // the thread_id of the calling thread
+    main_thread = pthread_self();
     pthread_key_create( &async_key, NULL );
   }
-  err = pthread_create( &async->tid, NULL, run_thread, async );
-  if (!err) {
-    return 0;
-  } else {
-    error("Can not create thread %s", strerror(err));
-    return -1;
+
+  int ret = pthread_create( &async->tid, NULL, run_thread, async );
+  if ( ret != 0 ) {
+    char buf[ 256 ];
+    char *error_string = strerror_r( ret, buf, sizeof( buf ) );
+    error( "Failed to create a thread ( %s [%d] ).", error_string, ret );
   }
+
+  return 0;
 }
 
 

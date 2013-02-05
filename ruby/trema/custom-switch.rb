@@ -33,7 +33,9 @@ module Trema
 
 
     def command
-      "CHIBACH_TMP=#{ Trema.tmp } #{ path } -i #{ dpid_short } > #{ log_file } &"
+      patched_path = File.join( Trema.home, "objects/switch/switch/switch" )
+
+      "sudo -E CHIBACH_TMP=#{ Trema.tmp } #{ patched_path } -i #{ dpid_short } -e eth0/1 > #{ log_file } &"
     end
 
 

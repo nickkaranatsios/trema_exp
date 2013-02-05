@@ -32,7 +32,7 @@ VALUE cController;
 
 static void
 handle_timer_event( void *self ) {
-  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) == Qtrue ) {
+  if ( rb_respond_to( ( VALUE ) self, rb_intern( "handle_timer_event" ) ) ) {
     rb_funcall( ( VALUE ) self, rb_intern( "handle_timer_event" ), 0 );
   }
 }
@@ -128,7 +128,8 @@ controller_run( VALUE self ) {
   interval.it_value.tv_nsec = 0;
   add_timer_event_callback( &interval, handle_timer_event, ( void * ) self );
 
-  if ( rb_respond_to( self, rb_intern( "start" ) ) == Qtrue ) {
+  rb_funcall( self, rb_intern( "install_handlers" ), 1, self );
+  if ( rb_respond_to( self, rb_intern( "start" ) ) ) {
     rb_funcall( self, rb_intern( "start" ), 0 );
   }
 

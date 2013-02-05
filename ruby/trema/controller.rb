@@ -21,6 +21,7 @@ require "trema/logger"
 require "trema/monkey-patch/integer"
 require "trema/monkey-patch/string"
 require "trema/timers"
+require "trema/message-handler"
 
 
 module Trema
@@ -30,6 +31,7 @@ module Trema
   class Controller < App
     include Logger
     include Timers
+    include MessageHandler
 
 
     #

@@ -1,38 +1,81 @@
-#1. register the handler.
-class Controller
-  abstract :handle_timer_event
-  def initialize(options)
-    super(options)
+require "eventmachine"
+
+class Class
+  def abstract *args
+    self.class_eval do
+      args.each do | method_name |
+        define_method method_name do | *args |
+          raise NotImplementedError.new( "Unimplemented abstract method #{ self.class.name }##{ method_name }" )
+        end
+      end
+    end
+  end
+end
+
+
+module MessageHandler
+  def set_packet_in_handler
+puts __method__
   end
 
-
-  def run!
-    ENV[ 'TREMA_HOME' ] = Trema.home
-    $PROGRAM_NAME = name
-    # init_trema() call here
-    EM.add_periodic_timer( one_second ) do 
-      EM.defer { handle_timer_event }
-    end
-   end
+  def set_flow_removed_handler
+puts __method__
+  end
+end
  
 
-   def handle_timer_timer
-     if self.respond_to? __method__
-       call( __method__ )
-     end
-   end
 
-   def start
-     %w[ packet_in, flow_removed ].each do | handler |
-       eval %[ set_handler_"#{ packet_in }" { | datapath_id, reply | { Em.defer{ handle_#{ handler }( datapath_id, reply ) } ]
-     end
-   end
-   
+#1. register the handler.
+#class Controller
+#  include MessageHandler
+#  abstract :handle_timer_event
+#
+#
+#  def run!
+#    ENV[ 'TREMA_HOME' ] = `pwd`
+#    $PROGRAM_NAME = name
+#   end
+#
+#
+#   def start
+#     %w[ packet_in flow_removed ].each do | handler |
+#       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
+#     end
+#     one_second = 1
+#     EM.run do
+#       EM.add_periodic_timer( one_second ) { handle_timer_event }
+#       start_trema
+#     end
+#   end
+# 
+#
+#   def handle_timer_event
+#   end
+#
+#  def name
+#    self.class.to_s.split( "::" ).last
+#  end
+#end
 
-   def handle_packet_in
-      
-  
-    def name
-      self.class.to_s.split( "::" ).last
-    end
+
+class FooController < Controller
+  include MessageHandler
+  def start
+     %w[ packet_in flow_removed ].each do | handler |
+       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
+     end
+  end
+
+  def packet_in datapath_id, message
+puts __method__
+  end
+
+  def set_flow_removed datapath_id, message
+puts __method__
+  end
 end
+
+#me = TestController.new
+#me.run!
+#me.start
+

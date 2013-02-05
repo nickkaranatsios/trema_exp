@@ -1,7 +1,7 @@
 /*
  * Author: Yasunobu Chiba
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -29,8 +29,8 @@
 #include "openflow_message.h"
 #include "openflow_service_interface.h"
 #include "openflow_switch_interface.h"
+#include "safe_timer.h"
 #include "secure_channel.h"
-#include "timer-test.h"
 #include "wrapper.h"
 
 
@@ -304,7 +304,7 @@ set_hello_handler( hello_handler callback, void *user_data ) {
 
 
 bool
-switch_set_error_handler( error_handler callback, void *user_data ) {
+switch_set_error_handler( switch_error_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
@@ -318,7 +318,7 @@ switch_set_error_handler( error_handler callback, void *user_data ) {
 
 
 bool
-switch_set_experimenter_error_handler( experimenter_error_handler callback, void *user_data ) {
+switch_set_experimenter_error_handler( switch_experimenter_error_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
@@ -346,7 +346,7 @@ set_echo_request_handler( echo_request_handler callback, void *user_data ) {
 
 
 bool
-switch_set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
+switch_set_echo_reply_handler( switch_echo_reply_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
@@ -360,7 +360,7 @@ switch_set_echo_reply_handler( echo_reply_handler callback, void *user_data ) {
 
 
 bool
-switch_set_experimenter_handler( experimenter_handler callback, void *user_data ) {
+switch_set_experimenter_handler( switch_experimenter_handler callback, void *user_data ) {
   assert( callback != NULL );
   assert( openflow_switch_interface_initialized );
 
@@ -1703,7 +1703,7 @@ init_openflow_switch_interface( const uint64_t datapath_id, uint32_t controller_
 
   init_context();
 
-  new_add_periodic_event_callback( 5, age_contexts, NULL );
+  add_periodic_event_callback_safe( 5, age_contexts, NULL );
   add_message_received_callback( "switch", handle_local_message );
 
   openflow_switch_interface_initialized = true;
@@ -1721,7 +1721,7 @@ finalize_openflow_switch_interface() {
 
   finalize_secure_channel();
 
-  new_delete_timer_event( age_contexts, NULL );
+  delete_timer_event_safe( age_contexts, NULL );
   finalize_context();
 
   openflow_switch_interface_initialized = false;
