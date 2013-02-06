@@ -2126,7 +2126,8 @@ delete_openflow_messages( uint64_t datapath_id ) {
   memset( remote_service_name, '\0', sizeof( remote_service_name ) );
   snprintf( remote_service_name, sizeof( remote_service_name ),
             "switch_daemon.%#" PRIx64, datapath_id );
-  return clear_send_queue( remote_service_name );
+  return true;
+//  return clear_send_queue( remote_service_name );
 }
 
 
