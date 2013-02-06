@@ -47,7 +47,7 @@ static VALUE
 pack_send_out_port( VALUE self, VALUE actions, VALUE options ) {
   VALUE port_number = rb_hash_aref( options, sym_port_number );
   VALUE max_len = rb_hash_aref( options, sym_max_len );
-  append_action_output( openflow_actions_ptr( actions ), ( const uint16_t ) NUM2UINT( port_number ), ( const uint16_t ) NUM2UINT( max_len ) );
+  append_action_output( openflow_actions_ptr( actions ), ( const uint32_t ) NUM2UINT( port_number ), ( const uint16_t ) NUM2UINT( max_len ) );
   return self;
 }
 

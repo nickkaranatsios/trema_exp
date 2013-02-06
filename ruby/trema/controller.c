@@ -38,51 +38,6 @@ handle_timer_event( void *self ) {
 }
 
 
-/*
- * @overload send_message(datapath_id, message)
- *   Sends an OpenFlow message to the datapath.
- *
- *   @example
- *     send_message datapath_id, FeaturesRequest.new
- *
- *
- *   @param [Number] datapath_id
- *     the datapath to which a message is sent.
- *
- *   @param [FeaturesRequest] message
- *     the message to be sent.
- */
-static VALUE
-controller_send_message( VALUE self, VALUE datapath_id, VALUE message ) {
-  VALUE id_pack_msg = rb_intern( "pack_msg" );
-
-  if ( message != Qnil ) {
-    switch ( TYPE( message ) ) {
-      case T_ARRAY:
-        {
-          VALUE *each = RARRAY_PTR( message );
-          
-          for ( int i = 0; i < RARRAY_LEN( message ); i++ ) {
-            if ( rb_respond_to( each[ i ], id_pack_msg ) ) {
-              rb_funcall( each[ i ], id_pack_msg, 1, datapath_id );
-            }
-          }
-        }
-        break;
-      case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( message ), id_pack_msg ) ) {
-          rb_funcall( message, id_pack_msg, 1, datapath_id );
-        }
-        break;
-      default:
-        rb_raise( rb_eTypeError, "Message argument must be an Array or a Message object" );
-        break;
-    }
-  }
-  return self;
-}
-
-
 #ifdef TEST
 static VALUE
 get_strict( int argc, VALUE *argv ) {
@@ -206,8 +161,6 @@ Init_controller() {
   rb_require( "trema/app" );
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );
-
-  rb_define_method( cController, "send_message", controller_send_message, 2 );
 
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );

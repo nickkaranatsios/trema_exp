@@ -1,4 +1,3 @@
-require "eventmachine"
 
 class Class
   def abstract *args
@@ -60,15 +59,32 @@ end
 
 class FooController < Controller
   include MessageHandler
-  def start
-     %w[ packet_in flow_removed ].each do | handler |
-       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
-     end
+#  def start
+#     %w[ packet_in flow_removed ].each do | handler |
+#       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
+#     end
+#  end
+
+
+  def switch_ready datapath_id
+puts "#{ __method__ } datapath_id #{ datapath_id }"
+    action = Actions::SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
+    ins = Instructions::ApplyAction.new( :actions => [ action ] ) 
+    send_flow_mod_add( datapath_id,
+                       :priority => OFP_LOW_PRIORITY,
+                       :buffer_id => OFP_NO_BUFFER,
+                       :flags => OFPFF_SEND_FLOW_REM, 
+                       :out_port => 1,
+                       :out_group => 1,
+                       :instructions => [ ins ]
+    )
   end
+
 
   def packet_in datapath_id, message
 puts __method__
   end
+
 
   def set_flow_removed datapath_id, message
 puts __method__

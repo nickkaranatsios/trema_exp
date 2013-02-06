@@ -19,6 +19,7 @@
 #include "trema.h"
 #include "ruby.h"
 #include "messages/packet-in.h"
+#include "messages/switch-ready.h"
 
 
 extern VALUE mTrema;
@@ -29,6 +30,7 @@ VALUE mMessageHandler;
 VALUE
 install_handlers( VALUE self ) {
   set_packet_in_handler( handle_packet_in, ( void * ) self );
+  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   return self;
 }
 

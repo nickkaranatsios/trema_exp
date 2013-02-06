@@ -16,22 +16,11 @@
 #
 
 
-require "trema/message"
-
-
 module Trema
-  module Messages
-    class SetConfig < Message
-      unsigned_int32 :transaction_id
-      unsigned_int16 :flags, :within => :check_flags
-      unsigned_int16 :miss_send_len, :presence => true
-
-
-      def check_flags flags, name
-        unless MessageHelper.config_flags.include? flags
-          raise ArgumentError, "#{ name } must be >= #{ MessageHelper.config_flags.first } and <= #{ MessageHelper.config_flags.last }"
-        end
-      end
+  module MessageHelper
+    def send_flow_mod_add datapath_id, options
+      options[ :command ] = OFPFC_ADD 
+      send_flow_mod datapath_id, options
     end
   end
 end

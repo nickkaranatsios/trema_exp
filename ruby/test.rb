@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
+
 require "trema"
 module Trema
   class Test < Controller
@@ -12,6 +13,19 @@ module Trema
       test_basic_action create_basic_actions
     end
 
+    def test_flow_mod_add
+      action = Actions::SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
+      ins = Instructions::ApplyAction.new( :actions => [ action ] ) 
+      datapath_id = 0xabc
+      send_flow_mod_add( datapath_id, 
+                         :priority => OFP_LOW_PRIORITY,
+                         :buffer_id => OFP_NO_BUFFER,
+                         :flags => OFPFF_SEND_FLOW_REM, 
+                         :out_port => 0,
+                         :out_group => 0,
+                         :instructions => [ ins ] )
+    end
+
 
     def messages
       ml = [
@@ -19,7 +33,7 @@ module Trema
         Messages::EchoRequest.new( :transaction_id => 123, :user_data => "abcdefgh".unpack( "C" ) ),
         Messages::FeaturesRequest.new( :transaction_id => 123 ),
         Messages::GetConfigRequest.new( :transaction_id => 123 ),
-        Messages::SetConfig.new( :transaction_id => 123, :flags => Messages::OFPC_FRAG_NORMAL, :miss_send_len => Messages::OFPCML_NO_BUFFER ),
+        Messages::SetConfig.new( :transaction_id => 123, :flags => OFPC_FRAG_NORMAL, :miss_send_len => OFPCML_NO_BUFFER ),
       ]
       send_message 0x1, ml
     end
@@ -39,8 +53,9 @@ module Trema
 
 
     def create_basic_actions
+      controller_port = Messages::OFPP_CONTROLLER
       [
-        Actions::SendOutPort.new( :port_number => 2, :max_len => 2**7 ),
+        Actions::SendOutPort.new( :port_number => controller_port, :max_len => 2**7 ),
         Actions::GroupAction.new( :group_id => 1 ),
         Actions::CopyTtlIn.new,
         Actions::CopyTtlOut.new,
@@ -108,8 +123,9 @@ module Trema
 end
 
 t = Trema::Test.new
-t.basic_actions
-t.flexible_actions
+#t.test_flow_mod_add
+#t.basic_actions
+#t.flexible_actions
 t.messages
-t.instructions
+#t.instructions
 
