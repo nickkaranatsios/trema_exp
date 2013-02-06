@@ -99,28 +99,12 @@ void
 Init_message_helper() {
   mMessageHelper = rb_define_module_under( mTrema, "MessageHelper" );
 
-  rb_define_module_function( mMessageHelper, "config_flags", get_config_flags, 0 );
   rb_define_module_function( mMessageHelper, "send_flow_mod", send_flow_mod, -1 );
   rb_define_module_function( mMessageHelper, "send_message", send_controller_message, 2 );
-
-  rb_define_const( mMessageHelper, "OFPC_FRAG_NORMAL", INT2NUM( OFPC_FRAG_NORMAL ) );
-  rb_define_const( mMessageHelper, "OFPC_FRAG_DROP", INT2NUM( OFPC_FRAG_DROP ) );
-  rb_define_const( mMessageHelper, "OFPC_FRAG_REASM", INT2NUM( OFPC_FRAG_REASM ) );
-  rb_define_const( mMessageHelper, "OFPC_FRAG_MASK", INT2NUM( OFPC_FRAG_MASK ) );
-
-  VALUE config_flags = rb_range_new( INT2NUM( OFPC_FRAG_NORMAL ), INT2NUM( OFPC_FRAG_MASK ), false );
-  rb_iv_set( mMessageHelper, "@config_flags", config_flags );
-
-  // ofp_flow_mod_command
-  rb_define_const( mMessageHelper, "OFPFC_ADD", UINT2NUM( OFPFC_ADD ) );
-  rb_define_const( mMessageHelper, "OFPFC_MODIFY", UINT2NUM( OFPFC_MODIFY ) );
-  rb_define_const( mMessageHelper, "OFPFC_MODIFY_STRICT", UINT2NUM( OFPFC_MODIFY_STRICT ) );
-  rb_define_const( mMessageHelper, "OFPFC_DELETE", UINT2NUM( OFPFC_DELETE ) );
-  rb_define_const( mMessageHelper, "OFPFC_DELETE_STRICT", UINT2NUM( OFPFC_DELETE_STRICT ) );
+  rb_define_module_function( mMessageHelper, "ofpfc_add", ofpfc_add, 0 );
 
 
   // TODO to review all constants
-  // ofp_flow_mod_flags constants
   rb_define_const( mMessageHelper, "OFPFF_SEND_FLOW_REM", INT2NUM( OFPFF_SEND_FLOW_REM ) );
   rb_define_const( mMessageHelper, "OFPFF_CHECK_OVERLAP", INT2NUM( OFPFF_CHECK_OVERLAP ) );
   rb_define_const( mMessageHelper, "OFPFF_RESET_COUNTS", INT2NUM( OFPFF_RESET_COUNTS ) );
