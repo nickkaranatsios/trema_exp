@@ -69,7 +69,7 @@ Rake::Builder.new do | builder |
     RbConfig::CONFIG[ 'rubyhdrdir' ] + '/ruby/backward',
     RbConfig::CONFIG[ 'rubyhdrdir' ]
   ]
-  builder.include_paths = ruby_includes + [ 'src/lib' ]
+  builder.include_paths = ruby_includes + [ 'ruby/trema', 'src/lib' ]
   builder.objects_path = 'ruby'
   builder.compilation_options = CFLAGS
   builder.library_paths = [
