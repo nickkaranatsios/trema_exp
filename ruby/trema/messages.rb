@@ -22,6 +22,7 @@ require "trema/messages/features-request"
 require "trema/messages/get-config-request"
 require "trema/messages/set-config"
 require "trema/messages/flow-mod"
+require "trema/messages/match"
 
 
 ### Local variables:

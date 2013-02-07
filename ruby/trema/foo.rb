@@ -12,18 +12,7 @@ class Class
 end
 
 
-module MessageHandler
-  def set_packet_in_handler
-puts __method__
-  end
-
-  def set_flow_removed_handler
-puts __method__
-  end
-end
  
-
-
 #1. register the handler.
 #class Controller
 #  include MessageHandler
@@ -82,7 +71,9 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
-    puts "macsa #{ message.macsa } macda #{ message.macda }"
+    puts "buffer id #{ message.buffer_id } macsa #{ message.macsa } macda #{ message.macda }"
+    match = message.match
+    puts match.inspect
   end
 
 

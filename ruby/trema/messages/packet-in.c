@@ -482,7 +482,6 @@ assign_ipv6_exthdr( const oxm_match_header *hdr, VALUE options ) {
 
 static void
 assign_match( const oxm_match_header *hdr, VALUE options ) {
-
   switch( *hdr ) {
     case OXM_OF_IN_PORT: {
       const uint32_t *value = ( const uint32_t * ) ( ( const char * ) hdr + sizeof( oxm_match_header ) ); 
@@ -655,7 +654,29 @@ packet_in_match( VALUE self ) {
     oxm_match_header *oxm = list->data;
     assign_match( oxm, options );
   }
-  return self;
+  VALUE match = rb_funcall( rb_eval_string( "Messages::Match" ), rb_intern( "new" ), 1, options );
+  return match;
+}
+
+
+static VALUE
+packet_in_data( VALUE self ) {
+  UNUSED( self );
+  const buffer *data_frame = get_packet_in( self )->data;
+  uint16_t length = ( uint16_t ) data_frame->length;
+
+  if ( data_frame != NULL ) {
+    if ( data_frame->length ) {
+      VALUE data_array = rb_ary_new2( ( long int ) length );
+      uint8_t *data = ( uint8_t * ) ( ( char * ) data_frame->data );
+      long i;
+      for ( i = 0; i < length; i++ ) {
+        rb_ary_push( data_array, INT2FIX( data[ i ] ) );
+      }
+      return data_array;
+    }
+  }
+  return Qnil;
 }
 
 
@@ -674,6 +695,7 @@ Init_packet_in() {
   rb_define_method( cPacketIn, "table_id", packet_in_table_id, 0 );
   rb_define_method( cPacketIn, "cookie", packet_in_cookie, 0 );
   rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
+  rb_define_method( cPacketIn, "data", packet_in_data, 0 );
   rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
   rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
   rb_define_method( cPacketIn, "match", packet_in_match, 0 );
