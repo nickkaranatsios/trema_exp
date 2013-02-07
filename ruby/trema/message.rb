@@ -22,6 +22,7 @@ require "trema/accessor"
 module Trema
   class Message < Accessor
     include Messages
+    include MessageConst
 
 
     def pack_msg datapath_id

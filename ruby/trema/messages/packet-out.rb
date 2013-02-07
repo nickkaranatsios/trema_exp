@@ -21,17 +21,11 @@ require "trema/message"
 
 module Trema
   module Messages
-    class SetConfig < Message
-      unsigned_int32 :transaction_id
-      unsigned_int16 :flags, :within => :check_flags
-      unsigned_int16 :miss_send_len, :presence => true
-
-
-      def check_flags flags, name
-        unless MessageConst::CONFIG_FLAGS.include? flags
-          raise ArgumentError, "#{ name } must be >= #{ MessageConst::CONFIG_FLAGS.first } and <= #{ MessageConst::CONFIG_FLAGS.last }"
-        end
-      end
+    class PacketOut < Message
+      unsigned_int32 :buffer_id
+      unsigned_int32 :in_port
+      array :actions
+      array :data
     end
   end
 end

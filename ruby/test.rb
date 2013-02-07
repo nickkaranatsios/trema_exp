@@ -53,7 +53,7 @@ module Trema
 
 
     def create_basic_actions
-      controller_port = Messages::OFPP_CONTROLLER
+      controller_port = OFPP_CONTROLLER
       [
         Actions::SendOutPort.new( :port_number => controller_port, :max_len => 2**7 ),
         Actions::GroupAction.new( :group_id => 1 ),
@@ -122,10 +122,12 @@ module Trema
   end
 end
 
+puts OFP_NO_BUFFER.to_s( 16 )
 t = Trema::Test.new
-#t.test_flow_mod_add
-#t.basic_actions
-#t.flexible_actions
-t.messages
-#t.instructions
+t.test_flow_mod_add
+t.basic_actions
+t.flexible_actions
+#t.messages
+t.instructions
+
 

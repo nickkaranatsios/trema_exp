@@ -82,7 +82,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
-puts __method__
+    puts "macsa #{ message.macsa } macda #{ message.macda }"
   end
 
 

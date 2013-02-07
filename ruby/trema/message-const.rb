@@ -21,28 +21,58 @@ require "trema/monkey-patch/kernel"
 
 module Trema
   module MessageConst
-    config_flags = {
+    config_flags_hash = {
       :ofpc_frag_normal => frag_normal,
       :ofpc_frag_drop => frag_drop,
       :ofpc_frag_reasm => frag_reasm,
       :ofpc_frag_mask => frag_mask
     }
-    enum_hash config_flags
+    enum_hash config_flags_hash
+    CONFIG_FLAGS = config_flags_hash.values.freeze
+    
 
-    flow_mods = {
+    enum_hash(
       :ofpfc_add => flow_mod_add,
       :ofpfc_modify => flow_mod_modify,
       :ofpfc_modify_strict => flow_mod_modify_strict,
       :ofpfc_delete => flow_mod_delete,
       :ofpfc_delete_strict => flow_mod_delete_strict
-    }
-    enum_hash flow_mods
-    enum_range %w( ofpff_send_flow_rem  
+    )
 
+    
+    flow_mod_flags = %w( 
+      ofpff_send_flow_rem
       ofpff_check_overlap
       ofpff_reset_counts  
       ofpff_no_pkt_counts 
-      ofpff_no_byt_counts )
+      ofpff_no_byt_counts 
+    )
+    enum_range flow_mod_flags
+
+    enum_hash(
+     :ofpp_max => max_port,
+     :ofpp_in_port => in_port,
+     :ofpp_table => table_port,
+     :ofpp_normal => normal_port,
+     :ofpp_flood => flood_port,
+     :ofpp_all => all_ports,
+     :ofpp_controller => controller_port,
+     :ofpp_local => local_port,
+     :ofpp_any => any_port
+    )
+
+    enum_hash(
+      :ofpcml_max => controller_max_len_max,
+      :ofpcml_no_buffer => controller_max_len_no_buffer
+    )
+
+    enum_hash( :ofp_no_buffer => no_buffer )
+
+    enum_hash( 
+      :ofp_default_priority => default_priority,
+      :ofp_high_priority => high_priority,
+      :ofp_low_priority => low_priority 
+    )
   end
 end
 

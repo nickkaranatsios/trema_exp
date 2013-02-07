@@ -24,12 +24,6 @@ extern VALUE mTrema;
 VALUE mMessageHelper;
 
 
-static VALUE
-get_config_flags( VALUE self ) {
-  return rb_iv_get( self, "@config_flags" );
-}
-
-
 /*
  * @overload send_message(datapath_id, message)
  *   Sends an OpenFlow message to the datapath.
@@ -101,29 +95,6 @@ Init_message_helper() {
 
   rb_define_module_function( mMessageHelper, "send_flow_mod", send_flow_mod, -1 );
   rb_define_module_function( mMessageHelper, "send_message", send_controller_message, 2 );
-  rb_define_module_function( mMessageHelper, "ofpfc_add", ofpfc_add, 0 );
-
-
-  // TODO to review all constants
-  rb_define_const( mMessageHelper, "OFPFF_SEND_FLOW_REM", INT2NUM( OFPFF_SEND_FLOW_REM ) );
-  rb_define_const( mMessageHelper, "OFPFF_CHECK_OVERLAP", INT2NUM( OFPFF_CHECK_OVERLAP ) );
-  rb_define_const( mMessageHelper, "OFPFF_RESET_COUNTS", INT2NUM( OFPFF_RESET_COUNTS ) );
-  rb_define_const( mMessageHelper, "OFPFF_NO_PKT_COUNTS", INT2NUM( OFPFF_NO_PKT_COUNTS ) );
-  rb_define_const( mMessageHelper, "OFPFF_NO_BYT_COUNTS", INT2NUM( OFPFF_NO_BYT_COUNTS ) );
-  VALUE flow_mod_flags = rb_range_new( INT2NUM( OFPFF_SEND_FLOW_REM ), INT2NUM( OFPFF_NO_BYT_COUNTS ), false  );
-  rb_iv_set( mMessageHelper, "@flow_mod_flags", flow_mod_flags );
-
-
-  rb_define_const( mMessageHelper, "OFPP_CONTROLLER", UINT2NUM( OFPP_CONTROLLER ) );
-
-  rb_define_const( mMessageHelper, "OFP_NO_BUFFER", UINT2NUM( OFP_NO_BUFFER ) );
-  rb_define_const( mMessageHelper, "OFPCML_MAX", INT2NUM( OFPCML_MAX ) );
-  rb_define_const( mMessageHelper, "OFPCML_NO_BUFFER", INT2NUM( OFPCML_NO_BUFFER ) );
-
-
-  rb_define_const( mMessageHelper, "OFP_DEFAULT_PRIORITY", INT2NUM( OFP_DEFAULT_PRIORITY ) );
-  rb_define_const( mMessageHelper, "OFP_HIGH_PRIORITY", INT2NUM( OFP_HIGH_PRIORITY ) );
-  rb_define_const( mMessageHelper, "OFP_LOW_PRIORITY", INT2NUM( OFP_LOW_PRIORITY ) );
 }
 
 
