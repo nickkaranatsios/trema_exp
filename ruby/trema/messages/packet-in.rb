@@ -18,19 +18,24 @@
 
 module Trema
   module Messages
-    class FlowMod < Message
-      unsigned_int64 :cookie
-      unsigned_int64 :cookie_mask
-      unsigned_int8 :table_id
-      unsigned_int8 :command
-      unsigned_int16 :idle_timeout
-      unsigned_int16 :hard_timeout
-      unsigned_int16 :priority
+    class PacketIn < Message
+      unsigned_int32 :transaction_id
+      unsigned_int64 :datapath_id
       unsigned_int32 :buffer_id
-      unsigned_int32 :out_port
-      unsigned_int32 :out_group
-      unsigned_int16 :flags
-      array :instructions
+      unsigned_int16 :total_len
+      unsigned_int8 :reason
+      unsigned_int8 :table_id
+      unsigned_int64 :cookie
+      attr_accessor :match
+      array :data
+      # packet info information
+      attr_accessor :macsa, :macda
+      unsigned_int16 :ether_type
+
+      attr_accessor :vtag
+      alias_method :vtag?, :vtag
+      attr_accessor :arp
+      alias_method :arp?, :arp
     end
   end
 end

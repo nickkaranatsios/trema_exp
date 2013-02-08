@@ -21,171 +21,16 @@
 #include "ruby.h"
 
 
-VALUE cPacketIn;
-extern VALUE mMessageHandler;
-
-
-#define PACKET_IN_RETURN_MAC( packet_member )                                          \
+#define PACKET_INFO_MAC_ADDR( packet_member )                                          \
   {                                                                                    \
-    VALUE ret = ULL2NUM( mac_to_uint64( get_packet_in_info( self )->packet_member ) ); \
+    VALUE ret = ULL2NUM( mac_to_uint64( ( ( packet_info * ) ( message->data->user_data ) )->packet_member ) ); \
     return rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ret );   \
   }
 
-#define PACKET_IN_RETURN_IP( packet_member )                                        \
-  {                                                                                 \
-    VALUE ret = ULONG2NUM( get_packet_in_info( self )->packet_member );             \
-    return rb_funcall( rb_eval_string( "Trema::IP" ), rb_intern( "new" ), 1, ret ); \
-  }
-
-#define PACKET_IN_RETURN_NUM( flag, func, packet_member )               \
-  {                                                                     \
-    if ( get_packet_in_info( self )->format & flag ) {                  \
-      return func( get_packet_in_info( self )->packet_member );         \
-    } else {                                                            \
-      return Qnil;                                                      \
-    }                                                                   \
-  }
-
-
-typedef struct rb_packet_in {
-  packet_in packet_in;
-  buffer *data;
-} rb_packet_in;
-
-
-static void
-packet_in_free( rb_packet_in *_packet_in ) {
-  free_buffer( _packet_in->data );
-  xfree( _packet_in );
-}
-
-
-static packet_in *
-get_packet_in( VALUE self ) {
-  rb_packet_in *cpacket;
-  Data_Get_Struct( self, rb_packet_in, cpacket );
-  return &cpacket->packet_in;
-}
-
 
 static packet_info *
-get_packet_in_info( VALUE self ) {
-  packet_in *cpacket;
-  Data_Get_Struct( self, packet_in, cpacket );
-  return ( packet_info * ) cpacket->data->user_data;
-}
-
-
-static VALUE
-packet_in_alloc( VALUE klass ) {
-  rb_packet_in *_packet_in = xmalloc( sizeof( rb_packet_in ) );
-  memset( &_packet_in->packet_in, 0, sizeof( packet_in ) );
-  _packet_in->data = alloc_buffer_with_length( 1 );
-  parse_packet( _packet_in->data );
-  _packet_in->packet_in.data = _packet_in->data;
-  return Data_Wrap_Struct( klass, 0, packet_in_free, _packet_in );
-}
-
-
-/*
- * Message originator identifier.
- *
- * @return [Number] the value of datapath_id.
- */
-static VALUE
-packet_in_datapath_id( VALUE self ) {
-  return ULL2NUM( get_packet_in( self )->datapath_id );
-}
-
-
-/*
- * For this asynchronous message the transaction_id is set to zero.
- *
- * @return [Number] the value of transaction_id.
- */
-static VALUE
-packet_in_transaction_id( VALUE self ) {
-  return ULONG2NUM( get_packet_in( self )->transaction_id );
-}
-
-
-/*
- * Buffer id value signifies if the entire frame (packet is not buffered) or
- * portion of it (packet is buffered) is included in the data field of
- * this +OFPT_PACKET_IN+ message.
- *
- * @return [Number] the value of buffer id.
- */
-static VALUE
-packet_in_buffer_id( VALUE self ) {
-  return ULONG2NUM( get_packet_in( self )->buffer_id );
-}
-
-
-/*
- * The full length of the received frame.
- *
- * @return [Number] the value of total_len.
- */
-static VALUE
-packet_in_total_len( VALUE self ) {
-  return UINT2NUM( get_packet_in( self )->total_len );
-}
-
-
-/*
- * The reason why the +OFPT_PACKET_IN+ message was sent.
- *
- * @return [Number] the value of reason.
- */
-static VALUE
-packet_in_reason( VALUE self ) {
-  return UINT2NUM( ( uint32_t ) get_packet_in( self )->reason );
-}
-
-
-/*
- * The id of the table the packet was looked up.
- *
- * @return [Number] the value of table_id.
- */
-static VALUE
-packet_in_table_id( VALUE self ) {
-  return UINT2NUM( ( uint32_t ) get_packet_in( self )->table_id );
-}
-
-
-static VALUE
-packet_in_cookie( VALUE self ) {
-  return ULL2NUM( get_packet_in( self )->cookie );
-}
-
-
-static VALUE
-packet_in_in_port( VALUE self ) {
-  return UINT2NUM( get_in_port_from_oxm_matches( get_packet_in( self )->match ) );
-}
-
-
-/*
- * The MAC source address.
- *
- * @return [Trema::Mac] macsa MAC source address.
- */
-static VALUE
-packet_in_macsa( VALUE self ) {
-  PACKET_IN_RETURN_MAC( eth_macsa );
-}
-
-
-/*
- * The MAC destination address.
- *
- * @return [Trema::Mac] macda MAC destination address.
- */
-static VALUE
-packet_in_macda( VALUE self ) {
-  PACKET_IN_RETURN_MAC( eth_macda );
+get_packet_in_info( packet_in *message ) {
+  return ( packet_info * ) ( message->data->user_data );
 }
 
 
@@ -647,10 +492,10 @@ assign_match( const oxm_match_header *hdr, VALUE options ) {
 
 
 static VALUE
-packet_in_match( VALUE self ) {
+packet_in_match( packet_in *message ) {
   VALUE options = rb_hash_new();
 
-  for ( list_element *list = get_packet_in( self )->match->list; list != NULL; list = list->next ) {
+  for ( list_element *list = message->match->list; list != NULL; list = list->next ) {
     oxm_match_header *oxm = list->data;
     assign_match( oxm, options );
   }
@@ -660,9 +505,8 @@ packet_in_match( VALUE self ) {
 
 
 static VALUE
-packet_in_data( VALUE self ) {
-  UNUSED( self );
-  const buffer *data_frame = get_packet_in( self )->data;
+packet_in_data( packet_in *message ) {
+  const buffer *data_frame = message->data;
   uint16_t length = ( uint16_t ) data_frame->length;
 
   if ( data_frame != NULL ) {
@@ -680,26 +524,81 @@ packet_in_data( VALUE self ) {
 }
 
 
-void
-Init_packet_in() {
-  rb_require( "trema/ip" );
-  rb_require( "trema/mac" );
-  cPacketIn = rb_define_class_under( mMessageHandler, "PacketIn", rb_cObject );
-  rb_define_alloc_func( cPacketIn, packet_in_alloc );
+#ifdef INFO
+typedef struct {
+  uint64_t datapath_id;
+  uint32_t transaction_id;
+  uint32_t buffer_id;
+  uint16_t total_len;
+  uint8_t reason;
+  uint8_t table_id;
+  uint64_t cookie;
+  const oxm_matches *match;
+  const buffer *data;
+  void *user_data;
+} packet_in
+#endif
 
-  rb_define_method( cPacketIn, "datapath_id", packet_in_datapath_id, 0 );
-  rb_define_method( cPacketIn, "transaction_id", packet_in_transaction_id, 0 );
-  rb_define_method( cPacketIn, "buffer_id", packet_in_buffer_id, 0 );
-  rb_define_method( cPacketIn, "total_len", packet_in_total_len, 0 );
-  rb_define_method( cPacketIn, "reason", packet_in_reason, 0 );
-  rb_define_method( cPacketIn, "table_id", packet_in_table_id, 0 );
-  rb_define_method( cPacketIn, "cookie", packet_in_cookie, 0 );
-  rb_define_method( cPacketIn, "in_port", packet_in_in_port, 0 );
-  rb_define_method( cPacketIn, "data", packet_in_data, 0 );
-  rb_define_method( cPacketIn, "macsa", packet_in_macsa, 0 );
-  rb_define_method( cPacketIn, "macda", packet_in_macda, 0 );
-  rb_define_method( cPacketIn, "match", packet_in_match, 0 );
-  
+#define HASH_SET( hash, key, value ) \
+  rb_hash_aset( hash, ID2SYM( rb_intern( ( key ) ) ), value ) 
+
+
+static VALUE
+packet_in_macsa( packet_in *message ) {
+ PACKET_INFO_MAC_ADDR( eth_macsa );
+}
+
+
+static VALUE
+packet_in_macda( packet_in *message ) {
+  PACKET_INFO_MAC_ADDR( eth_macda );
+}
+
+
+static VALUE
+packet_in_vtag( packet_in *message ) {
+  if ( get_packet_in_info( message )->format & ETH_8021Q ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+/*
+ * Is it an ARP packet?
+ *
+ * @return [Boolean] whether the packet is an ARP packet or not.
+ */
+static VALUE
+packet_in_is_arp( packet_in *message ) {
+  if ( ( get_packet_in_info( message )->format & NW_ARP ) ) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+
+static VALUE
+marshall_packet_in( packet_in *message ) {
+  VALUE options = rb_hash_new();
+
+  HASH_SET( options, "datapath_id", ULL2NUM( message->datapath_id ) );  
+  HASH_SET( options, "transaction", UINT2NUM( message->transaction_id ) );
+  HASH_SET( options, "buffer_id", UINT2NUM( message->buffer_id ) );
+  HASH_SET( options, "total_len", UINT2NUM( message->total_len ) );
+  HASH_SET( options, "reason", UINT2NUM( message->reason ) );
+  HASH_SET( options, "table_id", UINT2NUM( message->table_id ) );
+  HASH_SET( options, "cookie", ULL2NUM( message->cookie ) );
+  HASH_SET( options, "match", packet_in_match( message ) );
+  HASH_SET( options, "data", packet_in_data( message ) );
+  // packet_info information
+  HASH_SET( options, "macsa", packet_in_macsa( message ) );
+  HASH_SET( options, "macda", packet_in_macda( message ) );
+  HASH_SET( options, "vtag", packet_in_vtag( message ) );
+  HASH_SET( options, "arp", packet_in_is_arp( message ) );
+  return rb_funcall( rb_eval_string( "Messages::PacketIn" ), rb_intern( "new" ), 1, options );
 }
 
 
@@ -713,12 +612,9 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
     return;
   }
 
-  VALUE r_message = rb_funcall( cPacketIn, rb_intern( "new" ), 0 );
-  packet_in *tmp = NULL;
-  Data_Get_Struct( r_message, packet_in, tmp );
-  memcpy( tmp, &message, sizeof( packet_in ) );
 
-  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), r_message );
+  VALUE cPacketIn = marshall_packet_in( &message );
+  rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), cPacketIn );
 }
 
 

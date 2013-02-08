@@ -71,9 +71,10 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
-    puts "buffer id #{ message.buffer_id } macsa #{ message.macsa } macda #{ message.macda }"
-    match = message.match
-    puts match.inspect
+    puts message.inspect
+   
+    action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
+    send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
   end
 
 

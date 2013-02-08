@@ -16,9 +16,6 @@
 #
 
 
-require "trema/message"
-
-
 module Trema
   module Messages
     class Hello < Message

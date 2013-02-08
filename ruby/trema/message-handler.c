@@ -18,7 +18,7 @@
 
 #include "trema.h"
 #include "ruby.h"
-#include "messages/packet-in.h"
+#include "messages/packet-in-handler.h"
 #include "messages/switch-ready.h"
 
 
@@ -40,7 +40,6 @@ Init_message_handler() {
   mMessageHandler = rb_define_module_under( mTrema, "MessageHandler" );
 
   rb_define_module_function( mMessageHandler, "install_handlers", install_handlers, 1 );
-  Init_packet_in();
 }
 
 

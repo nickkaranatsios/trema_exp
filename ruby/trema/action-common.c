@@ -53,8 +53,7 @@ pack_basic_action( VALUE action ) {
 
   if ( action != Qnil ) {
     switch ( TYPE( action ) ) {
-      case T_ARRAY:
-        {
+      case T_ARRAY: {
           VALUE *each = RARRAY_PTR( action );
 
           for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
@@ -63,17 +62,17 @@ pack_basic_action( VALUE action ) {
               rb_funcall( each[ i ], rb_intern( "pack_action" ), 1, cAction );
             }
           }
-        }
-        break;
+      }
+      break;
       case T_OBJECT:
         if ( rb_respond_to( action, rb_intern( "pack_action" ) ) ) {
           cAction = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, actions );
           rb_funcall( action, rb_intern( "pack_action" ), 1, cAction );
         }
-        break;
+      break;
       default:
         rb_raise( rb_eTypeError, "Action argument must be either an Array or an Action object" );
-        break;
+      break;
     }
   }
   Data_Get_Struct( cAction, openflow_actions, actions );
@@ -89,8 +88,7 @@ pack_flexible_action( VALUE action ) {
 
   if ( action != Qnil ) {
     switch ( TYPE( action ) ) {
-      case T_ARRAY:
-        {
+      case T_ARRAY: {
           VALUE *each = RARRAY_PTR( action );
 
           for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
@@ -99,17 +97,17 @@ pack_flexible_action( VALUE action ) {
               rb_funcall( each[ i ], rb_intern( "pack_match" ), 1, cOxmMatch );
             }
           }
-        }
-        break;
+      }
+      break;
       case T_OBJECT:
         if ( rb_respond_to( action, rb_intern( "pack_match" ) ) ) {
           cOxmMatch = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, oxm_match );
           rb_funcall( action, rb_intern( "pack_match" ), 1, cOxmMatch );
         }
-        break;
+      break;
       default:
         rb_raise( rb_eTypeError, "Action argument must be either an Array or an Action object" );
-        break;
+      break;
     }
   }
   Data_Get_Struct( cOxmMatch, oxm_matches, oxm_match );
@@ -125,8 +123,7 @@ pack_instruction( VALUE instruction ) {
 
   if ( instruction != Qnil ) {
     switch ( TYPE( instruction ) ) {
-      case T_ARRAY:
-        {
+      case T_ARRAY: {
           VALUE *each = RARRAY_PTR( instruction );
 
           for ( int i = 0; i < RARRAY_LEN( instruction ); i++ ) {
@@ -136,16 +133,16 @@ pack_instruction( VALUE instruction ) {
             }
           }
         }
-        break;
+      break;
       case T_OBJECT:
         if ( rb_respond_to( rb_obj_class( instruction ), rb_intern( "pack_instruction" ) ) ) {
           cInstruction = Data_Wrap_Struct( instruction, NULL, NULL, instructions );
           rb_funcall( instruction, rb_intern( "pack_instruction" ), 1, cInstruction );
         }
-        break;
+      break;
       default:
         rb_raise( rb_eTypeError, "Instruction argument must be either an Array or an Instruction object" );
-        break;
+      break;
     }
   }
   Data_Get_Struct( cInstruction, openflow_instructions, instructions );

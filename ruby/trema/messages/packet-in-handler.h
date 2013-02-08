@@ -16,15 +16,14 @@
  */
 
 
-#ifndef PACKET_IN_H
-#define PACKET_IN_H
+#ifndef PACKET_IN_HANDLER_H
+#define PACKET_IN_HANDLER_H
 
 
-void Init_packet_in();
 void handle_packet_in( uint64_t datapath_id, packet_in message );
 
 
-#endif // PACKET_IN_H
+#endif // PACKET_IN_HANDLER_H
 
 
 /*
