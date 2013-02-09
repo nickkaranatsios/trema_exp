@@ -98,25 +98,30 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
 
   uint32_t buffer_id = OFP_NO_BUFFER;
   buffer *data = NULL;
-  buffer *allocated_data = NULL;
   openflow_actions *actions = NULL;
   uint32_t in_port = OFPP_ANY;
+#ifdef REMOVE
+  buffer *allocated_data = NULL;
   VALUE opt_zero_padding = Qnil;
+#endif
 
   if ( options != Qnil ) {
-    VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
 
     VALUE opt_action = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
     if ( opt_action != Qnil ) {
       actions = pack_basic_action( opt_action );
     }
 
+    VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
+#ifdef REMOVE
+    // TODO this is not necessary. 
     opt_zero_padding = rb_hash_aref( options, ID2SYM( rb_intern( "zero_padding" ) ) );
     if ( opt_zero_padding != Qnil ) {
       if ( TYPE( opt_zero_padding ) != T_TRUE && TYPE( opt_zero_padding ) != T_FALSE ) {
         rb_raise( rb_eTypeError, ":zero_padding must be true or false" );
       }
     }
+#endif
 
     if ( opt_message != Qnil ) {
 
@@ -141,6 +146,7 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
     }
 
 
+#ifdef REMOVE
     if ( data != NULL && data->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH &&
       opt_zero_padding != Qnil && TYPE( opt_zero_padding ) == T_TRUE ) {
       if ( allocated_data == NULL ) {
@@ -149,19 +155,34 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
       }
       fill_ether_padding( allocated_data );
     }
+#endif
 
-    buffer *packet_out = create_packet_out(
-      get_transaction_id(),
-      buffer_id, 
-      in_port,
-      actions,
-      data
-    );
+    buffer *packet_out;
+    if ( buffer_id == OFP_NO_BUFFER && opt_message != Qnil ) {
+      buffer *frame = duplicate_buffer( data );
+      fill_ether_padding( frame );
+
+      packet_out = create_packet_out(
+        get_transaction_id(),
+        buffer_id, 
+        in_port,
+        actions,
+        frame
+      );
+      free_buffer( data );
+      free_buffer( frame );
+    } 
+    else {
+      packet_out = create_packet_out(
+        get_transaction_id(),
+        buffer_id, 
+        in_port,
+        actions,
+        NULL
+      );
+    }
     send_openflow_message( NUM2ULL( datapath_id ), packet_out );
 
-    if ( allocated_data != NULL ) {
-      free_buffer( allocated_data );
-    }
     free_buffer( packet_out );
     delete_actions( actions );
   }

@@ -81,8 +81,8 @@ class Trema::Executables
 
 
   path "packetin_filter/packetin_filter"
-#  path "phost/cli"
-#  path "phost/phost"
+  path "phost/cli"
+  path "phost/phost"
   path "switch/switch/switch"
   path "switch_manager/switch_daemon"
   path "switch_manager/switch_manager"

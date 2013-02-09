@@ -73,6 +73,19 @@ module Trema
       :ofp_high_priority => high_priority,
       :ofp_low_priority => low_priority 
     )
+
+    port_state = %w(
+      ofpps_link_down
+      ofpps_blocked
+      ofpps_live
+    )
+    enum_range port_state
+
+    enum_hash(
+      :ofppr_add => port_add,
+      :ofppr_delete => port_delete,
+      :ofppr_modify => port_modify
+    )
   end
 end
 

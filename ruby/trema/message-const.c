@@ -88,41 +88,6 @@ flow_mod_delete_strict( VALUE self ) {
 
 
 static VALUE
-send_flow_rem( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFF_SEND_FLOW_REM );
-}
-
-
-static VALUE
-check_overlap( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFF_CHECK_OVERLAP );
-}
-
-
-static VALUE
-reset_counts( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFF_RESET_COUNTS );
-}
-
-
-static VALUE
-no_pkt_counts( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFF_NO_PKT_COUNTS );
-}
-
-
-static VALUE
-no_byt_counts( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFF_NO_BYT_COUNTS );
-}
-
-
-static VALUE
 controller_port( VALUE self ) {
   UNUSED( self );
   return UINT2NUM( OFPP_CONTROLLER );
@@ -227,6 +192,27 @@ low_priority( VALUE self ) {
 }
 
 
+static VALUE
+port_add( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPPR_ADD );
+}
+
+
+static VALUE
+port_delete( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPPR_DELETE );
+}
+
+
+static VALUE
+port_modify( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPPR_MODIFY );
+}
+
+
 void
 Init_message_const() {
   mMessageConst = rb_define_module_under( mTrema, "MessageConst" );
@@ -246,13 +232,6 @@ Init_message_const() {
   rb_define_module_function( mMessageConst, "flow_mod_modify_strict", flow_mod_modify_strict, 0 );
   rb_define_module_function( mMessageConst, "flow_mod_delete", flow_mod_delete, 0 );
   rb_define_module_function( mMessageConst, "flow_mod_delete_strict", flow_mod_delete_strict, 0 );
-
-  // ofp_flow_mod_flags
-  rb_define_module_function( mMessageConst, "send_flow_rem", send_flow_rem, 0 );
-  rb_define_module_function( mMessageConst, "check_overlap", check_overlap, 0 );
-  rb_define_module_function( mMessageConst, "reset_counts", reset_counts, 0 );
-  rb_define_module_function( mMessageConst, "no_pkt_counts", no_pkt_counts, 0 );
-  rb_define_module_function( mMessageConst, "no_byt_counts", no_byt_counts, 0 );
 
   // ofp_ports
   rb_define_module_function( mMessageConst, "max_port", max_port, 0 );
@@ -276,6 +255,11 @@ Init_message_const() {
   rb_define_module_function( mMessageConst, "default_priority", default_priority, 0 );
   rb_define_module_function( mMessageConst, "high_priority", high_priority, 0 );
   rb_define_module_function( mMessageConst, "low_priority", low_priority, 0 );
+
+  // ofp_port_reason
+  rb_define_module_function( mMessageConst, "port_add" , port_add, 0 );
+  rb_define_module_function( mMessageConst, "port_delete" , port_delete, 0 );
+  rb_define_module_function( mMessageConst, "port_modify" , port_modify, 0 );
 
   rb_require( "trema/message-const" );
 }

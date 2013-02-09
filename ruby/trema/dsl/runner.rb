@@ -91,6 +91,7 @@ module Trema
         maybe_create_links
         maybe_run_hosts
         maybe_run_switches
+        maybe_run_trema_switch
         maybe_run_netnss
       end
 
@@ -144,6 +145,11 @@ module Trema
         end
       end
 
+
+      def maybe_run_trema_switch
+        @context.trema_switch.run! if @context.trema_switch
+      end
+      
 
       def maybe_run_apps
         return if @context.apps.values.empty?

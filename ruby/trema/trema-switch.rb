@@ -16,27 +16,43 @@
 #
 
 
-module Trema
-  module Messages
-    class PacketIn < Message
-      unsigned_int32 :transaction_id
-      unsigned_int64 :datapath_id
-      unsigned_int32 :buffer_id
-      unsigned_int16 :total_len
-      unsigned_int8 :reason
-      unsigned_int8 :table_id
-      unsigned_int64 :cookie
-      # packet info information
-      unsigned_int16 :eth_type
+require "trema/network-component"
 
-      attr_accessor :macsa
-      attr_accessor :macda
-      attr_accessor :match
-      attr_accessor :data
-      attr_accessor :vtag
-      alias_method :vtag?, :vtag
-      attr_accessor :arp
-      alias_method :arp?, :arp
+
+module Trema
+  class TremaSwitch < NetworkComponent
+    include Trema::Daemon
+
+    attr_accessor :datapath_id
+    alias :dpid :datapath_id
+
+
+    log_file { | switch | "switch.#{ switch.dpid }.log" }
+
+    
+    def initialize stanza
+      @stanza = stanza
+      TremaSwitch.add self
+    end
+
+
+    #
+    # Define host attribute accessors
+    #
+    # @example
+    #   host.name  # delegated to @stanza[ :name ]
+    #
+    # @return an attribute value
+    #
+    # @api public
+    #
+    def method_missing message, *args
+      @stanza.__send__ :[], message
+    end
+
+
+    def command
+      "export SWITCH_HOME=`pwd`; sudo -E #{ Executables.switch } -i #{ dpid_short } -e #{ @stanza[ :ports ] } > #{ log_file } &"
     end
   end
 end

@@ -24,6 +24,7 @@ require "trema/link"
 require "trema/openflow-switch"
 require "trema/packetin-filter"
 require "trema/switch-manager"
+require "trema/trema-switch"
 
 
 module Trema
@@ -105,6 +106,7 @@ module Trema
         @links = Trema::Link.clear
         @packetin_filter = Trema::PacketinFilter.clear
         @switch_manager = Trema::SwitchManager.clear
+        @trema_switch = Trema::TremaSwitch.clear
         @switches = Trema::OpenflowSwitch.clear
         @netnss = Trema::Netns.clear
       end
@@ -133,6 +135,11 @@ module Trema
       #
       def switch_manager
         @switch_manager.values.last
+      end
+
+
+      def trema_switch
+        @trema_switch.values.last
       end
     end
   end

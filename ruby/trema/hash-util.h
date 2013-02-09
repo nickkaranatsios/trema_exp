@@ -16,33 +16,15 @@
  */
 
 
-#include "trema.h"
-#include "ruby.h"
-#include "messages/packet-in-handler.h"
-#include "messages/switch-ready.h"
-#include "messages/port-status.h"
+#ifndef HASH_UTIL_H
+#define HASH_UTIL_H
 
 
-extern VALUE mTrema;
-VALUE mMessageHandler;
+#define HASH_SET( hash, key, value ) \
+  rb_hash_aset( hash, ID2SYM( rb_intern( ( key ) ) ), value ) 
 
 
-
-VALUE
-install_handlers( VALUE self ) {
-  set_packet_in_handler( handle_packet_in, ( void * ) self );
-  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
-  set_port_status_handler( handle_port_status, ( void * ) self );
-  return self;
-}
-
-
-void
-Init_message_handler() {
-  mMessageHandler = rb_define_module_under( mTrema, "MessageHandler" );
-
-  rb_define_module_function( mMessageHandler, "install_handlers", install_handlers, 1 );
-}
+#endif // MESSAGE_UTIL_H
 
 
 /*

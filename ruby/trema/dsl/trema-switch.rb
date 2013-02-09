@@ -1,4 +1,6 @@
 #
+# The syntax definition of tram_switch { ... } stanza in Trema DSL.
+#
 # Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,27 +18,20 @@
 #
 
 
-module Trema
-  module Messages
-    class PacketIn < Message
-      unsigned_int32 :transaction_id
-      unsigned_int64 :datapath_id
-      unsigned_int32 :buffer_id
-      unsigned_int16 :total_len
-      unsigned_int8 :reason
-      unsigned_int8 :table_id
-      unsigned_int64 :cookie
-      # packet info information
-      unsigned_int16 :eth_type
+require "trema/dsl/switch"
 
-      attr_accessor :macsa
-      attr_accessor :macda
-      attr_accessor :match
-      attr_accessor :data
-      attr_accessor :vtag
-      alias_method :vtag?, :vtag
-      attr_accessor :arp
-      alias_method :arp?, :arp
+
+module Trema
+  module DSL
+    class TremaSwitch < Switch
+      def initialize name = nil
+        super name
+      end
+
+
+      def ports ports
+         @ports = ports.split( ',' ).map.with_index{ | v, i | "#{ v }/#{ i + 1 }" }.join( ',' )
+      end
     end
   end
 end

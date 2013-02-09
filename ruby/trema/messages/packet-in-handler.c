@@ -19,6 +19,7 @@
 #include <assert.h>
 #include "trema.h"
 #include "ruby.h"
+#include "hash-util.h"
 
 
 #define PACKET_INFO_MAC_ADDR( packet_member )                                          \
@@ -539,8 +540,11 @@ typedef struct {
 } packet_in
 #endif
 
-#define HASH_SET( hash, key, value ) \
-  rb_hash_aset( hash, ID2SYM( rb_intern( ( key ) ) ), value ) 
+
+static VALUE
+packet_in_eth_type( packet_in *message ) {
+  return UINT2NUM( get_packet_in_info( message )->eth_type );
+}
 
 
 static VALUE
@@ -581,24 +585,25 @@ packet_in_is_arp( packet_in *message ) {
 
 
 static VALUE
-marshall_packet_in( packet_in *message ) {
-  VALUE options = rb_hash_new();
+decode_packet_in( packet_in *message ) {
+  VALUE attributes = rb_hash_new();
 
-  HASH_SET( options, "datapath_id", ULL2NUM( message->datapath_id ) );  
-  HASH_SET( options, "transaction", UINT2NUM( message->transaction_id ) );
-  HASH_SET( options, "buffer_id", UINT2NUM( message->buffer_id ) );
-  HASH_SET( options, "total_len", UINT2NUM( message->total_len ) );
-  HASH_SET( options, "reason", UINT2NUM( message->reason ) );
-  HASH_SET( options, "table_id", UINT2NUM( message->table_id ) );
-  HASH_SET( options, "cookie", ULL2NUM( message->cookie ) );
-  HASH_SET( options, "match", packet_in_match( message ) );
-  HASH_SET( options, "data", packet_in_data( message ) );
+  HASH_SET( attributes, "datapath_id", ULL2NUM( message->datapath_id ) );  
+  HASH_SET( attributes, "transaction", UINT2NUM( message->transaction_id ) );
+  HASH_SET( attributes, "buffer_id", UINT2NUM( message->buffer_id ) );
+  HASH_SET( attributes, "total_len", UINT2NUM( message->total_len ) );
+  HASH_SET( attributes, "reason", UINT2NUM( message->reason ) );
+  HASH_SET( attributes, "table_id", UINT2NUM( message->table_id ) );
+  HASH_SET( attributes, "cookie", ULL2NUM( message->cookie ) );
+  HASH_SET( attributes, "match", packet_in_match( message ) );
+  HASH_SET( attributes, "data", packet_in_data( message ) );
   // packet_info information
-  HASH_SET( options, "macsa", packet_in_macsa( message ) );
-  HASH_SET( options, "macda", packet_in_macda( message ) );
-  HASH_SET( options, "vtag", packet_in_vtag( message ) );
-  HASH_SET( options, "arp", packet_in_is_arp( message ) );
-  return rb_funcall( rb_eval_string( "Messages::PacketIn" ), rb_intern( "new" ), 1, options );
+  HASH_SET( attributes, "eth_type", packet_in_eth_type( message ) );
+  HASH_SET( attributes, "macsa", packet_in_macsa( message ) );
+  HASH_SET( attributes, "macda", packet_in_macda( message ) );
+  HASH_SET( attributes, "vtag", packet_in_vtag( message ) );
+  HASH_SET( attributes, "arp", packet_in_is_arp( message ) );
+  return rb_funcall( rb_eval_string( "Messages::PacketIn" ), rb_intern( "new" ), 1, attributes );
 }
 
 
@@ -612,8 +617,7 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
     return;
   }
 
-
-  VALUE cPacketIn = marshall_packet_in( &message );
+  VALUE cPacketIn = decode_packet_in( &message );
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), cPacketIn );
 }
 
