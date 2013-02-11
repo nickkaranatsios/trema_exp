@@ -115,21 +115,13 @@ pack_flow_mod( VALUE options ) {
     instructions = pack_instruction( instructions_r );
   }
 
-printf("about to create a flow_mod\n");
-  return create_flow_mod( xid, 
-                          cookie,
-                          cookie_mask,
-                          table_id,
-                          command,
-                          idle_timeout,
-                          hard_timeout,
-                          priority,
-                          buffer_id,
-                          out_port,
-                          out_group,
-                          flags,
-                          NULL,
-                          instructions );
+  buffer *flow_mod = create_flow_mod( xid, cookie, cookie_mask,
+                                      table_id, command, idle_timeout,
+                                      hard_timeout, priority, buffer_id,
+                                      out_port, out_group, flags,
+                                      NULL, instructions );
+  delete_instructions( instructions );
+  return flow_mod;
 }
 
 

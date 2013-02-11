@@ -63,6 +63,9 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                        :priority => OFP_LOW_PRIORITY,
                        :buffer_id => OFP_NO_BUFFER,
                        :flags => OFPFF_SEND_FLOW_REM, 
+                       :table_id => 1,
+                       :hard_timeout => 0,
+                       :idle_timeout => 10,
                        :out_port => 1,
                        :out_group => 1,
                        :instructions => [ ins ]
@@ -78,8 +81,13 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
   end
 
 
-  def set_flow_removed datapath_id, message
-puts __method__
+  def port_status port
+    puts port.inspect
+  end
+
+
+  def flow_removed datapath_id, message
+    puts message.inspect
   end
 end
 

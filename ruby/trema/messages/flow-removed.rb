@@ -16,17 +16,25 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/match"
-require "trema/messages/packet-in"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
+module Trema
+  module Messages
+    class FlowRemoved < Message
+      unsigned_int64 :datapath_id, :presence => true 
+      unsigned_int32 :transaction_id, :presence => true
+      unsigned_int64 :cookie, :presence => true 
+      unsigned_int16 :priority, :presence => true
+      unsigned_int8 :reason, :presence => true
+      unsigned_int8 :table_id, :presence => true
+      unsigned_int32 :duration_sec, :presence => true
+      unsigned_int32 :duration_nsec, :presence => true
+      unsigned_int16 :idle_timeout, :presence => true
+      unsigned_int16 :hard_timeout, :presence => true
+      unsigned_int64 :packet_count, :presence => true 
+      unsigned_int64 :byte_count, :presence => true 
+      attr_accessor :match
+    end
+  end
+end
 
 
 ### Local variables:

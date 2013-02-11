@@ -16,35 +16,14 @@
  */
 
 
-#include "trema.h"
-#include "ruby.h"
-#include "messages/packet-in-handler.h"
-#include "messages/switch-ready.h"
-#include "messages/port-status-handler.h"
-#include "messages/flow-removed-handler.h"
+#ifndef PORT_STATUS_HANDLER_H
+#define PORT_STATUS_HANDLER_H
 
 
-extern VALUE mTrema;
-VALUE mMessageHandler;
+void handle_port_status( uint64_t datapath_id, uint32_t transaction_id, uint8_t reason, struct ofp_port port_desc, void *controller );
 
 
-
-VALUE
-install_handlers( VALUE self ) {
-  set_packet_in_handler( handle_packet_in, ( void * ) self );
-  set_switch_ready_handler( handle_switch_ready, ( void * ) self );
-  set_port_status_handler( handle_port_status, ( void * ) self );
-  set_flow_removed_handler( handle_flow_removed, ( void * ) self );
-  return self;
-}
-
-
-void
-Init_message_handler() {
-  mMessageHandler = rb_define_module_under( mTrema, "MessageHandler" );
-
-  rb_define_module_function( mMessageHandler, "install_handlers", install_handlers, 1 );
-}
+#endif // PORT_STATUS_HANDLER_H
 
 
 /*

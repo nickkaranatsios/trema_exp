@@ -76,7 +76,6 @@ pack_basic_action( VALUE action ) {
     }
   }
   Data_Get_Struct( cAction, openflow_actions, actions );
-  printf("no.of basic actions added %d\n", actions->n_actions );
   return actions;
 }
 
@@ -111,7 +110,6 @@ pack_flexible_action( VALUE action ) {
     }
   }
   Data_Get_Struct( cOxmMatch, oxm_matches, oxm_match );
-  printf("no.of flexible actions added %d\n", oxm_match->n_matches );
   return oxm_match;
 }
 

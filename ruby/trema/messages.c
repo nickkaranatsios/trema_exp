@@ -41,6 +41,7 @@ datapath_id( VALUE options ) {
 static void
 send_msg( uint64_t datapath_id, buffer *msg ) {
   send_openflow_message( datapath_id, msg );
+  free_buffer( msg );
 }
 
 

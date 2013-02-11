@@ -16,17 +16,26 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/match"
-require "trema/messages/packet-in"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
+module Trema
+  module Messages
+    class PortStatus < Message
+      unsigned_int32 :transaction_id, :presence => true
+      unsigned_int64 :datapath_id, :presence => true
+      unsigned_int8 :reason, :presence => true
+      unsigned_int32 :port_no, :presence => true
+      attr_accessor :hw_addr
+      attr_accessor :name
+      unsigned_int32 :config, :presence => true
+      unsigned_int32 :state, :presence => true
+      unsigned_int32 :curr, :presence => true
+      unsigned_int32 :advertised, :presence => true
+      unsigned_int32 :supported, :presence => true
+      unsigned_int32 :peer, :presence => true
+      unsigned_int32 :curr_speed, :presence => true
+      unsigned_int32 :max_speed, :presence => true
+    end
+  end
+end
 
 
 ### Local variables:
