@@ -16,17 +16,40 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/packet-in"
-require "trema/messages/packet-info"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
+module Trema
+  module Messages
+    class PacketInfo < Message
+      attr_accessor :eth_type
+      attr_accessor :macsa
+      attr_accessor :macda
+      attr_accessor :ip_dscp
+
+      attr_accessor :vtag
+      alias_method :vtag?, :vtag
+      attr_accessor :vlan_tci
+      attr_accessor :vlan_vid
+      attr_accessor :vlan_prio
+      attr_accessor :vlan_tpid
+
+      attr_accessor :arp
+      alias_method :arp?, :arp
+      attr_accessor :arp_op
+      attr_accessor :arp_sha
+      attr_accessor :arp_spa
+      attr_accessor :arp_tpa
+
+      attr_accessor :icmpv4
+      alias_method :icmpv4?, :icmpv4
+
+      attr_accessor :icmpv6
+      alias_method :icmpv6?, :icmpv6
+
+      attr_accessor :ipv6_src
+      attr_accessor :ipv6_dst
+      attr_accessor :ipv6_flabel
+    end
+  end
+end
 
 
 ### Local variables:

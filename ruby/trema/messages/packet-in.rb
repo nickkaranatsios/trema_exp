@@ -16,9 +16,14 @@
 #
 
 
+require "forwardable"
+
+
 module Trema
   module Messages
     class PacketIn < Message
+      extend Forwardable
+
       unsigned_int32 :transaction_id
       unsigned_int64 :datapath_id
       unsigned_int32 :buffer_id
@@ -26,18 +31,32 @@ module Trema
       unsigned_int8 :reason
       unsigned_int8 :table_id
       unsigned_int64 :cookie
+      attr_accessor :packet_info
+      
       # packet info information
-      unsigned_int16 :eth_type
+      def_delegator :@packet_info, :eth_type
+      def_delegator :@packet_info, :macsa
+      def_delegator :@packet_info, :macda
 
-      attr_accessor :macsa
-      attr_accessor :macda
-      attr_accessor :vlan_vid
-      attr_accessor :match
-      attr_accessor :data
-      attr_accessor :vtag
-      alias_method :vtag?, :vtag
-      attr_accessor :arp
-      alias_method :arp?, :arp
+      def_delegator :@packet_info, :vtag
+      def_delegator :@packet_info, :vtag_tci
+      def_delegator :@packet_info, :vtag_vid
+      def_delegator :@packet_info, :vtag_prio
+      def_delegator :@packet_info, :vtag_tpid
+
+      def_delegator :@packet_info, :arp
+      def_delegator :@packet_info, :arp_op
+      def_delegator :@packet_info, :arp_sha
+      def_delegator :@packet_info, :arp_spa
+      def_delegator :@packet_info, :arp_tpa
+
+      def_delegator :@packet_info, :icmpv4
+
+      def_delegator :@packet_info, :icmpv6
+
+      def_delegator :@packet_info, :ipv6_src
+      def_delegator :@packet_info, :ipv6_dst
+      def_delegator :@packet_info, :ipv6_flabel
     end
   end
 end

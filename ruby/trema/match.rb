@@ -22,10 +22,10 @@ module Trema
     unsigned_int32 :in_phy_port
     unsigned_int64 :metadata
     unsigned_int64 :metadata_mask
-    eth_addr :eth_dst
-    eth_addr :eth_dst_mask
     eth_addr :eth_src
     eth_addr :eth_src_mask
+    eth_addr :eth_dst
+    eth_addr :eth_dst_mask
     unsigned_int16 :ether_type
     unsigned_int16 :vlan_vid
     unsigned_int16 :vlan_vid_mask
@@ -77,8 +77,19 @@ module Trema
     
     def self.from message
       options = {}
-      options[ :in_port ] = message.in_port unless message.in_port.nil?
-      options[ :in_phy_port ] = message.in_phy_port unless message.in_phy_port.nil?
+      options[ :eth_type ] = message.eth_type unless message.eth_type.nil?
+      options[ :eth_src ] = message.macsa unless message.macsa.nil?
+      options[ :eth_src_mask ] = 0
+      options[ :eth_dst ] = message.macda unless message.macda.nil?
+      options[ :eth_dst ] = 0
+      options[ :vlan_vid ] = 0
+      options[ :vlan_vid_mask ] = 0
+      if message.vtag?
+        options[ :vlan_vid ] = message.vlan_vid
+        options[ :vlan_priority ] = message.vlan_prio
+      end
+      
+puts options.inspect
       self.new options
     end
   end

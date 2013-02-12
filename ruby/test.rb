@@ -6,14 +6,11 @@ class Match
   attr_accessor :in_phy_port
   
   def initialize in_port, in_phy_port
-    @in_port, @in_phy_port = in_port, in_phy_port
+    @in_port, @in_phy_port = ( in_port + 1 ), ( in_phy_port + 1 )
   end
 
   def self.from message
-   m = self.new( message.in_port, message.in_phy_port )
-puts m.inspect
-puts self.inspect
-puts self.singleton_class
+    m = self.new( message.a, message.b )
   end
 end
 
@@ -24,17 +21,29 @@ class ExactMatch
 end
 
 
+require "forwardable"
 class Message
-  attr_reader :in_port
-  attr_reader :in_phy_port
+  extend Forwardable
+
+
+  attr_accessor :a,:b
+  attr_accessor :match
+
+  def_delegator :@match, :in_port
+
   def initialize in_port, in_phy_port
-    @in_port, @in_phy_port = in_port, in_phy_port
+    @a, @b = in_port, in_phy_port
+  end
+  def set_match
+    @match = ExactMatch.from( self )
+puts @match.inspect
   end
 end
 
 
 x = Message.new( 2, 3 )
-ExactMatch.from( x )
+x.set_match
+puts "inport is #{ x.in_port }"
 exit
 
 require "trema"
