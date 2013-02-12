@@ -23,19 +23,19 @@
 buffer *
 pack_hello( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( xid_r != Qnil ) {
-    xid = NUM2UINT( xid_r );
+  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  if ( r_xid != Qnil ) {
+    xid = NUM2UINT( r_xid );
   }
 
-  VALUE version_r = rb_hash_aref( options, ID2SYM( rb_intern( "version" ) ) );
+  VALUE r_version = rb_hash_aref( options, ID2SYM( rb_intern( "version" ) ) );
   uint32_t ofp_version[ 1 ];
-  if ( rb_obj_is_kind_of( version_r, rb_cArray ) )  {
-    if ( RARRAY_LEN( version_r ) > 1 ) {
+  if ( rb_obj_is_kind_of( r_version, rb_cArray ) )  {
+    if ( RARRAY_LEN( r_version ) > 1 ) {
       rb_raise(rb_eArgError, "Currently only a single version is supported" );
     }
     else {
-      ofp_version[ 0 ] = ( uint32_t ) NUM2UINT( RARRAY_PTR( version_r )[ 0 ] );
+      ofp_version[ 0 ] = ( uint32_t ) NUM2UINT( RARRAY_PTR( r_version )[ 0 ] );
     }
   }
   return create_hello_elem_versionbitmap( xid, ofp_version, sizeof( ofp_version ) / sizeof( ofp_version[ 0 ] ) );

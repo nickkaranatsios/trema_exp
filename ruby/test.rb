@@ -1,6 +1,42 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
 
+class Match
+  attr_accessor :in_port
+  attr_accessor :in_phy_port
+  
+  def initialize in_port, in_phy_port
+    @in_port, @in_phy_port = in_port, in_phy_port
+  end
+
+  def self.from message
+   m = self.new( message.in_port, message.in_phy_port )
+puts m.inspect
+puts self.inspect
+puts self.singleton_class
+  end
+end
+
+class ExactMatch
+  def self.from message
+    Match.from message
+  end
+end
+
+
+class Message
+  attr_reader :in_port
+  attr_reader :in_phy_port
+  def initialize in_port, in_phy_port
+    @in_port, @in_phy_port = in_port, in_phy_port
+  end
+end
+
+
+x = Message.new( 2, 3 )
+ExactMatch.from( x )
+exit
+
 require "trema"
 module Trema
   class Test < Controller

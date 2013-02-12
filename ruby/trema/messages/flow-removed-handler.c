@@ -59,13 +59,8 @@ handle_flow_removed( uint64_t datapath_id,
   if ( match != NULL ) {
 printf( "no of matches %d\n", match->n_matches );
   }
-  VALUE match_options = rb_hash_new();
-  for ( list_element *list = match->list; list != NULL; list = list->next ) {
-    oxm_match_header *oxm = list->data;
-    assign_match( oxm, match_options );
-  }
-  VALUE match_r = rb_funcall( rb_eval_string( "Messages::Match" ), rb_intern( "new" ), 1, match_options );
-  HASH_SET( attributes, "match", match_r );
+  VALLUE r_match = oxm_match_to_r_match( match );
+  HASH_SET( attributes, "match", r_match );
 #endif
   VALUE cFlowRemoved = rb_funcall( rb_eval_string( "Messages::FlowRemoved" ), rb_intern( "new" ), 1, attributes );
   rb_funcall( ( VALUE ) controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), cFlowRemoved );

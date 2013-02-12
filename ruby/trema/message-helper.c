@@ -19,6 +19,7 @@
 #include "trema.h"
 #include "ruby.h"
 #include "action-common.h"
+#include "conversion-util.h"
 
 
 extern VALUE mTrema;
@@ -131,18 +132,8 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
         in_port = NUM2UINT( rb_iv_get( match, "@in_port" ) );
       }
        
-      VALUE data_ary = rb_iv_get( opt_message, "@data" );
-      if ( data_ary != Qnil ) {
-        Check_Type( data_ary, T_ARRAY );
-        uint32_t length = ( uint32_t ) RARRAY_LEN( data_ary );
-
-        data = alloc_buffer_with_length( length );
-        append_back_buffer( data, length );
-        uint8_t *data_ptr = data->data;
-        for ( uint32_t i = 0; i < length; i++ ) {
-          data_ptr[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( data_ary ) [ i ] );
-        }
-      }
+      VALUE r_data = rb_iv_get( opt_message, "@data" );
+      data = r_array_to_buffer( r_data );
     }
 
 

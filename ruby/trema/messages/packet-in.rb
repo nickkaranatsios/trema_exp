@@ -31,6 +31,7 @@ module Trema
 
       attr_accessor :macsa
       attr_accessor :macda
+      attr_accessor :vlan_vid
       attr_accessor :match
       attr_accessor :data
       attr_accessor :vtag

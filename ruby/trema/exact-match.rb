@@ -1,4 +1,6 @@
 #
+# A syntax sugar class for creating an exact match object.
+#
 # Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,16 +18,16 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/packet-in"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
+require "trema/match"
+
+
+module Trema
+  class ExactMatch
+    def self.from message
+      Match.from message
+    end
+  end
+end
 
 
 ### Local variables:

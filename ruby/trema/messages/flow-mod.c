@@ -108,6 +108,9 @@ pack_flow_mod( VALUE options ) {
     flags = ( uint16_t ) NUM2UINT( flags_r );
   }
 
+  VALUE sym_match = ID2SYM( rb_intern( "match " ) );
+  UNUSED( sym_match );
+  
   VALUE sym_instructions = ID2SYM( rb_intern( "instructions" ) );
   openflow_instructions *instructions = NULL;
   VALUE instructions_r = rb_hash_aref( options, sym_instructions );

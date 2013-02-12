@@ -46,6 +46,9 @@ end
 #end
 
 
+require "trema/exact-match"
+
+
 class FooController < Controller
   include MessageHandler
 #  def start
@@ -76,6 +79,9 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
   def packet_in datapath_id, message
     puts message.inspect
    
+    match = ExactMatch.from( message )
+puts match.inspect
+exit
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
   end
