@@ -730,8 +730,6 @@ create_flow_mod( const uint32_t transaction_id, const uint64_t cookie, const uin
                  const uint16_t flags, const oxm_matches *match,
                  const openflow_instructions *instructions ) {
   void *inst;
-  char match_str[ MATCH_STRING_LENGTH ];
-  char inst_str[ 2048 ];
   uint16_t length;
   uint16_t match_len;
   uint16_t instruction_length = 0;
@@ -748,7 +746,15 @@ create_flow_mod( const uint32_t transaction_id, const uint64_t cookie, const uin
 
   // Because match_to_string() is costly, we check logging_level first.
   if ( get_logging_level() >= LOG_DEBUG ) {
-    match_to_string( match, match_str, sizeof( match_str ) );
+    char match_str[ MATCH_STRING_LENGTH ];
+    char inst_str[ 2048 ];
+
+    if ( match != NULL ) {
+      match_to_string( match, match_str, sizeof( match_str ) );
+    }
+    else {
+      match_str[ 0 ] = '\0';
+    }
     inst_str[ 0 ] = '\0';
     if ( instructions != NULL ) {
       tmp_insts = xcalloc( 1, instructions_length );
