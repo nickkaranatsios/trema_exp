@@ -20,6 +20,18 @@
 #include "trema.h"
 #include "ruby.h"
 #include "oxm-helper.h"
+#include "action-common.h"
+
+
+struct in6_addr
+ipv6_addr_to_in6_addr( VALUE ipv6_addr ) {
+  struct in6_addr in6_addr;
+
+  VALUE ipv6_addr_str = rb_funcall( ipv6_addr, rb_intern( "to_s" ), 0 );
+  const char *dst = rb_string_value_cstr( &ipv6_addr_str );
+  inet_pton( AF_INET6, dst, &in6_addr );
+  return in6_addr;
+}
 
 
 buffer *
@@ -58,7 +70,86 @@ oxm_match_to_r_match( const oxm_matches *match ) {
 void
 r_match_to_oxm_match( VALUE r_match, oxm_matches *match ) {
   append_oxm_match_in_port( match, ( uint32_t ) NUM2UINT( rb_iv_get( r_match, "@in_port" ) ) );
+  uint8_t tmp_mac_mask[ OFP_ETH_ALEN ];
+  memset( tmp_mac_mask, 0, sizeof( tmp_mac_mask ) );
+  append_oxm_match_eth_src( match, mac_addr_to_cstr( rb_iv_get( r_match, "@eth_src" ) ), tmp_mac_mask );
+  append_oxm_match_eth_dst( match, mac_addr_to_cstr( rb_iv_get( r_match, "@eth_dst" ) ), tmp_mac_mask );
+
+  VALUE r_vtag = rb_iv_get( r_match, "@vtag" );
+  if ( r_vtag == Qtrue ) {
+    uint16_t vlan_vid = ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@vlan_vid" ) );
+    append_oxm_match_vlan_vid( match, vlan_vid, 0 );
+    append_oxm_match_vlan_pcp( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@vlan_pcp" ) ) );
+  }
+  append_oxm_match_eth_type( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@eth_type" ) ) );
+  
+  VALUE r_ipv4 = rb_iv_get( r_match, "@ipv4" );
+  VALUE r_ipv6 = rb_iv_get( r_match, "@ipv6" );
+  if ( r_ipv4 == Qtrue || r_ipv6 == Qtrue ) {
+    append_oxm_match_ip_dscp( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@ip_dscp" ) ) );
+    append_oxm_match_ip_ecn( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@ip_ecn" ) ) );
+    append_oxm_match_ip_proto( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@ip_proto" ) ) );
+  }
+  if ( r_ipv4 == Qtrue ) {
+    append_oxm_match_ipv4_src( match, nw_addr_to_i( rb_iv_get( r_match, "@ipv4_src" ) ), 0 );
+    append_oxm_match_ipv4_dst( match, nw_addr_to_i( rb_iv_get( r_match, "@ipv4_dst" ) ), 0 );
+  }
+  struct in6_addr tmp_ipv6_mask;
+  memset( &tmp_ipv6_mask, 0, sizeof( tmp_ipv6_mask ) );
+  if ( r_ipv6 == Qtrue ) {
+    append_oxm_match_ipv6_src( match, ipv6_addr_to_in6_addr( rb_iv_get( r_match, "@ipv6_src" ) ), tmp_ipv6_mask );
+    append_oxm_match_ipv6_dst( match, ipv6_addr_to_in6_addr( rb_iv_get( r_match, "@ipv6_dst" ) ), tmp_ipv6_mask );
+    append_oxm_match_ipv6_flabel( match, NUM2UINT( rb_iv_get( r_match, "@ipv6_flabel" ) ), 0 );
+    // TODO ext_header
+  }
+  VALUE r_arp = rb_iv_get( r_match, "@arp" );
+  if ( r_arp == Qtrue ) {
+    append_oxm_match_arp_op( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@arp_op" ) ) );
+    append_oxm_match_arp_spa( match, nw_addr_to_i( rb_iv_get( r_match, "@arp_spa" ) ), 0 );
+    append_oxm_match_arp_tpa( match, nw_addr_to_i( rb_iv_get( r_match, "@arp_tpa" ) ), 0 );
+    append_oxm_match_arp_sha( match, mac_addr_to_cstr( rb_iv_get( r_match, "arp_sha" ) ), tmp_mac_mask );
+    append_oxm_match_arp_tha( match, mac_addr_to_cstr( rb_iv_get( r_match, "arp_tha" ) ), tmp_mac_mask );
+  }
+  VALUE r_mpls = rb_iv_get( r_match, "@mpls" );
+  if ( r_mpls == Qtrue ) {
+    append_oxm_match_mpls_label( match, NUM2UINT( rb_iv_get( r_match, "@mpls_label" ) ) );
+    append_oxm_match_mpls_tc( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@mpls_tc" ) ) );
+    append_oxm_match_mpls_bos( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@mpls_bos" ) ) );
+  }
+  VALUE r_icmpv4 = rb_iv_get( r_match, "@icmpv4" );
+  if ( r_icmpv4 == Qtrue ) {
+    append_oxm_match_icmpv4_type( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@icmpv4_type" ) ) );
+    append_oxm_match_icmpv4_code( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "@icmpv4_code" ) ) );
+  }
+  VALUE r_tcp = rb_iv_get( r_match, "@tcp" );
+  if ( r_tcp == Qtrue ) {
+    append_oxm_match_tcp_src( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@tcp_src" ) ) );
+    append_oxm_match_tcp_dst( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@tcp_dst" ) ) );
+  }
+  VALUE r_udp = rb_iv_get( r_match, "@udp" );
+  if ( r_udp == Qtrue ) {
+    append_oxm_match_udp_src( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@udp_src" ) ) );
+    append_oxm_match_udp_dst( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@udp_dst" ) ) );
+  }
+  VALUE r_sctp = rb_iv_get( r_match, "@sctp" );
+  if ( r_sctp == Qtrue ) {
+    append_oxm_match_sctp_src( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "sctp_src" ) ) );
+    append_oxm_match_sctp_dst( match, ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "sctp_dst" ) ) );
+  }
+  VALUE r_icmpv6 = rb_iv_get( r_match, "@icmpv6" );
+  if ( r_icmpv6 == Qtrue ) {
+    VALUE r_icmpv6_type = rb_iv_get( r_match, "icmpv6_type" );
+    uint8_t icmpv6_type = ( uint8_t ) NUM2UINT( r_icmpv6_type );
+    append_oxm_match_icmpv6_type( match, icmpv6_type );
+    append_oxm_match_icmpv6_code( match, ( uint8_t ) NUM2UINT( rb_iv_get( r_match, "icmpv6_code" ) ) );
+    if ( icmpv6_type == 135 || icmpv6_type == 136 ) {
+      append_oxm_match_ipv6_nd_target( match, ipv6_addr_to_in6_addr( rb_iv_get( r_match, "@ipv6_nd_target" ) ) );
+      append_oxm_match_ipv6_nd_sll( match, mac_addr_to_cstr( rb_iv_get( r_match, "ipv6_nd_sll" ) ) );
+      append_oxm_match_ipv6_nd_tll( match, mac_addr_to_cstr( rb_iv_get( r_match, "ipv6_nd_tll" ) ) );
+    }
+  }
 }
+
 
 
 /*

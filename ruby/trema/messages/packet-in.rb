@@ -31,32 +31,36 @@ module Trema
       unsigned_int8 :reason
       unsigned_int8 :table_id
       unsigned_int64 :cookie
+      attr_accessor :match
       attr_accessor :packet_info
+
+      # delegation methods to match
+      def_delegator :@match, :in_port
       
       # packet info information
-      def_delegator :@packet_info, :eth_type
-      def_delegator :@packet_info, :macsa
-      def_delegator :@packet_info, :macda
+      def_delegators :@packet_info, :eth_type, :eth_src, :eth_dst
 
-      def_delegator :@packet_info, :vtag
-      def_delegator :@packet_info, :vtag_tci
-      def_delegator :@packet_info, :vtag_vid
-      def_delegator :@packet_info, :vtag_prio
-      def_delegator :@packet_info, :vtag_tpid
+      def_delegators :@packet_info, :ip_dscp, :ip_ecn, :ip_proto
 
-      def_delegator :@packet_info, :arp
-      def_delegator :@packet_info, :arp_op
-      def_delegator :@packet_info, :arp_sha
-      def_delegator :@packet_info, :arp_spa
-      def_delegator :@packet_info, :arp_tpa
+      def_delegators :@packet_info, :vtag?, :vtag_tci, :vtag_vid, :vtag_prio, :vtag_tpid
 
-      def_delegator :@packet_info, :icmpv4
+      def_delegators :@packet_info, :ipv4?, :ip_proto, :ipv4_src, :ipv4_dst
 
-      def_delegator :@packet_info, :icmpv6
+      def_delegators :@packet_info, :ipv6?, :ipv6_src, :ipv6_dst, :ipv6_flabel
 
-      def_delegator :@packet_info, :ipv6_src
-      def_delegator :@packet_info, :ipv6_dst
-      def_delegator :@packet_info, :ipv6_flabel
+      def_delegators :@packet_info, :arp?, :arp_op, :arp_sha, :arp_spa, :arp_tpa
+
+      def_delegators :@packet_info, :icmpv4?, :icmpv4_type, :icmpv4_code
+
+      def_delegators :@packet_info, :icmpv6?, :icmpv6_type, :icmpv6_code, :ipv6_nd_target, :ipv6_nd_sll, :ipv6_nd_tll
+
+      def_delegators :@packet_info, :tcp?, :tcp_src, :tcp_dst
+
+      def_delegators :@packet_info, :udp?, :udp_src, :udp_dst
+
+      def_delegators :@packet_info, :sctp?, :sctp_src, :sctp_dst
+
+      def_delegators :@packet_info, :mpls?, :mpls_label, :mpls_tc, :mpls_bos
     end
   end
 end

@@ -30,6 +30,7 @@ module Trema
       unsigned_int32 :out_port
       unsigned_int32 :out_group
       unsigned_int16 :flags
+      attr_accessor :match
       array :instructions
     end
   end

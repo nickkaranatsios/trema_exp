@@ -22,6 +22,7 @@
 
 buffer *r_array_to_buffer( VALUE r_array );
 VALUE oxm_match_to_r_match( const oxm_matches *match );
+struct in6_addr ipv6_addr_to_in6_addr( VALUE ipv6_addr );
 
 
 #endif // CONVERSION_UTIL_H

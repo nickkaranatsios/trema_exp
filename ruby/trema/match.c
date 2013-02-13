@@ -35,7 +35,6 @@ get_match_from( VALUE self, VALUE message ) {
     VALUE r_match = rb_iv_get( message, "@match" );
     uint32_t in_port = NUM2UINT( rb_iv_get( r_match, "@in_port" ) );
     VALUE r_data = rb_iv_get( message, "@data" );
-printf("we are here\n");
     buffer *packet = r_array_to_buffer( r_data );
 
     oxm_matches *match = create_oxm_matches();

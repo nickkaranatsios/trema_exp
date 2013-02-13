@@ -89,13 +89,13 @@ packet_in_eth_type( const buffer *frame ) {
 
 
 static VALUE
-packet_in_macsa( const buffer *frame ) {
+packet_in_eth_src( const buffer *frame ) {
   PACKET_INFO_MAC_ADDR( eth_macsa )
 }
 
 
 static VALUE
-packet_in_macda( const buffer *frame ) {
+packet_in_eth_dst( const buffer *frame ) {
   PACKET_INFO_MAC_ADDR( eth_macda )
 }
 
@@ -110,7 +110,7 @@ packet_in_vlan_vid( const buffer *frame ) {
 
 
 static VALUE
-packet_in_vlan_prio( const buffer *frame ) {
+packet_in_vlan_pcp( const buffer *frame ) {
   if ( packet_type_eth_vtag( frame ) ) {
     return UINT2NUM( get_packet_in_info( frame )->vlan_prio );
   }
@@ -218,8 +218,8 @@ packet_in_ipv6_flabel( const buffer *frame ) {
 
 
 static VALUE
-packet_in_icmpv4( const buffer *frame ) {
-  if ( packet_type_icmpv4( frame ) ) {
+packet_in_icmpv4( const uint8_t ip_proto ) {
+  if ( ip_proto == IPPROTO_ICMP ) {
     return Qtrue;
   }
   return Qfalse;
@@ -227,8 +227,8 @@ packet_in_icmpv4( const buffer *frame ) {
 
 
 static VALUE
-packet_in_icmpv6( const buffer *frame ) {
-  if ( packet_type_icmpv6( frame ) ) {
+packet_in_icmpv6( const uint8_t ip_proto ) {
+  if ( ip_proto == IPPROTO_ICMPV6 ) {
     return Qtrue;
   }
   return Qtrue;
@@ -238,7 +238,40 @@ packet_in_icmpv6( const buffer *frame ) {
 static VALUE
 packet_in_ip_dscp( const buffer *frame ) {
   if ( packet_type_ipv4( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->ip_dscp );
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_tos >> 2 & 0x3f );
+  }
+  if ( packet_type_ipv6( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv6_tc >> 2 & 0x3f );
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ip_ecn( const buffer *frame ) {
+  if ( packet_type_ipv4( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_tos & 0x3 );
+  }
+  if ( packet_type_ipv6( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv6_tc & 0x3 );
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv4_src( const buffer *frame ) {
+  if ( packet_type_ipv4( frame ) ) {
+    PACKET_INFO_IPv4_ADDR( ipv4_saddr )
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv4_dst( const buffer *frame ) {
+  if ( packet_type_ipv4( frame ) ) {
+    PACKET_INFO_IPv4_ADDR( ipv4_daddr )
   }
   return Qnil;
 }
@@ -262,12 +295,54 @@ packet_in_vtag( const buffer *frame ) {
 }
 
 
-static VALUE
+static bool
 packet_in_ipv4( const buffer *frame ) {
-  if ( packet_type_ipv4( frame ) ) {
-    return Qtrue;
+  return packet_type_ipv4( frame );
+}
+
+
+static bool
+packet_in_ipv6( const buffer *frame ) {
+  return packet_type_ipv6( frame );
+}
+
+
+static VALUE
+packet_in_ipv4_tos( const buffer *frame ) {
+  if ( packet_in_ipv4( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_tos );
   }
-  return Qfalse;
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv4_tot_len( const buffer *frame ) {
+  if ( packet_in_ipv4( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_tot_len );
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv4_id( const buffer *frame ) {
+  if ( packet_in_ipv4( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_id );
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ip_proto( const buffer *frame ) {
+  if ( packet_in_ipv4( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv4_protocol );
+  }
+  if ( packet_in_ipv6( frame ) ) {
+    return UINT2NUM( get_packet_in_info( frame )->ipv6_protocol );
+  }
+  return Qnil;
 }
 
 
@@ -308,6 +383,69 @@ packet_in_ipv6_tcp( const buffer *frame ) {
 
 
 static VALUE
+packet_in_tcp( const uint8_t ip_proto ) {
+  if ( ip_proto == IPPROTO_TCP ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+static VALUE
+packet_in_tcp_src( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->tcp_src_port );
+}
+
+
+static VALUE
+packet_in_tcp_dst( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->tcp_dst_port );
+}
+
+
+static VALUE
+packet_in_udp( const uint8_t ip_proto ) {
+  if ( ip_proto == IPPROTO_UDP ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+static VALUE
+packet_in_udp_src( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->udp_src_port );
+}
+
+
+static VALUE
+packet_in_udp_dst( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->udp_dst_port );
+}
+
+
+static VALUE
+packet_in_sctp( const uint8_t ip_proto ) {
+  if ( ip_proto == IPPROTO_SCTP ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+static VALUE
+packet_in_sctp_src( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->sctp_src_port );
+}
+
+
+static VALUE
+packet_in_sctp_dst( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->sctp_dst_port );
+}
+
+
+static VALUE
 packet_in_ipv6_udp( const buffer *frame ) {
   if ( packet_type_ipv6_udp( frame ) ) {
     return Qtrue;
@@ -335,6 +473,90 @@ packet_in_arp_reply( const buffer *frame ) {
 
 
 static VALUE
+packet_in_icmpv4_type( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->icmpv4_type );
+}
+
+
+static VALUE
+packet_in_icmpv4_code( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->icmpv4_code );
+}
+
+
+static VALUE
+packet_in_icmpv6_code( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->icmpv6_code );
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_icmpv6_type( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->icmpv6_type );
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv6_nd_target( const buffer *frame, const uint16_t icmpv6_type ) {
+  if ( ( icmpv6_type == 135 ) ||  ( icmpv6_type == 136 ) ) {
+    PACKET_INFO_IPv6_ADDR( icmpv6_nd_target )
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv6_nd_sll( const buffer *frame, const uint16_t icmpv6_type ) {
+  if ( ( icmpv6_type == 135 ) ||  ( icmpv6_type == 136 ) ) {
+    PACKET_INFO_MAC_ADDR( icmpv6_nd_sll )
+  }
+  return Qnil;
+}
+
+
+static VALUE
+packet_in_ipv6_nd_tll( const buffer *frame, const uint16_t icmpv6_type ) {
+  if ( ( icmpv6_type == 135 ) ||  ( icmpv6_type == 136 ) ) {
+    PACKET_INFO_MAC_ADDR( icmpv6_nd_tll )
+  }
+  return Qnil;
+}
+
+  
+static VALUE
+packet_in_mpls_label( const buffer *frame ) {
+  uint32_t mpls_label = get_packet_in_info( frame )->mpls_label;    
+  return UINT2NUM( mpls_label >> 12 & 0xfffff );
+}
+
+
+static VALUE
+packet_in_mpls_tc( const buffer *frame ) {
+  uint32_t mpls_label = get_packet_in_info( frame )->mpls_label;    
+  return UINT2NUM( mpls_label >> 9 & 0x7 ); 
+}
+
+
+static VALUE
+packet_in_mpls_bos( const buffer *frame ) {
+  uint32_t mpls_label = get_packet_in_info( frame )->mpls_label;    
+  return UINT2NUM( mpls_label >> 8 & 0x1 ); 
+}
+
+
+static VALUE
+packet_in_mpls( const uint16_t eth_type ) {
+  if ( ( eth_type == ETH_ETHTYPE_MPLS_UNI ) || ( eth_type == ETH_ETHTYPE_MPLS_MLT ) ) {
+    return Qtrue;
+  }
+  return Qfalse;
+}
+
+
+  
+static VALUE
 decode_packet_in( packet_in *message ) {
   VALUE attributes = rb_hash_new();
 
@@ -351,24 +573,60 @@ decode_packet_in( packet_in *message ) {
   // packet_info information
   VALUE pi_attributes = rb_hash_new();
   assert( message->data );
-  HASH_SET( pi_attributes, "eth_type", packet_in_eth_type( message->data ) );
-  HASH_SET( pi_attributes, "macsa", packet_in_macsa( message->data ) );
-  HASH_SET( pi_attributes, "macda", packet_in_macda( message->data ) );
+  HASH_SET( pi_attributes, "eth_src", packet_in_eth_src( message->data ) );
+  HASH_SET( pi_attributes, "eth_dst", packet_in_eth_dst( message->data ) );
+
+  VALUE r_eth_type = packet_in_eth_type( message->data );
+  const uint16_t eth_type = ( const uint16_t ) NUM2UINT( r_eth_type );
+  HASH_SET( pi_attributes, "eth_type", r_eth_type );
 
   HASH_SET( pi_attributes, "ipv4", packet_in_ipv4( message->data ) );
+  HASH_SET( pi_attributes, "ipv4_tos", packet_in_ipv4_tos( message->data ) );
+  HASH_SET( pi_attributes, "ipv4_tot_len", packet_in_ipv4_tot_len( message->data ) );
+  HASH_SET( pi_attributes, "ipv4_id", packet_in_ipv4_id( message->data ) );
+  VALUE r_ip_proto =  packet_in_ip_proto( message->data );
+  const uint8_t ip_proto = ( const uint8_t ) NUM2UINT( r_ip_proto );
+  HASH_SET( pi_attributes, "ip_proto", r_ip_proto );
+  
+  HASH_SET( pi_attributes, "vtag", packet_in_vtag( message->data ) );
+  HASH_SET( pi_attributes, "vlan_vid", packet_in_vlan_vid( message->data ) );
+  HASH_SET( pi_attributes, "vlan_pcp", packet_in_vlan_pcp( message->data ) );
+  HASH_SET( pi_attributes, "vlan_tci", packet_in_vlan_tci( message->data ) );
+  HASH_SET( pi_attributes, "vlan_tpid", packet_in_vlan_tpid( message->data ) );
+  HASH_SET( pi_attributes, "vlan_cfi", packet_in_vlan_cfi( message->data ) );
+  HASH_SET( pi_attributes, "ipv4_src", packet_in_ipv4_src( message->data ) );
+  HASH_SET( pi_attributes, "ipv4_dst", packet_in_ipv4_dst( message->data ) );
+
+  VALUE r_tcp = packet_in_tcp( ip_proto );
+  HASH_SET( pi_attributes, "tcp", r_tcp );
+  if ( r_tcp == Qtrue ) {
+    HASH_SET( pi_attributes, "tcp_src", packet_in_tcp_src( message->data ) );
+    HASH_SET( pi_attributes, "tcp_dst", packet_in_tcp_dst( message->data ) );
+  }
+
+  VALUE r_udp = packet_in_udp( ip_proto );
+  HASH_SET( pi_attributes, "udp", r_udp );
+  if( r_udp == Qtrue ) {
+    HASH_SET( pi_attributes, "udp_src", packet_in_udp_src( message->data ) );
+    HASH_SET( pi_attributes, "udp_dst", packet_in_udp_dst( message->data ) );
+  }
+
+  VALUE r_sctp = packet_in_sctp( ip_proto );
+  HASH_SET( pi_attributes, "sctp", r_sctp );
+  if ( r_sctp == Qtrue ) {
+    HASH_SET( pi_attributes, "sctp_src", packet_in_sctp_src( message->data ) );
+    HASH_SET( pi_attributes, "sctp_dst", packet_in_sctp_dst( message->data ) );
+  }
+
+  HASH_SET( pi_attributes, "ip_dscp", packet_in_ip_dscp( message->data ) );
+  HASH_SET( pi_attributes, "ip_ecn", packet_in_ip_ecn( message->data ) );
+
   HASH_SET( pi_attributes, "ipv4_tcp", packet_in_ipv4_tcp( message->data ) );
   HASH_SET( pi_attributes, "ipv4_udp", packet_in_ipv4_udp( message->data ) );
   HASH_SET( pi_attributes, "ipv6_tcp", packet_in_ipv6_tcp( message->data ) );
   HASH_SET( pi_attributes, "ipv6_udp", packet_in_ipv6_udp( message->data ) );
 
-  HASH_SET( pi_attributes, "ip_dscp", packet_in_ip_dscp( message->data ) );
 
-  HASH_SET( pi_attributes, "vlan_tci", packet_in_vlan_tci( message->data ) );
-  HASH_SET( pi_attributes, "vlan_vid", packet_in_vlan_vid( message->data ) );
-  HASH_SET( pi_attributes, "vlan_prio", packet_in_vlan_prio( message->data ) );
-  HASH_SET( pi_attributes, "vlan_tpid", packet_in_vlan_tpid( message->data ) );
-  HASH_SET( pi_attributes, "vlan_cfi", packet_in_vlan_cfi( message->data ) );
-  HASH_SET( pi_attributes, "vtag", packet_in_vtag( message->data ) );
 
   HASH_SET( pi_attributes, "arp", packet_in_arp( message->data ) );
   HASH_SET( pi_attributes, "arp_request", packet_in_arp_request( message->data ) );
@@ -380,15 +638,41 @@ decode_packet_in( packet_in *message ) {
   HASH_SET( pi_attributes, "arp_tpa", packet_in_arp_tpa( message->data ) );
 
 
-  HASH_SET( pi_attributes, "icmpv4", packet_in_icmpv4( message->data ) );
+  VALUE r_icmpv4 = packet_in_icmpv4( ip_proto );
+  HASH_SET( pi_attributes, "icmpv4", r_icmpv4 );
+  if ( r_icmpv4 == Qtrue ) {
+    HASH_SET( pi_attributes, "icmpv4_type", packet_in_icmpv4_type( message->data ) );
+    HASH_SET( pi_attributes, "icmpv4_code", packet_in_icmpv4_code( message->data ) );
+  }
 
-  HASH_SET( pi_attributes, "icmpv6", packet_in_icmpv6( message->data ) );
+  
+
+  VALUE r_icmpv6 = packet_in_icmpv6( ip_proto );
+  HASH_SET( pi_attributes, "icmpv6", r_icmpv6 );
+  if ( r_icmpv6 == Qtrue ) {
+    VALUE r_icmpv6_type = packet_in_icmpv6_type( message->data );
+    const uint8_t icmpv6_type = ( const uint8_t ) NUM2UINT( r_icmpv6_type );
+    HASH_SET( pi_attributes, "icmpv6_type", r_icmpv6_type );
+    HASH_SET( pi_attributes, "icmpv6_code", packet_in_icmpv6_code( message->data ) );
+    HASH_SET( pi_attributes, "ipv6_nd_target", packet_in_ipv6_nd_target( message->data, icmpv6_type ) );
+    HASH_SET( pi_attributes, "ipv6_nd_sll", packet_in_ipv6_nd_sll( message->data, icmpv6_type ) );
+    HASH_SET( pi_attributes, "ipv6_nd_tll", packet_in_ipv6_nd_tll( message->data, icmpv6_type ) );
+  }
+
 
   HASH_SET( pi_attributes, "ipv6_src", packet_in_ipv6_src( message->data ) );
   HASH_SET( pi_attributes, "ipv6_dst", packet_in_ipv6_dst( message->data ) );
   HASH_SET( pi_attributes, "ipv6_flabel", packet_in_ipv6_flabel( message->data ) );
 
   HASH_SET( pi_attributes, "igmp", packet_in_igmp( message->data ) );
+  
+  VALUE r_mpls = packet_in_mpls( eth_type );
+  HASH_SET( pi_attributes, "mpls", r_mpls );
+  if ( r_mpls == Qtrue ) {
+    HASH_SET( pi_attributes, "mpls_label", packet_in_mpls_label( message->data ) );
+    HASH_SET( pi_attributes, "mpls_tc", packet_in_mpls_tc( message->data ) );
+    HASH_SET( pi_attributes, "mpls_bos", packet_in_mpls_bos( message->data ) );
+  }
 
   VALUE cPacketInfo = rb_funcall( rb_eval_string( "Messages::PacketInfo" ), rb_intern( "new" ), 1, pi_attributes );
   HASH_SET( attributes, "packet_info", cPacketInfo );
