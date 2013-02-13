@@ -100,7 +100,7 @@ r_match_to_oxm_match( VALUE r_match, oxm_matches *match ) {
     append_oxm_match_ipv6_src( match, ipv6_addr_to_in6_addr( rb_iv_get( r_match, "@ipv6_src" ) ), tmp_ipv6_mask );
     append_oxm_match_ipv6_dst( match, ipv6_addr_to_in6_addr( rb_iv_get( r_match, "@ipv6_dst" ) ), tmp_ipv6_mask );
     append_oxm_match_ipv6_flabel( match, NUM2UINT( rb_iv_get( r_match, "@ipv6_flabel" ) ), 0 );
-    // TODO ext_header
+    append_oxm_match_ipv6_exthdr( match , ( uint16_t ) NUM2UINT( rb_iv_get( r_match, "@ipv6_exthdr" ) ), 0 );
   }
   VALUE r_arp = rb_iv_get( r_match, "@arp" );
   if ( r_arp == Qtrue ) {

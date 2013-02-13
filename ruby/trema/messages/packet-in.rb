@@ -46,7 +46,7 @@ module Trema
 
       def_delegators :@packet_info, :ipv4?, :ip_proto, :ipv4_src, :ipv4_dst
 
-      def_delegators :@packet_info, :ipv6?, :ipv6_src, :ipv6_dst, :ipv6_flabel
+      def_delegators :@packet_info, :ipv6?, :ipv6_src, :ipv6_dst, :ipv6_flabel, :ipv6_exthdr
 
       def_delegators :@packet_info, :arp?, :arp_op, :arp_sha, :arp_spa, :arp_tpa
 
@@ -61,6 +61,8 @@ module Trema
       def_delegators :@packet_info, :sctp?, :sctp_src, :sctp_dst
 
       def_delegators :@packet_info, :mpls?, :mpls_label, :mpls_tc, :mpls_bos
+
+      def_delegators :@packet_info, :pbb?, :pbb_isid
     end
   end
 end

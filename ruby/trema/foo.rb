@@ -50,7 +50,6 @@ require "trema/exact-match"
 
 
 class FooController < Controller
-  include MessageHandler
 #  def start
 #     %w[ packet_in flow_removed ].each do | handler |
 #       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
@@ -68,7 +67,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                        :flags => OFPFF_SEND_FLOW_REM, 
                        :table_id => 1,
                        :hard_timeout => 0,
-                       :idle_timeout => 10,
+                       :idle_timeout => 0,
                        :out_port => 1,
                        :out_group => 1,
                        :instructions => [ ins ]

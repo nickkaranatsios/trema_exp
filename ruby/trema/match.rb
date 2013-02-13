@@ -29,7 +29,7 @@ module Trema
     unsigned_int16 :ether_type
     unsigned_int16 :vlan_vid
     unsigned_int16 :vlan_vid_mask
-    unsigned_int8 :vlan_priority
+    unsigned_int8 :vlan_pcp
     unsigned_int8 :ip_dscp # IP DSCP ( 6 bits in ToS field )
     unsigned_int8 :ip_ecn # IP ECN ( 2 bits in ToS field )
     unsigned_int8 :ip_proto # ip protocol
@@ -87,7 +87,7 @@ module Trema
       options[ :vlan_vid_mask ] = 0
       if message.vtag?
         options[ :vlan_vid ] = message.vlan_vid
-        options[ :vlan_prio ] = message.vlan_prio
+        options[ :vlan_pcp ] = message.vlan_pcp
       end
       if message.ipv4?
         options[ :ip_proto ] = message.ip_proto
@@ -99,6 +99,7 @@ module Trema
         options[ :ipv6_src ] = message.ipv6_src
         options[ :ipv6_dst ] = message.ipv6_dst
         options[ :ipv6_flabel ] = message.ipv6_flabel
+        options[ :ipv6_exthdr ] = message.ipv6_exthdr
       end
       
       if message.arp?
@@ -140,6 +141,10 @@ module Trema
        options[ :mpls_label ] = message.mpls_label
        options[ :mpls_tc ] = message.mpls_tc
        options[ :mpls_bos ] = message.mpls_bos
+     end
+
+     if message.pbb?
+       options[ :pbb_isid ] = message.pbb_isid
      end
 
 puts options.inspect

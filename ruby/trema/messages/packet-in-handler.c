@@ -102,136 +102,91 @@ packet_in_eth_dst( const buffer *frame ) {
 
 static VALUE
 packet_in_vlan_vid( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->vlan_vid );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->vlan_vid );
 }
 
 
 static VALUE
 packet_in_vlan_pcp( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->vlan_prio );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->vlan_prio );
 }
 
 
 static VALUE
 packet_in_vlan_cfi( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->vlan_cfi );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->vlan_cfi );
 }
 
 
 static VALUE
 packet_in_vlan_tci( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->vlan_tci );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->vlan_tci );
 }
 
 
 static VALUE
 packet_in_vlan_tpid( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->vlan_tpid );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->vlan_tpid );
 }
 
 
 static VALUE
 packet_in_arp_op( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->arp_ar_op );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->arp_ar_op );
 }
 
 
 static VALUE
 packet_in_arp_sha( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    PACKET_INFO_MAC_ADDR( arp_sha )
-  }
-  return Qnil;
+  PACKET_INFO_MAC_ADDR( arp_sha )
 }
 
 
 static VALUE
 packet_in_arp_spa( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    PACKET_INFO_IPv4_ADDR( arp_spa )
-  }
-  return Qnil;
+  PACKET_INFO_IPv4_ADDR( arp_spa )
 }
 
 
 static VALUE
 packet_in_arp_tha( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    PACKET_INFO_MAC_ADDR( arp_tha )
-  }
-  return Qnil;
+  PACKET_INFO_MAC_ADDR( arp_tha )
 }
 
 
 static VALUE
 packet_in_arp_tpa( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    PACKET_INFO_IPv4_ADDR( arp_tpa )
-  }
-  return Qnil;
+  PACKET_INFO_IPv4_ADDR( arp_tpa )
 }
 
 
 static VALUE
 packet_in_ipv6_src( const buffer *frame ) {
-  if ( packet_type_ipv6( frame ) ) {
-    PACKET_INFO_IPv6_ADDR( ipv6_saddr )
-  }
-  return Qnil;
+  PACKET_INFO_IPv6_ADDR( ipv6_saddr )
 }
 
 
 static VALUE
 packet_in_ipv6_dst( const buffer *frame ) {
-  if ( packet_type_ipv6( frame ) ) {
-    PACKET_INFO_IPv6_ADDR( ipv6_daddr )
-  }
-  return Qnil;
+  PACKET_INFO_IPv6_ADDR( ipv6_daddr )
 }
 
 
 static VALUE
 packet_in_ipv6_flabel( const buffer *frame ) {
-  if ( packet_type_ipv6( frame ) ) {
-     return UINT2NUM( get_packet_in_info( frame )->ipv6_flowlabel );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->ipv6_flowlabel );
 }
 
 
 static VALUE
 packet_in_icmpv4( const uint8_t ip_proto ) {
-  if ( ip_proto == IPPROTO_ICMP ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( ip_proto == IPPROTO_ICMP ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_icmpv6( const uint8_t ip_proto ) {
-  if ( ip_proto == IPPROTO_ICMPV6 ) {
-    return Qtrue;
-  }
-  return Qtrue;
+  return ( ip_proto == IPPROTO_ICMPV6 ) ? Qtrue : Qfalse;
 }
 
 
@@ -261,37 +216,25 @@ packet_in_ip_ecn( const buffer *frame ) {
 
 static VALUE
 packet_in_ipv4_src( const buffer *frame ) {
-  if ( packet_type_ipv4( frame ) ) {
-    PACKET_INFO_IPv4_ADDR( ipv4_saddr )
-  }
-  return Qnil;
+  PACKET_INFO_IPv4_ADDR( ipv4_saddr )
 }
 
 
 static VALUE
 packet_in_ipv4_dst( const buffer *frame ) {
-  if ( packet_type_ipv4( frame ) ) {
-    PACKET_INFO_IPv4_ADDR( ipv4_daddr )
-  }
-  return Qnil;
+  PACKET_INFO_IPv4_ADDR( ipv4_daddr )
 }
 
 
 static VALUE
 packet_in_arp( const buffer *frame ) {
-  if ( packet_type_arp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_arp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_vtag( const buffer *frame ) {
-  if ( packet_type_eth_vtag( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_eth_vtag( frame ) ) ? Qtrue : Qfalse;
 }
 
 
@@ -309,28 +252,19 @@ packet_in_ipv6( const buffer *frame ) {
 
 static VALUE
 packet_in_ipv4_tos( const buffer *frame ) {
-  if ( packet_in_ipv4( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->ipv4_tos );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->ipv4_tos );
 }
 
 
 static VALUE
 packet_in_ipv4_tot_len( const buffer *frame ) {
-  if ( packet_in_ipv4( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->ipv4_tot_len );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->ipv4_tot_len );
 }
 
 
 static VALUE
 packet_in_ipv4_id( const buffer *frame ) {
-  if ( packet_in_ipv4( frame ) ) {
-    return UINT2NUM( get_packet_in_info( frame )->ipv4_id );
-  }
-  return Qnil;
+  return UINT2NUM( get_packet_in_info( frame )->ipv4_id );
 }
 
 
@@ -348,46 +282,31 @@ packet_in_ip_proto( const buffer *frame ) {
 
 static VALUE
 packet_in_igmp( const buffer *frame ) {
-  if ( packet_type_igmp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_igmp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_ipv4_tcp( const buffer *frame ) {
-  if ( packet_type_ipv4_tcp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_ipv4_tcp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_ipv4_udp( const buffer *frame ) {
-  if ( packet_type_ipv4_udp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_ipv4_udp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_ipv6_tcp( const buffer *frame ) {
-  if ( packet_type_ipv6_tcp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_ipv6_tcp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_tcp( const uint8_t ip_proto ) {
-  if ( ip_proto == IPPROTO_TCP ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( ip_proto == IPPROTO_TCP ) ? Qtrue : Qfalse;
 }
 
 
@@ -405,10 +324,7 @@ packet_in_tcp_dst( const buffer *frame ) {
 
 static VALUE
 packet_in_udp( const uint8_t ip_proto ) {
-  if ( ip_proto == IPPROTO_UDP ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( ip_proto == IPPROTO_UDP ) ? Qtrue : Qfalse;
 }
 
 
@@ -426,10 +342,7 @@ packet_in_udp_dst( const buffer *frame ) {
 
 static VALUE
 packet_in_sctp( const uint8_t ip_proto ) {
-  if ( ip_proto == IPPROTO_SCTP ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( ip_proto == IPPROTO_SCTP ) ? Qtrue : Qfalse;
 }
 
 
@@ -447,28 +360,19 @@ packet_in_sctp_dst( const buffer *frame ) {
 
 static VALUE
 packet_in_ipv6_udp( const buffer *frame ) {
-  if ( packet_type_ipv6_udp( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_ipv6_udp( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_arp_request( const buffer *frame ) {
-  if ( packet_type_arp_request( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_arp_request( frame ) ) ? Qtrue : Qfalse;
 }
 
 
 static VALUE
 packet_in_arp_reply( const buffer *frame ) {
-  if ( packet_type_arp_reply( frame ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( packet_type_arp_reply( frame ) ) ? Qtrue : Qfalse;
 }
 
 
@@ -548,14 +452,28 @@ packet_in_mpls_bos( const buffer *frame ) {
 
 static VALUE
 packet_in_mpls( const uint16_t eth_type ) {
-  if ( ( eth_type == ETH_ETHTYPE_MPLS_UNI ) || ( eth_type == ETH_ETHTYPE_MPLS_MLT ) ) {
-    return Qtrue;
-  }
-  return Qfalse;
+  return ( ( eth_type == ETH_ETHTYPE_MPLS_UNI ) || ( eth_type == ETH_ETHTYPE_MPLS_MLT ) ) ? Qtrue : Qfalse; 
 }
 
 
-  
+static VALUE
+packet_in_ipv6_exthdr( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->ipv6_exthdr );
+} 
+
+
+static VALUE
+packet_in_pbb( const uint16_t eth_type ) {
+ return ( eth_type == ETH_ETHTYPE_PBB ) ? Qtrue : Qfalse;
+}
+
+
+static VALUE
+packet_in_pbb_isid( const buffer *frame ) {
+  return UINT2NUM( get_packet_in_info( frame )->pbb_isid );
+}
+
+
 static VALUE
 decode_packet_in( packet_in *message ) {
   VALUE attributes = rb_hash_new();
@@ -580,22 +498,36 @@ decode_packet_in( packet_in *message ) {
   const uint16_t eth_type = ( const uint16_t ) NUM2UINT( r_eth_type );
   HASH_SET( pi_attributes, "eth_type", r_eth_type );
 
-  HASH_SET( pi_attributes, "ipv4", packet_in_ipv4( message->data ) );
-  HASH_SET( pi_attributes, "ipv4_tos", packet_in_ipv4_tos( message->data ) );
-  HASH_SET( pi_attributes, "ipv4_tot_len", packet_in_ipv4_tot_len( message->data ) );
-  HASH_SET( pi_attributes, "ipv4_id", packet_in_ipv4_id( message->data ) );
+  bool ipv4 = packet_in_ipv4( message->data );
+  VALUE r_ipv4 = ( ipv4 == true ) ? Qtrue : Qfalse;
+  HASH_SET( pi_attributes, "ipv4", r_ipv4 );
+  if ( r_ipv4 == Qtrue ) {
+    HASH_SET( pi_attributes, "ipv4_src", packet_in_ipv4_src( message->data ) );
+    HASH_SET( pi_attributes, "ipv4_dst", packet_in_ipv4_dst( message->data ) );
+    HASH_SET( pi_attributes, "ipv4_tos", packet_in_ipv4_tos( message->data ) );
+    HASH_SET( pi_attributes, "ipv4_tot_len", packet_in_ipv4_tot_len( message->data ) );
+    HASH_SET( pi_attributes, "ipv4_id", packet_in_ipv4_id( message->data ) );
+  }
+  
+  bool ipv6 = packet_in_ipv6( message->data );
+  VALUE r_ipv6 = ( ipv6 == true ) ? Qtrue: Qfalse;
+  HASH_SET( pi_attributes, "ipv6", r_ipv6 );
+
+  HASH_SET( pi_attributes, "ip_dscp", packet_in_ip_dscp( message->data ) );
+  HASH_SET( pi_attributes, "ip_ecn", packet_in_ip_ecn( message->data ) );
   VALUE r_ip_proto =  packet_in_ip_proto( message->data );
   const uint8_t ip_proto = ( const uint8_t ) NUM2UINT( r_ip_proto );
   HASH_SET( pi_attributes, "ip_proto", r_ip_proto );
   
-  HASH_SET( pi_attributes, "vtag", packet_in_vtag( message->data ) );
-  HASH_SET( pi_attributes, "vlan_vid", packet_in_vlan_vid( message->data ) );
-  HASH_SET( pi_attributes, "vlan_pcp", packet_in_vlan_pcp( message->data ) );
-  HASH_SET( pi_attributes, "vlan_tci", packet_in_vlan_tci( message->data ) );
-  HASH_SET( pi_attributes, "vlan_tpid", packet_in_vlan_tpid( message->data ) );
-  HASH_SET( pi_attributes, "vlan_cfi", packet_in_vlan_cfi( message->data ) );
-  HASH_SET( pi_attributes, "ipv4_src", packet_in_ipv4_src( message->data ) );
-  HASH_SET( pi_attributes, "ipv4_dst", packet_in_ipv4_dst( message->data ) );
+  VALUE r_vtag = packet_in_vtag( message->data );
+  HASH_SET( pi_attributes, "vtag", r_vtag );
+  if ( r_vtag == Qtrue ) {
+    HASH_SET( pi_attributes, "vlan_vid", packet_in_vlan_vid( message->data ) );
+    HASH_SET( pi_attributes, "vlan_pcp", packet_in_vlan_pcp( message->data ) );
+    HASH_SET( pi_attributes, "vlan_tci", packet_in_vlan_tci( message->data ) );
+    HASH_SET( pi_attributes, "vlan_tpid", packet_in_vlan_tpid( message->data ) );
+    HASH_SET( pi_attributes, "vlan_cfi", packet_in_vlan_cfi( message->data ) );
+  }
 
   VALUE r_tcp = packet_in_tcp( ip_proto );
   HASH_SET( pi_attributes, "tcp", r_tcp );
@@ -618,24 +550,23 @@ decode_packet_in( packet_in *message ) {
     HASH_SET( pi_attributes, "sctp_dst", packet_in_sctp_dst( message->data ) );
   }
 
-  HASH_SET( pi_attributes, "ip_dscp", packet_in_ip_dscp( message->data ) );
-  HASH_SET( pi_attributes, "ip_ecn", packet_in_ip_ecn( message->data ) );
 
   HASH_SET( pi_attributes, "ipv4_tcp", packet_in_ipv4_tcp( message->data ) );
   HASH_SET( pi_attributes, "ipv4_udp", packet_in_ipv4_udp( message->data ) );
   HASH_SET( pi_attributes, "ipv6_tcp", packet_in_ipv6_tcp( message->data ) );
   HASH_SET( pi_attributes, "ipv6_udp", packet_in_ipv6_udp( message->data ) );
 
-
-
-  HASH_SET( pi_attributes, "arp", packet_in_arp( message->data ) );
-  HASH_SET( pi_attributes, "arp_request", packet_in_arp_request( message->data ) );
-  HASH_SET( pi_attributes, "arp_reply", packet_in_arp_reply( message->data ) );
-  HASH_SET( pi_attributes, "arp_op", packet_in_arp_op( message->data ) );
-  HASH_SET( pi_attributes, "arp_sha", packet_in_arp_sha( message->data ) );
-  HASH_SET( pi_attributes, "arp_spa", packet_in_arp_spa( message->data ) );
-  HASH_SET( pi_attributes, "arp_tha", packet_in_arp_tha( message->data ) );
-  HASH_SET( pi_attributes, "arp_tpa", packet_in_arp_tpa( message->data ) );
+  VALUE r_arp = packet_in_arp( message->data );
+  HASH_SET( pi_attributes, "arp", r_arp );
+  if ( r_arp == Qtrue ) {
+    HASH_SET( pi_attributes, "arp_request", packet_in_arp_request( message->data ) );
+    HASH_SET( pi_attributes, "arp_reply", packet_in_arp_reply( message->data ) );
+    HASH_SET( pi_attributes, "arp_op", packet_in_arp_op( message->data ) );
+    HASH_SET( pi_attributes, "arp_sha", packet_in_arp_sha( message->data ) );
+    HASH_SET( pi_attributes, "arp_spa", packet_in_arp_spa( message->data ) );
+    HASH_SET( pi_attributes, "arp_tha", packet_in_arp_tha( message->data ) );
+    HASH_SET( pi_attributes, "arp_tpa", packet_in_arp_tpa( message->data ) );
+  }
 
 
   VALUE r_icmpv4 = packet_in_icmpv4( ip_proto );
@@ -660,9 +591,12 @@ decode_packet_in( packet_in *message ) {
   }
 
 
-  HASH_SET( pi_attributes, "ipv6_src", packet_in_ipv6_src( message->data ) );
-  HASH_SET( pi_attributes, "ipv6_dst", packet_in_ipv6_dst( message->data ) );
-  HASH_SET( pi_attributes, "ipv6_flabel", packet_in_ipv6_flabel( message->data ) );
+  if ( r_ipv6 == Qtrue ) {
+    HASH_SET( pi_attributes, "ipv6_src", packet_in_ipv6_src( message->data ) );
+    HASH_SET( pi_attributes, "ipv6_dst", packet_in_ipv6_dst( message->data ) );
+    HASH_SET( pi_attributes, "ipv6_flabel", packet_in_ipv6_flabel( message->data ) );
+    HASH_SET( pi_attributes, "ipv6_exthdr", packet_in_ipv6_exthdr( message->data ) );
+  }
 
   HASH_SET( pi_attributes, "igmp", packet_in_igmp( message->data ) );
   
@@ -672,6 +606,11 @@ decode_packet_in( packet_in *message ) {
     HASH_SET( pi_attributes, "mpls_label", packet_in_mpls_label( message->data ) );
     HASH_SET( pi_attributes, "mpls_tc", packet_in_mpls_tc( message->data ) );
     HASH_SET( pi_attributes, "mpls_bos", packet_in_mpls_bos( message->data ) );
+  }
+  VALUE r_pbb = packet_in_pbb( eth_type );
+  HASH_SET( pi_attributes, "pbb", r_pbb );
+  if ( r_pbb == Qtrue ) { 
+    HASH_SET( pi_attributes, "pbb_isid", packet_in_pbb_isid( message->data ) );
   }
 
   VALUE cPacketInfo = rb_funcall( rb_eval_string( "Messages::PacketInfo" ), rb_intern( "new" ), 1, pi_attributes );

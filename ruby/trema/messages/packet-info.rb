@@ -28,14 +28,14 @@ module Trema
       alias_method :vtag?, :vtag
       attr_accessor :vlan_vid, :vlan_tci, :vlan_prio, :vlan_tpid
 
-      attr_accessor :arp
-      alias_method :arp?, :arp
-
       attr_accessor :ipv4
       alias_method :ipv4?, :ipv4
 
       attr_accessor :ipv6
       alias_method :ipv6?, :ipv6
+
+      attr_accessor :arp
+      alias_method :arp?, :arp
 
       attr_accessor :arp_request
       alias_method :arp_request?, :arp_request
@@ -67,11 +67,13 @@ module Trema
       attr_accessor :sctp, :sctp_src, :sctp_dst
       alias_method :sctp?, :sctp
 
-      attr_accessor :ipv6_src, :ipv6_dst
-      attr_accessor :ipv6_flabel
+      attr_accessor :ipv6_src, :ipv6_dst, :ipv6_flabel, :ipv6_exthdr
 
       attr_accessor :mpls, :mpls_label, :mpls_tc, :mpls_bos
       alias_method :mpls?, :mpls
+
+      attr_accessor :pbb, :pbb_isid
+      alias_method :pbb?, :pbb
     end
   end
 end
