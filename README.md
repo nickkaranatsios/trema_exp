@@ -32,16 +32,15 @@ It may also run on other GNU/Linux distributions but is not tested.
 ## Required Packages
 
 This repository has only been tested with ruby 1.9.3 and will not work with lower versions.
-We recommend installation of the rvm program in order to install ruby 1.9.3.
+We recommend installation of the rvm program for easy installation of ruby 1.9.3.
 
 ## Build trema
 
-The familiar build.rb command is not fixed yet therefore to build trema-edge please use the rake command.
+The familiar build.rb command has not been integrated yet therefore to build `trema-edge` please use the rake command.  
+But before running the `rake` command ensure that the gem `rake-compiler` version 0.7.0 is installed and in addition the  
+`xutils-dev` package required by the `rake-compiler` gem that invokes the `makedepend` program.  
     % rake
-The `rake` command reads the default `rakefile` found on the current directory.
-Ensure that the gem rake-compiler 0.7.0 is installed and in addition the package xutils-dev also installed since it is required by
-the makedepend program that the rake-compiler gem is using.
-The `Rakefile` file that contains testing suite scripts has not been integrated into the build yet and can not be used
+Also note that the `Rakefile` file that contains testing suite scripts has not been integrated into the build yet and can not be used.
 
 ## Run learning switch
 
