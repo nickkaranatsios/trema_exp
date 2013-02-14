@@ -23,24 +23,24 @@
 buffer *
 pack_echo_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( xid_r != Qnil ) {
-    xid = NUM2UINT( xid_r );
+  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  if ( r_xid != Qnil ) {
+    xid = NUM2UINT( r_xid );
   }
 
-  VALUE body_r = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
+  VALUE r_body = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
   buffer *body = NULL;
-  if ( body_r != Qnil ) {
-    if ( TYPE( body_r ) == T_ARRAY ) {
-        uint16_t buffer_len = ( uint16_t ) RARRAY_LEN( body_r );
+  if ( r_body != Qnil ) {
+    if ( TYPE( r_body ) == T_ARRAY ) {
+        uint16_t buffer_len = ( uint16_t ) RARRAY_LEN( r_body );
 
-        body = alloc_buffer_with_length( ( size_t ) RARRAY_LEN( body_r ) );
+        body = alloc_buffer_with_length( ( size_t ) RARRAY_LEN( r_body ) );
         append_back_buffer( body, buffer_len );
         uint8_t *buf = body->data;
 
         
-        for ( int i = 0; i < buffer_len && i < RARRAY_LEN( body_r ); i++ ) {
-          buf[ i ]= ( uint8_t ) FIX2INT( RARRAY_PTR( body_r )[ i ] );
+        for ( int i = 0; i < buffer_len && i < RARRAY_LEN( r_body ); i++ ) {
+          buf[ i ]= ( uint8_t ) FIX2INT( RARRAY_PTR( r_body )[ i ] );
         }
     }
     else {

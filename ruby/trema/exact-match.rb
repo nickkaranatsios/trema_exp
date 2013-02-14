@@ -18,9 +18,6 @@
 #
 
 
-require "trema/match"
-
-
 module Trema
   class ExactMatch
     def self.from message

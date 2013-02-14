@@ -16,19 +16,16 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/packet-in"
-require "trema/messages/packet-info"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
-require "trema/messages/bucket"
-require "trema/messages/group-mod"
+module Trema
+  module Messages
+    class Bucket < Message
+      unsigned_int16 :weight
+      unsigned_int32 :watch_port
+      unsigned_int32 :watch_group
+      attr_accessor :actions
+    end
+  end
+end
 
 
 ### Local variables:

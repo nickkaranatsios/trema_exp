@@ -28,7 +28,7 @@ VALUE mActions;
 
 
 void
-Init_actions() {
+Init_actions( void ) {
   mActions = rb_define_module_under( mTrema, "Actions" );
   Init_basic_action();
   Init_flexible_action();

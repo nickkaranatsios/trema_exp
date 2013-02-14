@@ -180,7 +180,7 @@ pack_experimenter( VALUE self, VALUE actions, VALUE options ) {
 
 
 void
-Init_basic_action() {
+Init_basic_action( void ) {
   sym_port_number = ID2SYM( rb_intern( "port_number" ) );
   sym_max_len = ID2SYM( rb_intern( "max_len" ) );
   sym_group_id = ID2SYM( rb_intern( "group_id" ) );

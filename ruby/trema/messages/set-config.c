@@ -24,25 +24,25 @@ buffer *
 pack_set_config( VALUE options ) {
   VALUE sym_transaction_id = ID2SYM( rb_intern( "transaction_id" ) );
   VALUE sym_flags = ID2SYM( rb_intern( "flags" ) );
-  VALUE sym_miss_send_len = ID2SYM( rb_intern( "miss_send_len" ) );
+  VALUE sym_r_miss_send_len = ID2SYM( rb_intern( "r_miss_send_len" ) );
 
   uint32_t xid = get_transaction_id();
-  VALUE xid_r = rb_hash_aref( options, sym_transaction_id );
-  if ( xid_r != Qnil ) {
-    xid = NUM2UINT( xid_r );
+  VALUE r_xid = rb_hash_aref( options, sym_transaction_id );
+  if ( r_xid != Qnil ) {
+    xid = NUM2UINT( r_xid );
   }
 
   uint16_t flags = 0;
-  VALUE flags_r = rb_hash_aref( options, sym_flags );
-  if ( flags_r != Qnil ) {
-    flags = ( uint16_t ) NUM2UINT( flags_r );
+  VALUE r_flags = rb_hash_aref( options, sym_flags );
+  if ( r_flags != Qnil ) {
+    flags = ( uint16_t ) NUM2UINT( r_flags );
   }
  
-  uint16_t miss_send_len;
-  VALUE miss_send_len_r = rb_hash_aref( options, sym_miss_send_len );
-  miss_send_len = ( uint16_t ) NUM2UINT( miss_send_len_r );
+  uint16_t r_miss_send_len;
+  VALUE r_miss_send_len_r = rb_hash_aref( options, sym_r_miss_send_len );
+  r_miss_send_len = ( uint16_t ) NUM2UINT( r_miss_send_len_r );
 
-  return create_set_config( xid, flags, miss_send_len );
+  return create_set_config( xid, flags, r_miss_send_len );
 }
 
 

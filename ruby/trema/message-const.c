@@ -53,41 +53,6 @@ frag_mask( VALUE self ) {
 
 
 static VALUE
-flow_mod_add( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFC_ADD );
-}
-
-
-static VALUE
-flow_mod_modify( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFC_MODIFY );
-}
-
-
-static VALUE
-flow_mod_modify_strict( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFC_MODIFY_STRICT );
-}
-
-
-static VALUE
-flow_mod_delete( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFC_DELETE );
-}
-
-
-static VALUE
-flow_mod_delete_strict( VALUE self ) {
-  UNUSED( self );
-  return UINT2NUM( OFPFC_DELETE_STRICT );
-}
-
-
-static VALUE
 controller_port( VALUE self ) {
   UNUSED( self );
   return UINT2NUM( OFPP_CONTROLLER );
@@ -214,7 +179,7 @@ port_modify( VALUE self ) {
 
 
 void
-Init_message_const() {
+Init_message_const( void ) {
   mMessageConst = rb_define_module_under( mTrema, "MessageConst" );
 
   rb_define_module_function( mMessageConst, "frag_normal", frag_normal, 0 );
@@ -225,13 +190,6 @@ Init_message_const() {
   VALUE config_flags = rb_range_new( UINT2NUM( OFPC_FRAG_NORMAL ), UINT2NUM( OFPC_FRAG_MASK ), false );
   rb_iv_set( mMessageConst, "@config_flags", config_flags );
 
-
-  // ofp_flow_mod_command
-  rb_define_module_function( mMessageConst, "flow_mod_add", flow_mod_add, 0 );
-  rb_define_module_function( mMessageConst, "flow_mod_modify", flow_mod_modify, 0 );
-  rb_define_module_function( mMessageConst, "flow_mod_modify_strict", flow_mod_modify_strict, 0 );
-  rb_define_module_function( mMessageConst, "flow_mod_delete", flow_mod_delete, 0 );
-  rb_define_module_function( mMessageConst, "flow_mod_delete_strict", flow_mod_delete_strict, 0 );
 
   // ofp_ports
   rb_define_module_function( mMessageConst, "max_port", max_port, 0 );

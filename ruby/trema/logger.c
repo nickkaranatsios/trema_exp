@@ -140,7 +140,7 @@ logger_debug( int argc, VALUE *argv, VALUE self ) {
 
 
 void
-Init_logger() {
+Init_logger( void ) {
   mTrema = rb_define_module( "Trema" );
   mLogger = rb_define_module_under( mTrema, "Logger" );
 

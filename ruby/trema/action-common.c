@@ -47,16 +47,16 @@ mac_addr_to_cstr( VALUE mac_addr ) {
 
 
 openflow_actions *
-pack_basic_action( VALUE action ) {
+pack_basic_action( VALUE r_action ) {
   openflow_actions *actions = create_actions();
   VALUE cAction = Qnil;
 
-  if ( action != Qnil ) {
-    switch ( TYPE( action ) ) {
+  if ( r_action != Qnil ) {
+    switch ( TYPE( r_action ) ) {
       case T_ARRAY: {
-          VALUE *each = RARRAY_PTR( action );
+          VALUE *each = RARRAY_PTR( r_action );
 
-          for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
+          for ( int i = 0; i < RARRAY_LEN( r_action ); i++ ) {
             if ( rb_respond_to( each[ i ], rb_intern( "pack_action" ) ) ) {
               cAction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, actions );
               rb_funcall( each[ i ], rb_intern( "pack_action" ), 1, cAction );
@@ -65,9 +65,9 @@ pack_basic_action( VALUE action ) {
       }
       break;
       case T_OBJECT:
-        if ( rb_respond_to( action, rb_intern( "pack_action" ) ) ) {
-          cAction = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, actions );
-          rb_funcall( action, rb_intern( "pack_action" ), 1, cAction );
+        if ( rb_respond_to( r_action, rb_intern( "pack_action" ) ) ) {
+          cAction = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, actions );
+          rb_funcall( r_action, rb_intern( "pack_action" ), 1, cAction );
         }
       break;
       default:
@@ -81,16 +81,16 @@ pack_basic_action( VALUE action ) {
 
 
 oxm_matches *
-pack_flexible_action( VALUE action ) {
+pack_flexible_action( VALUE r_action ) {
   oxm_matches *oxm_match = create_oxm_matches();
   VALUE cOxmMatch = Qnil;
 
-  if ( action != Qnil ) {
-    switch ( TYPE( action ) ) {
+  if ( r_action != Qnil ) {
+    switch ( TYPE( r_action ) ) {
       case T_ARRAY: {
-          VALUE *each = RARRAY_PTR( action );
+          VALUE *each = RARRAY_PTR( r_action );
 
-          for ( int i = 0; i < RARRAY_LEN( action ); i++ ) {
+          for ( int i = 0; i < RARRAY_LEN( r_action ); i++ ) {
             if ( rb_respond_to( each[ i ], rb_intern( "pack_match" ) ) ) {
               cOxmMatch = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, oxm_match );
               rb_funcall( each[ i ], rb_intern( "pack_match" ), 1, cOxmMatch );
@@ -99,9 +99,9 @@ pack_flexible_action( VALUE action ) {
       }
       break;
       case T_OBJECT:
-        if ( rb_respond_to( action, rb_intern( "pack_match" ) ) ) {
-          cOxmMatch = Data_Wrap_Struct( rb_obj_class( action ), NULL, NULL, oxm_match );
-          rb_funcall( action, rb_intern( "pack_match" ), 1, cOxmMatch );
+        if ( rb_respond_to( r_action, rb_intern( "pack_match" ) ) ) {
+          cOxmMatch = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, oxm_match );
+          rb_funcall( r_action, rb_intern( "pack_match" ), 1, cOxmMatch );
         }
       break;
       default:
@@ -115,27 +115,27 @@ pack_flexible_action( VALUE action ) {
 
 
 openflow_instructions *
-pack_instruction( VALUE instruction ) {
+pack_instruction( VALUE r_instruction ) {
   openflow_instructions *instructions = create_instructions();
   VALUE cInstruction;
 
-  if ( instruction != Qnil ) {
-    switch ( TYPE( instruction ) ) {
+  if ( r_instruction != Qnil ) {
+    switch ( TYPE( r_instruction ) ) {
       case T_ARRAY: {
-          VALUE *each = RARRAY_PTR( instruction );
+        VALUE *each = RARRAY_PTR( r_instruction );
 
-          for ( int i = 0; i < RARRAY_LEN( instruction ); i++ ) {
-            if ( rb_respond_to( each[ i ], rb_intern( "pack_instruction" ) ) ) {
-              cInstruction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, instructions );
-              rb_funcall( each[ i ], rb_intern( "pack_instruction" ), 1, cInstruction );
-            }
+        for ( int i = 0; i < RARRAY_LEN( r_instruction ); i++ ) {
+          if ( rb_respond_to( each[ i ], rb_intern( "pack_instruction" ) ) ) {
+            cInstruction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, instructions );
+            rb_funcall( each[ i ], rb_intern( "pack_instruction" ), 1, cInstruction );
           }
         }
+      }
       break;
       case T_OBJECT:
-        if ( rb_respond_to( rb_obj_class( instruction ), rb_intern( "pack_instruction" ) ) ) {
-          cInstruction = Data_Wrap_Struct( instruction, NULL, NULL, instructions );
-          rb_funcall( instruction, rb_intern( "pack_instruction" ), 1, cInstruction );
+        if ( rb_respond_to( rb_obj_class( r_instruction ), rb_intern( "pack_instruction" ) ) ) {
+          cInstruction = Data_Wrap_Struct( r_instruction, NULL, NULL, instructions );
+          rb_funcall( r_instruction, rb_intern( "pack_instruction" ), 1, cInstruction );
         }
       break;
       default:
@@ -144,7 +144,7 @@ pack_instruction( VALUE instruction ) {
     }
   }
   Data_Get_Struct( cInstruction, openflow_instructions, instructions );
-  printf("no.of instructions added %d\n", instructions->n_instructions );
+  printf( "no. of instructions added %d\n", instructions->n_instructions );
   return instructions;
 }
 

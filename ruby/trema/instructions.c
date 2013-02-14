@@ -122,7 +122,7 @@ pack_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options )
 
 
 void
-Init_instructions() {
+Init_instructions( void ) {
   mInstructions = rb_define_module_under( mTrema, "Instructions" );
 
   sym_table_id = ID2SYM( rb_intern( "table_id" ) );

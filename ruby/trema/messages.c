@@ -94,7 +94,7 @@ pack_flow_mod_msg( VALUE self, VALUE options ) {
 
 
 void
-Init_messages() {
+Init_messages( void ) {
   mMessages = rb_define_module_under( mTrema, "Messages" );
   rb_define_module_function( mMessages, "pack_hello_msg", pack_hello_msg, 1 );
   rb_define_module_function( mMessages, "pack_echo_request_msg", pack_echo_request_msg, 1 );

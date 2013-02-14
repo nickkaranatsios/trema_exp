@@ -607,7 +607,7 @@ pack_ipv6_exthdr( VALUE self, VALUE actions, VALUE options ) {
 
 
 void
-Init_flexible_action() {
+Init_flexible_action( void ) {
   basic_action_eval = rb_eval_string( "Trema::BasicAction" );
 
   sym_in_port = ID2SYM( rb_intern( "in_port" ) );

@@ -157,7 +157,7 @@ controller_test_instruction( VALUE self, VALUE instruction ) {
  ********************************************************************************/
 
 void
-Init_controller() {
+Init_controller( void ) {
   rb_require( "trema/app" );
   VALUE cApp = rb_eval_string( "Trema::App" );
   cController = rb_define_class_under( mTrema, "Controller", cApp );

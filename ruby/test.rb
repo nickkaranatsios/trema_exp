@@ -1,51 +1,5 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
-
-class Match
-  attr_accessor :in_port
-  attr_accessor :in_phy_port
-  
-  def initialize in_port, in_phy_port
-    @in_port, @in_phy_port = ( in_port + 1 ), ( in_phy_port + 1 )
-  end
-
-  def self.from message
-    m = self.new( message.a, message.b )
-  end
-end
-
-class ExactMatch
-  def self.from message
-    Match.from message
-  end
-end
-
-
-require "forwardable"
-class Message
-  extend Forwardable
-
-
-  attr_accessor :a,:b
-  attr_accessor :match
-
-  def_delegator :@match, :in_port
-
-  def initialize in_port, in_phy_port
-    @a, @b = in_port, in_phy_port
-  end
-  def set_match
-    @match = ExactMatch.from( self )
-puts @match.inspect
-  end
-end
-
-
-x = Message.new( 2, 3 )
-x.set_match
-puts "inport is #{ x.in_port }"
-exit
-
 require "trema"
 module Trema
   class Test < Controller
@@ -79,6 +33,9 @@ module Trema
         Messages::FeaturesRequest.new( :transaction_id => 123 ),
         Messages::GetConfigRequest.new( :transaction_id => 123 ),
         Messages::SetConfig.new( :transaction_id => 123, :flags => OFPC_FRAG_NORMAL, :miss_send_len => OFPCML_NO_BUFFER ),
+        actions = Actions::PushVlan.new ( 0x88a8 )
+        buckets = Messages::Bucket.new( :watch_port => 1, :watch_group => 1, :weight => 2, :actions => [ actions ] )
+        Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ buckets ] )
       ]
       send_message 0x1, ml
     end
@@ -167,12 +124,11 @@ module Trema
   end
 end
 
-puts OFP_NO_BUFFER.to_s( 16 )
 t = Trema::Test.new
-t.test_flow_mod_add
-t.basic_actions
-t.flexible_actions
-#t.messages
-t.instructions
+#t.test_flow_mod_add
+#t.basic_actions
+#t.flexible_actions
+t.messages
+#t.instructions
 
 

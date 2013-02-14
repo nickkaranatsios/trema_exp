@@ -31,13 +31,7 @@ module Trema
     CONFIG_FLAGS = config_flags_hash.values.freeze
     
 
-    enum_hash(
-      :ofpfc_add => flow_mod_add,
-      :ofpfc_modify => flow_mod_modify,
-      :ofpfc_modify_strict => flow_mod_modify_strict,
-      :ofpfc_delete => flow_mod_delete,
-      :ofpfc_delete_strict => flow_mod_delete_strict
-    )
+    enum_step %w( ofpfc_add ofpfc_modify ofpfc_modify_strict ofpfc_delete ofpfc_delete_strict )
 
     
     flow_mod_flags = %w( 
@@ -94,6 +88,8 @@ module Trema
       ofpgt_ff
     )
     enum_step group_type
+    
+    enum_step %w( ofpgc_add ofpgc_modify ofpgc_delete )
   end
 end
 

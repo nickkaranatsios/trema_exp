@@ -40,7 +40,7 @@ install_handlers( VALUE self ) {
 
 
 void
-Init_message_handler() {
+Init_message_handler( void ) {
   mMessageHandler = rb_define_module_under( mTrema, "MessageHandler" );
 
   rb_define_module_function( mMessageHandler, "install_handlers", install_handlers, 1 );

@@ -23,9 +23,9 @@
 buffer *
 pack_get_config_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE xid_r = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( xid_r != Qnil ) {
-    xid = NUM2UINT( xid_r );
+  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  if ( r_xid != Qnil ) {
+    xid = NUM2UINT( r_xid );
   }
 
   return create_get_config_request( xid );

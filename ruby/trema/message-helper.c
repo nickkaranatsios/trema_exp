@@ -181,13 +181,34 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+static VALUE
+send_group_mod( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+
+  if ( options != Qnil ) {
+    VALUE group_mod = rb_funcall( rb_eval_string( "Messages::GroupMod" ), rb_intern( "new" ), 1, options );
+
+    // the two lines below are for temporary debug
+    VALUE str = rb_inspect( group_mod );
+    printf( "group_mod %s\n", StringValuePtr( str ) );
+    
+    send_controller_message( self, datapath_id, group_mod );
+  }
+
+  return self;
+}
+
+
 void
-Init_message_helper() {
+Init_message_helper( void ) {
   mMessageHelper = rb_define_module_under( mTrema, "MessageHelper" );
 
   rb_define_module_function( mMessageHelper, "send_flow_mod", send_flow_mod, -1 );
   rb_define_module_function( mMessageHelper, "send_message", send_controller_message, 2 );
   rb_define_module_function( mMessageHelper, "send_packet_out", send_packet_out, - 1 );
+  rb_define_module_function( mMessageHelper, "send_group_mod", send_group_mod, -1 );
 }
 
 

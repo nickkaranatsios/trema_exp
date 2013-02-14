@@ -46,9 +46,6 @@ end
 #end
 
 
-require "trema/exact-match"
-
-
 class FooController < Controller
 #  def start
 #     %w[ packet_in flow_removed ].each do | handler |

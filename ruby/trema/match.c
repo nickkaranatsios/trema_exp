@@ -46,7 +46,7 @@ get_match_from( VALUE self, VALUE message ) {
 
 
 void
-Init_match() {
+Init_match( void ) {
   cMatch = rb_define_class_under( mTrema, "Match", rb_eval_string( "Trema::Message" ) );
   rb_define_singleton_method( cMatch, "get_match_from", get_match_from, 1 );
   rb_require( "trema/match" );
