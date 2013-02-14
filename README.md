@@ -38,8 +38,10 @@ We recommend installation of the rvm program for easy installation of ruby 1.9.3
 
 The familiar build.rb command has not been integrated yet therefore to build `trema-edge` please use the rake command.  
 But before running the `rake` command ensure that the gem `rake-compiler` version 0.7.0 is installed and in addition the  
-`xutils-dev` package required by the `rake-compiler` gem that invokes the `makedepend` program.  
+`xutils-dev` package since it is used by the `rake-compiler` gem invoking the `makedepend` program.  
+
     % rake
+
 Also note that the `Rakefile` file that contains testing suite scripts has not been integrated into the build yet and can not be used.
 
 ## Run learning switch
