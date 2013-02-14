@@ -391,14 +391,12 @@ packet_in_icmpv4_code( const buffer *frame ) {
 static VALUE
 packet_in_icmpv6_code( const buffer *frame ) {
   return UINT2NUM( get_packet_in_info( frame )->icmpv6_code );
-  return Qnil;
 }
 
 
 static VALUE
 packet_in_icmpv6_type( const buffer *frame ) {
   return UINT2NUM( get_packet_in_info( frame )->icmpv6_type );
-  return Qnil;
 }
 
 
@@ -516,9 +514,7 @@ decode_packet_in( packet_in *message ) {
   HASH_SET( pi_attributes, "ip_dscp", packet_in_ip_dscp( message->data ) );
   HASH_SET( pi_attributes, "ip_ecn", packet_in_ip_ecn( message->data ) );
   VALUE r_ip_proto =  packet_in_ip_proto( message->data );
-  const uint8_t ip_proto = ( const uint8_t ) NUM2UINT( r_ip_proto );
-  HASH_SET( pi_attributes, "ip_proto", r_ip_proto );
-  
+
   VALUE r_vtag = packet_in_vtag( message->data );
   HASH_SET( pi_attributes, "vtag", r_vtag );
   if ( r_vtag == Qtrue ) {
@@ -529,25 +525,49 @@ decode_packet_in( packet_in *message ) {
     HASH_SET( pi_attributes, "vlan_cfi", packet_in_vlan_cfi( message->data ) );
   }
 
-  VALUE r_tcp = packet_in_tcp( ip_proto );
-  HASH_SET( pi_attributes, "tcp", r_tcp );
-  if ( r_tcp == Qtrue ) {
-    HASH_SET( pi_attributes, "tcp_src", packet_in_tcp_src( message->data ) );
-    HASH_SET( pi_attributes, "tcp_dst", packet_in_tcp_dst( message->data ) );
-  }
+  if ( r_ip_proto != Qnil ) {
+    HASH_SET( pi_attributes, "ip_proto", r_ip_proto );
+    const uint8_t ip_proto = ( const uint8_t ) NUM2UINT( r_ip_proto );
 
-  VALUE r_udp = packet_in_udp( ip_proto );
-  HASH_SET( pi_attributes, "udp", r_udp );
-  if( r_udp == Qtrue ) {
-    HASH_SET( pi_attributes, "udp_src", packet_in_udp_src( message->data ) );
-    HASH_SET( pi_attributes, "udp_dst", packet_in_udp_dst( message->data ) );
-  }
+    VALUE r_tcp = packet_in_tcp( ip_proto );
+    HASH_SET( pi_attributes, "tcp", r_tcp );
+    if ( r_tcp == Qtrue ) {
+      HASH_SET( pi_attributes, "tcp_src", packet_in_tcp_src( message->data ) );
+      HASH_SET( pi_attributes, "tcp_dst", packet_in_tcp_dst( message->data ) );
+    }
 
-  VALUE r_sctp = packet_in_sctp( ip_proto );
-  HASH_SET( pi_attributes, "sctp", r_sctp );
-  if ( r_sctp == Qtrue ) {
-    HASH_SET( pi_attributes, "sctp_src", packet_in_sctp_src( message->data ) );
-    HASH_SET( pi_attributes, "sctp_dst", packet_in_sctp_dst( message->data ) );
+    VALUE r_udp = packet_in_udp( ip_proto );
+    HASH_SET( pi_attributes, "udp", r_udp );
+    if( r_udp == Qtrue ) {
+      HASH_SET( pi_attributes, "udp_src", packet_in_udp_src( message->data ) );
+      HASH_SET( pi_attributes, "udp_dst", packet_in_udp_dst( message->data ) );
+    }
+
+    VALUE r_sctp = packet_in_sctp( ip_proto );
+    HASH_SET( pi_attributes, "sctp", r_sctp );
+    if ( r_sctp == Qtrue ) {
+      HASH_SET( pi_attributes, "sctp_src", packet_in_sctp_src( message->data ) );
+     HASH_SET( pi_attributes, "sctp_dst", packet_in_sctp_dst( message->data ) );
+    }
+
+    VALUE r_icmpv4 = packet_in_icmpv4( ip_proto );
+    HASH_SET( pi_attributes, "icmpv4", r_icmpv4 );
+    if ( r_icmpv4 == Qtrue ) {
+      HASH_SET( pi_attributes, "icmpv4_type", packet_in_icmpv4_type( message->data ) );
+      HASH_SET( pi_attributes, "icmpv4_code", packet_in_icmpv4_code( message->data ) );
+    }
+
+    VALUE r_icmpv6 = packet_in_icmpv6( ip_proto );
+    HASH_SET( pi_attributes, "icmpv6", r_icmpv6 );
+    if ( r_icmpv6 == Qtrue ) {
+      VALUE r_icmpv6_type = packet_in_icmpv6_type( message->data );
+      const uint8_t icmpv6_type = ( const uint8_t ) NUM2UINT( r_icmpv6_type );
+      HASH_SET( pi_attributes, "icmpv6_type", r_icmpv6_type );
+      HASH_SET( pi_attributes, "icmpv6_code", packet_in_icmpv6_code( message->data ) );
+      HASH_SET( pi_attributes, "ipv6_nd_target", packet_in_ipv6_nd_target( message->data, icmpv6_type ) );
+      HASH_SET( pi_attributes, "ipv6_nd_sll", packet_in_ipv6_nd_sll( message->data, icmpv6_type ) );
+      HASH_SET( pi_attributes, "ipv6_nd_tll", packet_in_ipv6_nd_tll( message->data, icmpv6_type ) );
+    }
   }
 
 
@@ -569,26 +589,6 @@ decode_packet_in( packet_in *message ) {
   }
 
 
-  VALUE r_icmpv4 = packet_in_icmpv4( ip_proto );
-  HASH_SET( pi_attributes, "icmpv4", r_icmpv4 );
-  if ( r_icmpv4 == Qtrue ) {
-    HASH_SET( pi_attributes, "icmpv4_type", packet_in_icmpv4_type( message->data ) );
-    HASH_SET( pi_attributes, "icmpv4_code", packet_in_icmpv4_code( message->data ) );
-  }
-
-  
-
-  VALUE r_icmpv6 = packet_in_icmpv6( ip_proto );
-  HASH_SET( pi_attributes, "icmpv6", r_icmpv6 );
-  if ( r_icmpv6 == Qtrue ) {
-    VALUE r_icmpv6_type = packet_in_icmpv6_type( message->data );
-    const uint8_t icmpv6_type = ( const uint8_t ) NUM2UINT( r_icmpv6_type );
-    HASH_SET( pi_attributes, "icmpv6_type", r_icmpv6_type );
-    HASH_SET( pi_attributes, "icmpv6_code", packet_in_icmpv6_code( message->data ) );
-    HASH_SET( pi_attributes, "ipv6_nd_target", packet_in_ipv6_nd_target( message->data, icmpv6_type ) );
-    HASH_SET( pi_attributes, "ipv6_nd_sll", packet_in_ipv6_nd_sll( message->data, icmpv6_type ) );
-    HASH_SET( pi_attributes, "ipv6_nd_tll", packet_in_ipv6_nd_tll( message->data, icmpv6_type ) );
-  }
 
 
   if ( r_ipv6 == Qtrue ) {

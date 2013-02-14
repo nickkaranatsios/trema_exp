@@ -86,6 +86,14 @@ module Trema
       :ofppr_delete => port_delete,
       :ofppr_modify => port_modify
     )
+
+    group_type = %w(
+      ofpgt_all
+      ofpgt_select
+      ofpgt_indirect
+      ofpgt_ff
+    )
+    enum_step group_type
   end
 end
 

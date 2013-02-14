@@ -26,7 +26,7 @@ module Trema
     eth_addr :eth_src_mask
     eth_addr :eth_dst
     eth_addr :eth_dst_mask
-    unsigned_int16 :ether_type
+    unsigned_int16 :eth_type
     unsigned_int16 :vlan_vid
     unsigned_int16 :vlan_vid_mask
     unsigned_int8 :vlan_pcp
@@ -77,78 +77,96 @@ module Trema
     
     def self.from message
       options = {}
-      options[ :in_port ] = message.in_port
-      options[ :eth_type ] = message.eth_type unless message.eth_type.nil?
-      options[ :eth_src ] = message.eth_src unless message.eth_src.nil?
-      options[ :eth_src_mask ] = 0
-      options[ :eth_dst ] = message.eth_dst unless message.eth_dst.nil?
-      options[ :eth_dst ] = 0
-      options[ :vlan_vid ] = 0
-      options[ :vlan_vid_mask ] = 0
-      if message.vtag?
-        options[ :vlan_vid ] = message.vlan_vid
-        options[ :vlan_pcp ] = message.vlan_pcp
+      options = message.match.class.instance_methods( false ).grep( /[a-z].+=$/ ).inject( {} ) do | options, attr |
+        options.merge( attr.to_s => process( message, attr ) )
       end
-      if message.ipv4?
-        options[ :ip_proto ] = message.ip_proto
-        options[ :ipv4_src ] = message.ipv4_src
-        options[ :ipv4_dst ] = message.ipv4_dst
-      end
+      puts options.inspect
 
-      if message.ipv6?
-        options[ :ipv6_src ] = message.ipv6_src
-        options[ :ipv6_dst ] = message.ipv6_dst
-        options[ :ipv6_flabel ] = message.ipv6_flabel
-        options[ :ipv6_exthdr ] = message.ipv6_exthdr
-      end
-      
-      if message.arp?
-        options[ :arp_op ] = message.arp_op
-        options[ :arp_sha ] = message.arp_sha
-        options[ :arp_spa ] = message.arp_spa
-        options[ :arp_tpa ] = message.arp_tpa
-      end
 
-      if message.icmpv6?
-        options[ :icmpv6_type ] = message.icmpv6_type
-        options[ :icmp6_code ] = message.icmpv6_code
-        options[ :ipv6_nd_target ] = message.ipv6_nd_target unless message.ipv6_nd_target.nil?
-        options[ :ipv6_nd_sll ] = message.ipv6_nd_sll unless message.ipv6_nd_sll.nil?
-        options[ :ipv6_nd_tll ] = message.ipv6_nd_tll unless message.ipv6_nd_tll.nil?
-     end
+#      options[ :in_port ] = message.in_port
+#      options[ :eth_type ] = message.eth_type unless message.eth_type.nil?
+#      options[ :eth_src ] = message.eth_src unless message.eth_src.nil?
+#      options[ :eth_src_mask ] = 0
+#      options[ :eth_dst ] = message.eth_dst unless message.eth_dst.nil?
+#      options[ :eth_dst ] = 0
+#      options[ :vlan_vid ] = 0
+#      options[ :vlan_vid_mask ] = 0
+#      if message.vtag?
+#        options[ :vlan_vid ] = message.vlan_vid
+#        options[ :vlan_pcp ] = message.vlan_pcp
+#      end
+#      if message.ipv4?
+#        options[ :ip_proto ] = message.ip_proto
+#        options[ :ipv4_src ] = message.ipv4_src
+#        options[ :ipv4_dst ] = message.ipv4_dst
+#      end
+#
+#      if message.ipv6?
+#        options[ :ipv6_src ] = message.ipv6_src
+#        options[ :ipv6_dst ] = message.ipv6_dst
+#        options[ :ipv6_flabel ] = message.ipv6_flabel
+#        options[ :ipv6_exthdr ] = message.ipv6_exthdr
+#      end
+#      
+#      if message.arp?
+#        options[ :arp_op ] = message.arp_op
+#        options[ :arp_sha ] = message.arp_sha
+#        options[ :arp_spa ] = message.arp_spa
+#        options[ :arp_tpa ] = message.arp_tpa
+#      end
+#
+#      if message.icmpv6?
+#        options[ :icmpv6_type ] = message.icmpv6_type
+#        options[ :icmp6_code ] = message.icmpv6_code
+#        options[ :ipv6_nd_target ] = message.ipv6_nd_target unless message.ipv6_nd_target.nil?
+#        options[ :ipv6_nd_sll ] = message.ipv6_nd_sll unless message.ipv6_nd_sll.nil?
+#        options[ :ipv6_nd_tll ] = message.ipv6_nd_tll unless message.ipv6_nd_tll.nil?
+#     end
+#
+#     if message.icmpv4?
+#       options[ :icmpv4_type ] = message.icmpv4_type unless message.icmpv4_type.nil?
+#       options[ :icmpv4_code ] = message.icmpv4_code unless message.icmpv4_code.nil?
+#     end
+#
+#     if message.tcp?
+#       options[ :tcp_src ] = message.tcp_src
+#       options[ :tcp_dst ] = message.tcp_dst
+#     end
+#
+#     if message.udp?
+#       options[ :udp_src ] = message.udp_src
+#       options[ :udp_dst ] = message.udp_dst
+#     end
+#
+#     if message.sctp?
+#       options[ :sctp_src ] = message.sctp_src
+#       options[ :sctp_dst ] = message.sctp_dst
+#     end
+#
+#     if message.mpls?
+#       options[ :mpls_label ] = message.mpls_label
+#       options[ :mpls_tc ] = message.mpls_tc
+#       options[ :mpls_bos ] = message.mpls_bos
+#     end
+#
+#     if message.pbb?
+#       options[ :pbb_isid ] = message.pbb_isid
+#     end
 
-     if message.icmpv4?
-       options[ :icmpv4_type ] = message.icmpv4_type unless message.icmpv4_type.nil?
-       options[ :icmpv4_code ] = message.icmpv4_code unless message.icmpv4_code.nil?
-     end
-
-     if message.tcp?
-       options[ :tcp_src ] = message.tcp_src
-       options[ :tcp_dst ] = message.tcp_dst
-     end
-
-     if message.udp?
-       options[ :udp_src ] = message.udp_src
-       options[ :udp_dst ] = message.udp_dst
-     end
-
-     if message.sctp?
-       options[ :sctp_src ] = message.sctp_src
-       options[ :sctp_dst ] = message.sctp_dst
-     end
-
-     if message.mpls?
-       options[ :mpls_label ] = message.mpls_label
-       options[ :mpls_tc ] = message.mpls_tc
-       options[ :mpls_bos ] = message.mpls_bos
-     end
-
-     if message.pbb?
-       options[ :pbb_isid ] = message.pbb_isid
-     end
-
-puts options.inspect
       self.new options
+    end
+
+
+    def self.process match, attr
+      get_attr = attr.to_s.sub( '=', '' )
+      ret = if match.respond_to? get_attr
+        match.__send__ get_attr
+      end
+      if ret.nil?
+        return 0 
+      else
+        ret
+      end 
     end
   end
 end

@@ -17,6 +17,11 @@
 
 
 module Kernel
+  def enum_step( initial = 0, value )
+    value.map.with_index{ | v, i | Kernel.const_set( v.upcase, i + initial ) }
+  end
+
+
   def enum_range range_value
     range_value.map.with_index{ | v, i | Kernel.const_set( v.upcase, 1 << i ) }
   end
