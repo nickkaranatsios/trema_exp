@@ -31,7 +31,9 @@ module Trema
       unsigned_int8 :reason
       unsigned_int8 :table_id
       unsigned_int64 :cookie
-      attr_accessor :match, :data, :packet_info
+      match :match
+      array :data
+      packet_info :packet_info
  
 
       # delegation methods to match

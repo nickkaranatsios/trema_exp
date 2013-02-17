@@ -23,17 +23,27 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
-    USER_DEFINED_TYPES = {
-      "ip_addr" => "IPAddr",
-      "eth_addr" => "Trema::Mac",
-      "array" => "Array"
-    }
+    USER_DEFINED_TYPES = { ipaddr: "IPAddr",
+                           mac: "Trema::Mac",
+                           match: "Trema::Match",
+                           packet_info: "Trema::Messages::PacketInfo" }
 
 
     attr_accessor :required_attributes
 
-
+      def method_missing meth, *args, &block
+puts "we are here meth= #{ meth }"
+        if meth.to_s =~ /(USER_DEFEINED_TYPES.keys.join( '|' ))/
+          klass = USER_DEFINED_TYPES.include?( meth ) ? USER_DEFINED_TYPES.fetch( meth ) : meth.to_s.camelize
+          user_defined_type meth klass
+        else
+          klass = meth.to_s.capitalize
+          user_defined_type meth klass
+        end
+      end
     class << self
+
+
       def required_attributes
         @required_attributes ||= []
       end
@@ -48,9 +58,9 @@ module Trema
             end
           end
         end
-        USER_DEFINED_TYPES.each do | k, v |
-          user_defined_type k, v
-        end
+#        USER_DEFINED_TYPES.each do | k, v |
+#          user_defined_type k, v
+#        end
       end
 
 
@@ -69,7 +79,7 @@ module Trema
           define_method :"unsigned_int#{ size_value }" do | *args |
             opts = extract_options!( args )
             check_args args
-            opts.merge! :attributes => args[ 0 ], :validate_with => "check_unsigned#{ size_value }"
+            opts.merge! attributes: args[ 0 ], validate_with: "check_unsigned#{ size_value }"
             define_accessor opts
             self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
@@ -77,12 +87,12 @@ module Trema
       end
 
 
-      def user_defined_type method, vcls
+      def user_defined_type method, klass 
         self.class.class_eval do
           define_method :"#{ method }" do | *args |
             opts = extract_options!( args )
             check_args args
-            opts.merge! :attributes => args[ 0 ], :user_defined => vcls
+            opts.merge! attributes: args[ 0 ], user_defined: klass 
             define_accessor opts
             self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
@@ -105,10 +115,8 @@ module Trema
                 end
               end
             end
-            validation_methods = opts.select { | key, value | key == :within or key == :validate_with }
-            validation_methods.each do | key, method |
-              __send__ method, v, attr_name
-            end
+            validation_methods = opts.select { | key, _ | key == :within or key == :validate_with }
+            validation_methods.each { | _, method | __send__( method, v, attr_name ) }
             if opts.has_key? :user_defined 
               instance_variable_set "@#{ attr_name }", eval( opts[ :user_defined ] ).new( v )
             else
@@ -143,25 +151,23 @@ module Trema
       end
 
       case options
-        when Hash
-          setters.each do | each |
-            opt_key = each.to_s.sub( '=', '' ).to_sym
-            if options.has_key? opt_key
-              public_send each, options[ opt_key ]
-            else
-              raise ArgumentError, "Required option #{ opt_key } is missing for #{ self.class.name }" if required_attributes.include? opt_key
-            end
-          end
-        when Integer, String
-          unless setters.empty?
-            public_send setters[ 0 ], options
+      when Hash
+        setters.each do | each |
+          opt_key = each.to_s.sub( '=', '' ).to_sym
+          if options.has_key? opt_key
+            public_send each, options[ opt_key ]
           else
-            raise ArgumentError, "#{ self.class.name } accepts no options"
+            raise ArgumentError, "Required option #{ opt_key } is missing for #{ self.class.name }" if required_attributes.include? opt_key
           end
+        end
+      when Integer, String
+        unless setters.empty?
+          public_send setters[ 0 ], options
         else
-          unless required_attributes.empty?
-            raise ArgumentError, "Required option #{ required_attributes.first } missing for #{ self.class.name }"
-          end
+          raise ArgumentError, "#{ self.class.name } accepts no options"
+        end
+      else
+        raise ArgumentError, "Required option #{ required_attributes.first } missing for #{ self.class.name }" if required_attributes.empty?
       end
       set_default setters
     end

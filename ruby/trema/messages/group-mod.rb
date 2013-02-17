@@ -22,7 +22,7 @@ module Trema
       unsigned_int16 :command
       unsigned_int8 :type
       unsigned_int32 :group_id
-      attr_accessor :buckets
+      array :buckets
     end
   end
 end

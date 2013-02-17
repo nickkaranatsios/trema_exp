@@ -31,7 +31,7 @@ module Trema
       unsigned_int16 :hard_timeout, :presence => true
       unsigned_int64 :packet_count, :presence => true 
       unsigned_int64 :byte_count, :presence => true 
-      attr_accessor :match
+      match :match
     end
   end
 end

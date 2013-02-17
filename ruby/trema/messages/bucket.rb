@@ -22,7 +22,7 @@ module Trema
       unsigned_int16 :weight
       unsigned_int32 :watch_port
       unsigned_int32 :watch_group
-      attr_accessor :actions
+      array :actions
     end
   end
 end

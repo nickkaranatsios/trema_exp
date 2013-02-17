@@ -16,20 +16,22 @@
 #
 
 
-module Kernel
-  def enum_step( initial = 0, value )
-    value.map.with_index{ | v, i | Kernel.const_set( v.upcase, i + initial ) }
-  end
-
-
-  def enum_range range_value
-    range_value.map.with_index{ | v, i | Kernel.const_set( v.upcase, 1 << i ) }
-  end
-
-
-  def enum_hash h
-    h.each do | k, v |
-      Kernel.const_set( k.upcase, v )
+module MonkeyPatch
+  module Kernel
+    def enum_step( initial = 0, value )
+      value.map.with_index{ | v, i | Kernel.const_set( v.upcase, i + initial ) }
+    end
+  
+  
+    def enum_range range_value
+      range_value.map.with_index{ | v, i | Kernel.const_set( v.upcase, 1 << i ) }
+    end
+  
+  
+    def enum_hash h
+      h.each do | k, v |
+        Kernel.const_set( k.upcase, v )
+      end
     end
   end
 end

@@ -19,6 +19,9 @@
 require "trema/monkey-patch/kernel/enum"
 
 
+include MonkeyPatch::Kernel
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
