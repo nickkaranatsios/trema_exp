@@ -76,7 +76,7 @@ Rake::Builder.new do | builder |
     RbConfig::CONFIG[ 'libdir' ],
     'objects/lib'
   ]
-  builder.linker_options = [ '-Wl', '-Bsymbolic' ]
+  builder.linker_options = [ '-Wl,-Bsymbolic' ]
   builder.library_dependencies = [
     'ruby',
     'trema',
