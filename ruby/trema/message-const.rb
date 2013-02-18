@@ -23,9 +23,9 @@ module Trema
   module MessageConst
     config_flags_hash = {
       ofpc_frag_normal: frag_normal,
-      :ofpc_frag_drop: frag_drop,
-      :ofpc_frag_reasm: frag_reasm,
-      :ofpc_frag_mask: frag_mask
+      ofpc_frag_drop: frag_drop,
+      ofpc_frag_reasm: frag_reasm,
+      ofpc_frag_mask: frag_mask
     }
     enum_hash config_flags_hash
     CONFIG_FLAGS = config_flags_hash.values.freeze

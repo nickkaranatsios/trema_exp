@@ -19,7 +19,8 @@
 module Trema
   module Messages
     class PacketInfo < Message
-      attr_accessor :eth_src, :eth_dst
+      mac :eth_src
+      mac :eth_dst
       attr_accessor :eth_type
 
       attr_accessor :ip_dscp, :ip_ecn, :ip_proto

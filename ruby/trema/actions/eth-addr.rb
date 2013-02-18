@@ -25,7 +25,7 @@ module Trema
     # A base class for matching source and destination MAC addresses. 
     #
     class EthAddr < FlexibleAction
-      eth_addr :mac_address, :presence => true  
+      mac :mac_address, :presence => true  
     end
   end
 end

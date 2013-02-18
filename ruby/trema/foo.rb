@@ -73,10 +73,10 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
-    puts message.inspect
+puts  message.instance_variables.inspect
+    puts message.packet_info.inspect
    
     match = ExactMatch.from( message )
-    puts match.inspect
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
   end

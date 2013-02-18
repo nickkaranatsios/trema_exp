@@ -22,10 +22,10 @@ module Trema
     unsigned_int32 :in_phy_port
     unsigned_int64 :metadata
     unsigned_int64 :metadata_mask
-    eth_addr :eth_src
-    eth_addr :eth_src_mask
-    eth_addr :eth_dst
-    eth_addr :eth_dst_mask
+    mac :eth_src
+    mac :eth_src_mask
+    mac :eth_dst
+    mac :eth_dst_mask
     unsigned_int16 :eth_type
     unsigned_int16 :vlan_vid
     unsigned_int16 :vlan_vid_mask
@@ -50,10 +50,10 @@ module Trema
     attr_accessor :arp_spa_mask
     attr_accessor :arp_tpa
     attr_accessor :arp_tpa_mask
-    eth_addr :arp_sha
-    eth_addr :arp_sha_mask
-    eth_addr :arp_tha
-    eth_addr :arp_tha_mask
+    mac :arp_sha
+    mac :arp_sha_mask
+    mac :arp_tha
+    mac :arp_tha_mask
     attr_accessor :ipv6_src
     attr_accessor :ipv6_src_mask
     attr_accessor :ipv6_dst
@@ -77,6 +77,7 @@ module Trema
     
     def self.from message
       options = {}
+puts "message inspect #{ message.inspect }"
       options = message.match.class.instance_methods( false ).grep( /[a-z].+=$/ ).inject( {} ) do | options, attr |
         options.merge( attr.to_s => process( message, attr ) )
       end

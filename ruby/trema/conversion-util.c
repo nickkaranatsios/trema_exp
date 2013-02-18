@@ -63,6 +63,8 @@ oxm_match_to_r_match( const oxm_matches *match ) {
     oxm_match_header *oxm = list->data;
     assign_match( oxm, options );
   }
+  VALUE str = rb_inspect( options );
+  printf( "match options %s\n", StringValuePtr( str ) );
   return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, options );
 }
 

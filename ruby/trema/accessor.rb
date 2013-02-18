@@ -23,25 +23,27 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
-    USER_DEFINED_TYPES = { ipaddr: "IPAddr",
-                           mac: "Trema::Mac",
-                           match: "Trema::Match",
-                           packet_info: "Trema::Messages::PacketInfo" }
+    USER_DEFINE_TYPES = { ip_addr: "IPAddr",
+                           mac: "Mac",
+                           match: "Match",
+                           packet_info: "Messages::PacketInfo",
+                           array: "Array" }
 
 
     attr_accessor :required_attributes
 
-      def method_missing meth, *args, &block
-puts "we are here meth= #{ meth }"
-        if meth.to_s =~ /(USER_DEFEINED_TYPES.keys.join( '|' ))/
-          klass = USER_DEFINED_TYPES.include?( meth ) ? USER_DEFINED_TYPES.fetch( meth ) : meth.to_s.camelize
-          user_defined_type meth klass
-        else
-          klass = meth.to_s.capitalize
-          user_defined_type meth klass
-        end
-      end
     class << self
+#      def method_missing meth, *args, &block
+#        criteria = USER_DEFINE_TYPES.keys.join( '|' )
+#        if meth.to_s =~ /(#{ criteria })/
+#          klass = USER_DEFINE_TYPES.include?( meth ) ? USER_DEFINE_TYPES.fetch( meth ) : meth.to_s.camelize
+#          return self.__send__ :user_define_type, meth, klass
+#        else
+#          klass = meth.to_s.capitalize
+#          return self.__send__ :user_define_type, meth, klass
+#        end
+#        super
+#      end
 
 
       def required_attributes
@@ -58,9 +60,7 @@ puts "we are here meth= #{ meth }"
             end
           end
         end
-#        USER_DEFINED_TYPES.each do | k, v |
-#          user_defined_type k, v
-#        end
+        USER_DEFINE_TYPES.each { | k, v | user_define_type( k, v ) }
       end
 
 
@@ -87,12 +87,12 @@ puts "we are here meth= #{ meth }"
       end
 
 
-      def user_defined_type method, klass 
+      def user_define_type method, klass 
         self.class.class_eval do
           define_method :"#{ method }" do | *args |
             opts = extract_options!( args )
             check_args args
-            opts.merge! attributes: args[ 0 ], user_defined: klass 
+            opts.merge! attributes: args[ 0 ], user_define: klass 
             define_accessor opts
             self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
@@ -117,8 +117,9 @@ puts "we are here meth= #{ meth }"
             end
             validation_methods = opts.select { | key, _ | key == :within or key == :validate_with }
             validation_methods.each { | _, method | __send__( method, v, attr_name ) }
-            if opts.has_key? :user_defined 
-              instance_variable_set "@#{ attr_name }", eval( opts[ :user_defined ] ).new( v )
+            if opts.has_key? :user_define 
+puts "attr_name = #{ attr_name } v = #{ v.inspect }"
+              instance_variable_set "@#{ attr_name }", eval( opts[ :user_define ] ).new( v )
             else
               instance_variable_set "@#{ attr_name }", v
             end
@@ -167,7 +168,7 @@ puts "we are here meth= #{ meth }"
           raise ArgumentError, "#{ self.class.name } accepts no options"
         end
       else
-        raise ArgumentError, "Required option #{ required_attributes.first } missing for #{ self.class.name }" if required_attributes.empty?
+        raise ArgumentError, "Required option #{ required_attributes.first } missing for #{ self.class.name }" unless required_attributes.empty?
       end
       set_default setters
     end
