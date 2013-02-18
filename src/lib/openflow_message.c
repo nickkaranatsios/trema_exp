@@ -730,6 +730,8 @@ create_flow_mod( const uint32_t transaction_id, const uint64_t cookie, const uin
                  const uint16_t flags, const oxm_matches *match,
                  const openflow_instructions *instructions ) {
   void *inst;
+  char match_str[ MATCH_STRING_LENGTH ];
+  char inst_str[ 2048 ];
   uint16_t length;
   uint16_t match_len;
   uint16_t instruction_length = 0;
@@ -746,15 +748,7 @@ create_flow_mod( const uint32_t transaction_id, const uint64_t cookie, const uin
 
   // Because match_to_string() is costly, we check logging_level first.
   if ( get_logging_level() >= LOG_DEBUG ) {
-    char match_str[ MATCH_STRING_LENGTH ];
-    char inst_str[ 2048 ];
-
-    if ( match != NULL ) {
-      match_to_string( match, match_str, sizeof( match_str ) );
-    }
-    else {
-      match_str[ 0 ] = '\0';
-    }
+    match_to_string( match, match_str, sizeof( match_str ) );
     inst_str[ 0 ] = '\0';
     if ( instructions != NULL ) {
       tmp_insts = xcalloc( 1, instructions_length );
@@ -4691,6 +4685,12 @@ validate_flow_mod( const buffer *message ) {
       return ret;
     }
   }
+  else {
+    if ( flow_mod->command == OFPFC_ADD ||
+         flow_mod->command == OFPFC_MODIFY || flow_mod->command == OFPFC_MODIFY_STRICT ) {
+      return ERROR_INSTRUCTION_REQUIRED;
+    }
+  }
 
   return 0;
 }
@@ -7644,6 +7644,7 @@ static struct error_map {
       { ERROR_INVALID_IPV6_EXTHDR, OFPET_BAD_MATCH, OFPBMC_BAD_VALUE },
       { ERROR_INVALID_MATCH_TYPE, OFPET_BAD_MATCH, OFPBMC_BAD_TYPE },
       { ERROR_BAD_MATCH_PREREQ, OFPET_BAD_MATCH, OFPBMC_BAD_PREREQ },
+      { ERROR_INSTRUCTION_REQUIRED, OFPET_FLOW_MOD_FAILED, OFPFMFC_UNKNOWN },
       { ERROR_TOO_SHORT_INSTRUCTION, OFPET_BAD_INSTRUCTION, OFPBIC_BAD_LEN },
       { ERROR_UNDEFINED_INSTRUCTION_TYPE, OFPET_BAD_INSTRUCTION, OFPBIC_UNKNOWN_INST },
       { ERROR_INVALID_INSTRUCTION_TYPE, OFPET_BAD_INSTRUCTION, OFPBIC_UNKNOWN_INST },
