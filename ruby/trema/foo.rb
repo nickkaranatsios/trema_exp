@@ -56,8 +56,8 @@ class FooController < Controller
 
   def switch_ready datapath_id
 puts "#{ __method__ } datapath_id #{ datapath_id }"
-    action = Actions::SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
-    ins = Instructions::ApplyAction.new( :actions => [ action ] ) 
+    action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
+    ins = Instructions::ApplyAction.new( actions:  [ action ] ) 
     send_flow_mod_add( datapath_id,
                        :priority => OFP_LOW_PRIORITY,
                        :buffer_id => OFP_NO_BUFFER,

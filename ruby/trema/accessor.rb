@@ -23,27 +23,29 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
-    USER_DEFINE_TYPES = { ip_addr: "IPAddr",
-                           mac: "Mac",
-                           match: "Match",
-                           packet_info: "Messages::PacketInfo",
-                           array: "Array" }
+    USER_DEFINED_TYPES = %w( ip_addr mac match packet_info array unsigned_int ).join( '|' )
 
 
     attr_accessor :required_attributes
 
     class << self
-#      def method_missing meth, *args, &block
-#        criteria = USER_DEFINE_TYPES.keys.join( '|' )
-#        if meth.to_s =~ /(#{ criteria })/
-#          klass = USER_DEFINE_TYPES.include?( meth ) ? USER_DEFINE_TYPES.fetch( meth ) : meth.to_s.camelize
-#          return self.__send__ :user_define_type, meth, klass
-#        else
-#          klass = meth.to_s.capitalize
-#          return self.__send__ :user_define_type, meth, klass
-#        end
-#        super
-#      end
+      def method_missing meth, *args, &block
+puts "meth #{ meth }"
+        if meth.to_s =~ /(#{ USER_DEFINED_TYPES })/
+          self.__send__ :define_type, meth
+        else
+          super
+        end
+      end
+
+
+      def respond_to? meth
+        if meth.to_s =~ /(#{ USER_DEFINED_TYPES })/
+          true
+        else
+          super
+        end
+      end
 
 
       def required_attributes
@@ -53,14 +55,12 @@ module Trema
 
       def inherited klass
         primitive_sizes.each do | each |
-          primitive_type each
-          define_method :"check_unsigned#{ each }" do | number, name |
+          define_method :"check_unsigned_int#{ each }" do | number, name |
             unless number.send( "unsigned_#{ each }bit?" )
               raise ArgumentError, "#{ name } must be an unsigned #{ each }-bit integer."
             end
           end
         end
-        USER_DEFINE_TYPES.each { | k, v | user_define_type( k, v ) }
       end
 
 
@@ -74,25 +74,15 @@ module Trema
       end
 
 
-      def primitive_type size_value
+      def define_type meth
         self.class.class_eval do
-          define_method :"unsigned_int#{ size_value }" do | *args |
+          define_method :"#{ meth }" do | *args |
             opts = extract_options!( args )
+puts meth.class
             check_args args
-            opts.merge! attributes: args[ 0 ], validate_with: "check_unsigned#{ size_value }"
-            define_accessor opts
-            self.required_attributes << args[ 0 ] if opts.has_key? :presence
-          end
-        end
-      end
-
-
-      def user_define_type method, klass 
-        self.class.class_eval do
-          define_method :"#{ method }" do | *args |
-            opts = extract_options!( args )
-            check_args args
-            opts.merge! attributes: args[ 0 ], user_define: klass 
+            opts.store :attributes, args[ 0 ]
+            opts.store :validate_with, "check_#{ meth }" if meth.to_s[ /unsigned_int\d\d/ ]
+puts opts.inspect
             define_accessor opts
             self.required_attributes << args[ 0 ] if opts.has_key? :presence
           end
@@ -116,15 +106,18 @@ module Trema
               end
             end
             validation_methods = opts.select { | key, _ | key == :within or key == :validate_with }
-            validation_methods.each { | _, method | __send__( method, v, attr_name ) }
-            if opts.has_key? :user_define 
+            validation_methods.each { | _, meth | __send__( meth, v, attr_name ) }
 puts "attr_name = #{ attr_name } v = #{ v.inspect }"
-              instance_variable_set "@#{ attr_name }", eval( opts[ :user_define ] ).new( v )
-            else
-              instance_variable_set "@#{ attr_name }", v
-            end
+            instance_variable_set "@#{ attr_name }", v
           end
         end
+      end
+
+
+
+
+      def check_match
+        raise NotImplementedError
       end
 
 

@@ -75,9 +75,6 @@ module Trema
         "SendOutPort: port=#{ @port_number }, max_len=#{ @max_len }"
       end
     end
-  
-  
-    ActionOutput = SendOutPort
   end
 end
 
