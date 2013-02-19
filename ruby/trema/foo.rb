@@ -73,12 +73,20 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
-puts  message.instance_variables.inspect
-    puts message.packet_info.inspect
+    puts message.inspect
    
     match = ExactMatch.from( message )
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
+    action = Actions::PushVlan.new ( 0x88a8 )
+    bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
+    gm = Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ bucket ] )
+    send_message datapath_id, gm
+  end
+
+
+  def error datapath_id, message
+    puts message.inspect
   end
 
 

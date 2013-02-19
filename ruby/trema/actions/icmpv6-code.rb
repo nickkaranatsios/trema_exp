@@ -23,7 +23,7 @@ module Trema
     # information on the type and should be used together.
     #
     class Icmpv6Code < FlexibleAction
-      unsigned_int8 :icmpv6_code, :presence => true
+      unsigned_int8 :icmpv6_code, presence: true
     end
   end
 end

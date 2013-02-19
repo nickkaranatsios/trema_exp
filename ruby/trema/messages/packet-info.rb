@@ -21,59 +21,87 @@ module Trema
     class PacketInfo < Message
       mac :eth_src
       mac :eth_dst
-      attr_accessor :eth_type
+      unsigned_int16 :eth_type
 
-      attr_accessor :ip_dscp, :ip_ecn, :ip_proto
+      unsigned_int8 :ip_dscp # IP DSCP ( 6 bits in ToS field )
+      unsigned_int8 :ip_ecn # IP ECN ( 2 bits in ToS field )
+      unsigned_int8 :ip_proto # ip protocol
 
-      attr_accessor :vtag
-      alias_method :vtag?, :vtag
-      attr_accessor :vlan_vid, :vlan_tci, :vlan_prio, :vlan_tpid
+      bool  :vtag
+      alias_method   :vtag?, :vtag
 
-      attr_accessor :ipv4
+      unsigned_int16 :vlan_vid
+      unsigned_int16 :vlan_vid
+      unsigned_int8  :vlan_prio
+      unsigned_int16 :vlan_tpid
+
+      bool :ipv4
       alias_method :ipv4?, :ipv4
 
-      attr_accessor :ipv6
+      bool :ipv6
       alias_method :ipv6?, :ipv6
 
-      attr_accessor :arp
+      bool :arp
       alias_method :arp?, :arp
 
-      attr_accessor :arp_request
+      bool :arp_request
       alias_method :arp_request?, :arp_request
 
-      attr_accessor :arp_reply
+      bool :arp_reply
       alias_method :arp_reply?, :arp_reply
 
-      attr_accessor :arp_op, :arp_sha, :arp_spa, :arp_tha, :arp_tpa
+      unsigned_int16 :arp_op
+      mac            :arp_sha
+      mac            :arp_tha
+      ip_addr        :arp_spa
+      ip_addr        :arp_tpa
 
-      attr_accessor :icmpv4
+      bool           :icmpv4
       alias_method :icmpv4?, :icmpv4
 
-      attr_accessor :icmpv4_type, :icmpv4_code
+      unsigned_int8 :icmpv4_type
+      unsigned_int8 :icmpv4_code
 
-      attr_accessor :icmpv6
+      bool :icmpv6
       alias_method :icmpv6?, :icmpv6
 
-      attr_accessor :icmpv6_type, :icmpv6_code
-      attr_accessor :ipv6_nd_target, :ipv6_nd_sll, :ipv6_nd_tll
+      unsigned_int8 :icmpv6_type
+      unsigned_int8 :icmpv6_code
+      ip_addr       :ipv6_nd_target
+      mac           :ipv6_nd_sll
+      mac           :ipv6_nd_tll
 
-      attr_accessor :ipv4_src, :ipv4_dst
+      ip_addr       :ipv4_src 
+      ip_addr       :ipv4_dst
 
-      attr_accessor :tcp, :tcp_src, :tcp_dst
+      unsigned_int16 :tcp_src
+      unsigned_int16 :tcp_dst
+
+      bool :tcp
       alias_method :tcp?, :tcp
 
-      attr_accessor :udp, :udp_src, :udp_dst
+      unsigned_int16 :udp_src
+      unsigned_int16 :udp_dst
+      bool :udp
       alias_method :udp?, :udp
 
-      attr_accessor :sctp, :sctp_src, :sctp_dst
+      unsigned_int16 :sctp_src, :sctp_dst
+      bool :sctp
       alias_method :sctp?, :sctp
 
-      attr_accessor :ipv6_src, :ipv6_dst, :ipv6_flabel, :ipv6_exthdr
+      ip_addr :ipv6_src
+      ip_addr :ipv6_dst
+      unsigned_int32 :ipv6_flabel
+      unsigned_int16 :ipv6_exthdr
 
-      attr_accessor :mpls, :mpls_label, :mpls_tc, :mpls_bos
-      alias_method :mpls?, :mpls
+      unsigned_int32 :mpls_label
+      unsigned_int8  :mpls_tc
+      unsigned_int8  :mpls_bos
+      bool  :mpls
+      alias_method   :mpls?, :mpls
 
-      attr_accessor :pbb, :pbb_isid
+      unsigned_int32 :pbb_isid
+      bool :pbb
       alias_method :pbb?, :pbb
     end
   end

@@ -19,8 +19,7 @@
 module Trema
   module Messages
     class PacketOut < Message
-      unsigned_int32 :buffer_id
-      unsigned_int32 :in_port
+      unsigned_int32 :buffer_id, :in_port
       array :actions
       array :data
     end

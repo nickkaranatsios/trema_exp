@@ -20,7 +20,7 @@ module Trema
   module Messages
     class Hello < Message
       unsigned_int32 :transaction_id
-      array :version, :validate_with => :check_version
+      array :version, validate_with: :check_version
 
 
       def check_version version, name

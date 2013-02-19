@@ -24,7 +24,7 @@ module Trema
     # with the MatchIcmpv4Type
     #
     class Icmpv4Code < FlexibleAction
-      unsigned_int8 :icmpv4_code, :presence => true
+      unsigned_int8 :icmpv4_code, presence: true
     end
   end
 end

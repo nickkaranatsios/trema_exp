@@ -23,7 +23,7 @@ module Trema
     # reply.
     #
     class Icmpv4Type < FlexibleAction
-      unsigned_int8 :icmpv4_type, :presence => true
+      unsigned_int8 :icmpv4_type, presence: true
     end
   end
 end

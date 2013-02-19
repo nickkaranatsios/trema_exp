@@ -23,31 +23,12 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
-    USER_DEFINED_TYPES = %w( ip_addr mac match packet_info array unsigned_int ).join( '|' )
+    USER_DEFINED_TYPES = %w( ip_addr mac match packet_info array string bool )
 
 
     attr_accessor :required_attributes
 
     class << self
-      def method_missing meth, *args, &block
-puts "meth #{ meth }"
-        if meth.to_s =~ /(#{ USER_DEFINED_TYPES })/
-          self.__send__ :define_type, meth
-        else
-          super
-        end
-      end
-
-
-      def respond_to? meth
-        if meth.to_s =~ /(#{ USER_DEFINED_TYPES })/
-          true
-        else
-          super
-        end
-      end
-
-
       def required_attributes
         @required_attributes ||= []
       end
@@ -55,12 +36,14 @@ puts "meth #{ meth }"
 
       def inherited klass
         primitive_sizes.each do | each |
+          define_accessor_meth :"unsigned_int#{ each }"
           define_method :"check_unsigned_int#{ each }" do | number, name |
             unless number.send( "unsigned_#{ each }bit?" )
               raise ArgumentError, "#{ name } must be an unsigned #{ each }-bit integer."
             end
           end
         end
+        USER_DEFINED_TYPES.each{ | meth | define_accessor_meth meth }
       end
 
 
@@ -74,24 +57,25 @@ puts "meth #{ meth }"
       end
 
 
-      def define_type meth
+      def define_accessor_meth meth
         self.class.class_eval do
           define_method :"#{ meth }" do | *args |
+            attrs = args
             opts = extract_options!( args )
-puts meth.class
             check_args args
-            opts.store :attributes, args[ 0 ]
+            attrs.delete( opts ) unless opts.empty?
+            opts.store :attributes, attrs
             opts.store :validate_with, "check_#{ meth }" if meth.to_s[ /unsigned_int\d\d/ ]
-puts opts.inspect
-            define_accessor opts
-            self.required_attributes << args[ 0 ] if opts.has_key? :presence
+            attrs.each do | attr_name |
+              define_accessor attr_name, opts
+              self.required_attributes << attr_name if opts.has_key? :presence
+            end
           end
         end
       end
 
 
-      def define_accessor opts
-        attr_name = opts[ :attributes ]
+      def define_accessor attr_name, opts
         self.class_eval do
           define_method attr_name do
             instance_variable_get "@#{ attr_name }"
@@ -107,17 +91,9 @@ puts opts.inspect
             end
             validation_methods = opts.select { | key, _ | key == :within or key == :validate_with }
             validation_methods.each { | _, meth | __send__( meth, v, attr_name ) }
-puts "attr_name = #{ attr_name } v = #{ v.inspect }"
             instance_variable_set "@#{ attr_name }", v
           end
         end
-      end
-
-
-
-
-      def check_match
-        raise NotImplementedError
       end
 
 
@@ -132,10 +108,9 @@ puts "attr_name = #{ attr_name } v = #{ v.inspect }"
 
       def check_args args
         raise ArgumentError, "You need at least one attribute" if args.empty?
-        raise ArgumentError, "Too many attributes specified" if args.length > 1
       end
     end
-   
+
 
     def initialize options=nil
       setters = self.class.instance_methods.select{ | i | i.to_s =~ /[a-z].+=$/ }.delete_if{ | i | i.to_s =~ /required_attributes=/ }

@@ -17,12 +17,12 @@
 
 
 module Trema
-  module Actions
-    #
-    # A match field to match an ARP operation code. For example 1 for REQUEST.
-    #
-    class ArpOp < FlexibleAction
-      unsigned_int16 :arp_op, presence: true
+  module Messages
+    class Error < Message
+      unsigned_int64 :datapath_id, presence: true 
+      unsigned_int32 :transaction_id, presence: true
+      unsigned_int16 :type, :code, presence: true
+      array :data
     end
   end
 end

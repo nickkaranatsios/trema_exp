@@ -23,6 +23,7 @@
 
 static bool
 pack_bucket( VALUE r_bucket, openflow_buckets *buckets ) {
+
   VALUE r_actions = rb_iv_get( r_bucket, "@actions" );
   openflow_actions *actions = NULL;
   if ( r_actions != Qnil ) {
@@ -37,13 +38,13 @@ pack_bucket( VALUE r_bucket, openflow_buckets *buckets ) {
   VALUE r_watch_port = rb_iv_get( r_bucket, "@watch_port" );
   uint32_t watch_port = 0;
   if ( r_watch_port != Qnil ) {
-    watch_port = ( uint32_t ) NUM2UINT( watch_port );
+    watch_port = ( uint32_t ) NUM2UINT( r_watch_port );
   }
 
   VALUE r_watch_group = rb_iv_get( r_bucket, "@watch_group" );
   uint32_t watch_group = 0;
   if ( r_watch_group != Qnil ) {
-    watch_group = ( uint32_t ) NUM2UINT( watch_group );
+    watch_group = ( uint32_t ) NUM2UINT( r_watch_group );
   }
   return append_bucket( buckets, weight, watch_port, watch_group, actions );
 }

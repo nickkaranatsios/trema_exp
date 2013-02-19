@@ -22,7 +22,7 @@ module Trema
     # A field to match an ethernet type
     #
     class EtherType < FlexibleAction
-      unsigned_int16 :ether_type, :presence => true
+      unsigned_int16 :ether_type, presence: true
     end
   end
 end

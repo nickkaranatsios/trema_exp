@@ -1,5 +1,24 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
+
+#
+# Copyright (C) 2008-2012 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+
 require "trema"
 module Trema
   class Test < Controller
@@ -27,15 +46,15 @@ module Trema
 
 
     def messages
-      actions = Actions::PushVlan.new ( 0x88a8 )
-      buckets = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ actions ] )
+      action = Actions::PushVlan.new ( 0x88a8 )
+      bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
       ml = [
+        Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ bucket ] ),
         Messages::Hello.new( :transaction_id => 123, :version => [ 0x4 ] ),
         Messages::EchoRequest.new( :transaction_id => 123, :user_data => "abcdefgh".unpack( "C" ) ),
         Messages::FeaturesRequest.new( :transaction_id => 123 ),
         Messages::GetConfigRequest.new( :transaction_id => 123 ),
         Messages::SetConfig.new( :transaction_id => 123, :flags => OFPC_FRAG_NORMAL, :miss_send_len => OFPCML_NO_BUFFER ),
-        Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ buckets ] )
       ]
       send_message 0x1, ml
     end

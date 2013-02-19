@@ -20,8 +20,8 @@ module Trema
   module Messages
     class SetConfig < Message
       unsigned_int32 :transaction_id
-      unsigned_int16 :flags, :within => :check_flags
-      unsigned_int16 :miss_send_len, :presence => true
+      unsigned_int16 :flags, within: :check_flags
+      unsigned_int16 :miss_send_len, presence: true
 
 
       def check_flags flags, name

@@ -43,8 +43,8 @@ module Trema
       #   binary data as an array of bytes.
       #
       # @return [Integer] the value of attribute {#experimenter}
-      unsigned_int32 :experimenter, :presence => true
-      array :body, :validate_with => :check_body
+      unsigned_int32 :experimenter, presence: true
+      array :body, validate_with: :check_body
   
   
       def check_body body, name

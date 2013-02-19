@@ -19,20 +19,20 @@
 module Trema
   module Messages
     class PortStatus < Message
-      unsigned_int32 :transaction_id, :presence => true
-      unsigned_int64 :datapath_id, :presence => true
-      unsigned_int8 :reason, :presence => true
-      unsigned_int32 :port_no, :presence => true
-      attr_accessor :hw_addr
-      attr_accessor :name
-      unsigned_int32 :config, :presence => true
-      unsigned_int32 :state, :presence => true
-      unsigned_int32 :curr, :presence => true
-      unsigned_int32 :advertised, :presence => true
-      unsigned_int32 :supported, :presence => true
-      unsigned_int32 :peer, :presence => true
-      unsigned_int32 :curr_speed, :presence => true
-      unsigned_int32 :max_speed, :presence => true
+      unsigned_int32 :transaction_id, presence: true
+      unsigned_int64 :datapath_id, presence: true
+      unsigned_int8 :reason, presence: true
+      unsigned_int32 :port_no, presence: true
+      mac :hw_addr
+      string :name
+      unsigned_int32 :config, presence: true
+      unsigned_int32 :state, presence: true
+      unsigned_int32 :curr, presence: true
+      unsigned_int32 :advertised, presence: true
+      unsigned_int32 :supported, presence: true
+      unsigned_int32 :peer, presence: true
+      unsigned_int32 :curr_speed, presence: true
+      unsigned_int32 :max_speed, presence: true
     end
   end
 end

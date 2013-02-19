@@ -29,6 +29,7 @@ require "trema/messages/port-status"
 require "trema/messages/flow-removed"
 require "trema/messages/bucket"
 require "trema/messages/group-mod"
+require "trema/messages/error"
 
 
 ### Local variables:

@@ -23,7 +23,7 @@ module Trema
     # destination unreachable.
     #
     class Icmpv6Type < FlexibleAction
-      unsigned_int8 :icmpv6_type, :presence => true
+      unsigned_int8 :icmpv6_type, presence: true
     end
   end
 end

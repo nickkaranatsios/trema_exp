@@ -22,6 +22,7 @@
 #include "messages/switch-ready.h"
 #include "messages/port-status-handler.h"
 #include "messages/flow-removed-handler.h"
+#include "messages/error-handler.h"
 
 
 extern VALUE mTrema;
@@ -35,6 +36,7 @@ install_handlers( VALUE self ) {
   set_switch_ready_handler( handle_switch_ready, ( void * ) self );
   set_port_status_handler( handle_port_status, ( void * ) self );
   set_flow_removed_handler( handle_flow_removed, ( void * ) self );
+  set_error_handler( handle_error, ( void * ) self );
   return self;
 }
 

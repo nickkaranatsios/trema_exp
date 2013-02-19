@@ -23,8 +23,6 @@ module Trema
   module Messages
     class PacketIn < Message
       extend Forwardable
-
-
       unsigned_int32 :transaction_id
       unsigned_int64 :datapath_id
       unsigned_int32 :buffer_id

@@ -54,6 +54,25 @@ r_array_to_buffer( VALUE r_array ) {
 
 
 VALUE
+buffer_to_r_array( const buffer *buffer ) {
+  if ( buffer != NULL ) {
+    if ( buffer->length ) {
+      uint16_t length = ( uint16_t ) buffer->length;
+      VALUE data_array = rb_ary_new2( ( long int ) length );
+      uint8_t *data = ( uint8_t * ) ( ( char * ) buffer->data );
+      long i;
+
+      for ( i = 0; i < length; i++ ) {
+        rb_ary_push( data_array, INT2FIX( data[ i ] ) );
+      }
+      return data_array;
+    }
+  }
+  return Qnil;
+}
+
+
+VALUE
 oxm_match_to_r_match( const oxm_matches *match ) {
   assert( match != NULL );
 

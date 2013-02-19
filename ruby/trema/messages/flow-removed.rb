@@ -19,18 +19,14 @@
 module Trema
   module Messages
     class FlowRemoved < Message
-      unsigned_int64 :datapath_id, :presence => true 
-      unsigned_int32 :transaction_id, :presence => true
-      unsigned_int64 :cookie, :presence => true 
-      unsigned_int16 :priority, :presence => true
-      unsigned_int8 :reason, :presence => true
-      unsigned_int8 :table_id, :presence => true
-      unsigned_int32 :duration_sec, :presence => true
-      unsigned_int32 :duration_nsec, :presence => true
-      unsigned_int16 :idle_timeout, :presence => true
-      unsigned_int16 :hard_timeout, :presence => true
-      unsigned_int64 :packet_count, :presence => true 
-      unsigned_int64 :byte_count, :presence => true 
+      unsigned_int64 :datapath_id, presence: true 
+      unsigned_int32 :transaction_id, presence: true
+      unsigned_int64 :cookie, presence: true 
+      unsigned_int16 :priority, presence: true
+      unsigned_int8 :reason, :table_id, presence: true
+      unsigned_int32 :duration_sec, :duration_nsec, presence: true
+      unsigned_int16 :idle_timeout, :hard_timeout, presence: true
+      unsigned_int64 :packet_count, :byte_count, presence: true 
       match :match
     end
   end

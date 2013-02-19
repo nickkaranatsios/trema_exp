@@ -22,12 +22,11 @@
 #include "hash-util.h"
 #include "conversion-util.h"
 
-//    return rb_funcall( rb_eval_string( "Mac" ), rb_intern( "new" ), 1, ret ); 
 
 #define PACKET_INFO_MAC_ADDR( packet_member )                                          \
   {                                                                                    \
     VALUE ret = ULL2NUM( mac_to_uint64( ( ( packet_info * ) ( frame->user_data ) )->packet_member ) ); \
-    return ret; \
+    return rb_funcall( rb_eval_string( "Mac" ), rb_intern( "new" ), 1, ret );  \
   }
 
 
@@ -66,20 +65,7 @@ packet_in_match( packet_in *message ) {
 static VALUE
 packet_in_data( packet_in *message ) {
   const buffer *data_frame = message->data;
-  uint16_t length = ( uint16_t ) data_frame->length;
-
-  if ( data_frame != NULL ) {
-    if ( data_frame->length ) {
-      VALUE data_array = rb_ary_new2( ( long int ) length );
-      uint8_t *data = ( uint8_t * ) ( ( char * ) data_frame->data );
-      long i;
-      for ( i = 0; i < length; i++ ) {
-        rb_ary_push( data_array, INT2FIX( data[ i ] ) );
-      }
-      return data_array;
-    }
-  }
-  return Qnil;
+  return buffer_to_r_array( data_frame );
 }
 
 

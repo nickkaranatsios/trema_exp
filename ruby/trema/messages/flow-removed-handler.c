@@ -24,19 +24,19 @@
 
 void
 handle_flow_removed( uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint64_t cookie,
-  uint16_t priority,
-  uint8_t reason,
-  uint8_t table_id,
-  uint32_t duration_sec,
-  uint32_t duration_nsec,
-  uint16_t idle_timeout,
-  uint16_t hard_timeout,
-  uint64_t packet_count,
-  uint64_t byte_count,
-  const oxm_matches *match,
-  void *controller ) {
+                     uint32_t transaction_id,
+                     uint64_t cookie,
+                     uint16_t priority,
+                     uint8_t reason,
+                     uint8_t table_id,
+                     uint32_t duration_sec,
+                     uint32_t duration_nsec,
+                     uint16_t idle_timeout,
+                     uint16_t hard_timeout,
+                     uint64_t packet_count,
+                     uint64_t byte_count,
+                     const oxm_matches *match,
+                     void *controller ) {
   if ( !rb_respond_to( ( VALUE ) controller, rb_intern( "flow_removed" ) ) ) {
     return;
   }
