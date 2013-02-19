@@ -37,6 +37,7 @@ end
 
 CFLAGS = [ 
     '-g',
+    '-fPIC',
     '-std=gnu99',
     '-D_GNU_SOURCE',
     '-fno-strict-aliasing',
@@ -110,19 +111,19 @@ end
 task "vendor:phost" => [ Trema::Executables.phost, Trema::Executables.cli ]
 
 directory File.dirname( Trema::Executables.phost )
-file Trema::Executables.phost do
+file Trema::Executables.phost => File.dirname( Trema::Executables.phost ) do
   cd phost_src do
     sh "make"
   end
-  sh "install #{ File.join( phost_src, "phost" ) }, Trema::Executables.phost, :mode => 0755"
+  sh "install #{ File.join( phost_src, "phost" ) } #{ Trema::Executables.phost } --mode=0755"
 end
 
 directory File.dirname( Trema::Executables.cli )
-file Trema::Executables.cli do
+file Trema::Executables.cli => File.dirname( Trema::Executables.cli ) do
   cd phost_src do
     sh "make"
   end
-  sh "install #{ File.join( phost_src, "cli" ) }, Trema::Executables.cli, :mode => 0755"
+  sh "install #{ File.join( phost_src, "cli" ) } #{ Trema::Executables.cli } --mode=0755"
 end
 Rake::Task[ "vendor:phost" ].invoke
 
