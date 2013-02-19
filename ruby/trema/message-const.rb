@@ -81,7 +81,7 @@ module Trema
     
     enum_step %w( ofpgc_add ofpgc_modify ofpgc_delete )
 
-    error_type %w( ofppet_hello_failed
+    error_type = %w( ofppet_hello_failed
                    ofppet_bad_request
                    ofppet_bad_action
                    ofppet_bad_instruction

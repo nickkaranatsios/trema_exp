@@ -73,15 +73,27 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def packet_in datapath_id, message
+    @state ||= 0
+    @state = @state + 1
     puts message.inspect
    
     match = ExactMatch.from( message )
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
-    action = Actions::PushVlan.new ( 0x88a8 )
-    bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
-    gm = Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ bucket ] )
-    send_message datapath_id, gm
+    if @state == 1
+      gm_with_no_buckets = Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL )
+      send_message datapath_id, gm_with_no_buckets
+    end
+    if @state == 2
+      action = Actions::PushVlan.new ( 0x88a8 )
+      bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
+      gm_with_buckets = Messages::GroupMod.new( group_id: 1, command: OFPGC_MODIFY, type: OFPGT_ALL, buckets: [ bucket ] )
+      send_message datapath_id, gm_with_buckets
+    end
+    if @state == 4
+      send_message datapath_id, Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL, command: OFPGC_DELETE )
+    end
+#    send_group_mod( datapath_id, group_id: 1, type: OFPGT_ALL )
   end
 
 

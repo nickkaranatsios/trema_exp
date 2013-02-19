@@ -603,7 +603,7 @@ decode_packet_in( packet_in *message ) {
   VALUE cPacketInfo = rb_funcall( rb_eval_string( "Messages::PacketInfo" ), rb_intern( "new" ), 1, pi_attributes );
   HASH_SET( attributes, "packet_info", cPacketInfo );
   VALUE str = rb_inspect( attributes );
-  printf( "attributes  %s\n", StringValuePtr( str ) );
+  debug( "attributes  %s", StringValuePtr( str ) );
 
   return rb_funcall( rb_eval_string( "Messages::PacketIn" ), rb_intern( "new" ), 1, attributes );
 }

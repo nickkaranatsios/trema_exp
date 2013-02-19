@@ -42,7 +42,7 @@ pack_group_mod( VALUE options ) {
   uint32_t group_id = 0;
   VALUE r_group_id = rb_hash_aref( options, sym_group_id );
   if ( r_group_id != Qnil ) {
-    r_group_id = ( uint32_t ) NUM2UINT( r_group_id );
+    group_id = ( uint32_t ) NUM2UINT( r_group_id );
   }
 
   VALUE sym_command = ID2SYM( rb_intern( "command" ) );
