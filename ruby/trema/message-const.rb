@@ -80,6 +80,17 @@ module Trema
     enum_step group_type
     
     enum_step %w( ofpgc_add ofpgc_modify ofpgc_delete )
+
+    error_type %w( ofppet_hello_failed
+                   ofppet_bad_request
+                   ofppet_bad_action
+                   ofppet_bad_instruction
+                   ofppet_bad_match
+                   ofppet_flow_mod_failed
+                   ofppet_group_mod_failed
+                   ofppet_table_mod_failed
+                   ofppet_queue_mod_failed )
+    enum_step error_type
   end
 end
 
