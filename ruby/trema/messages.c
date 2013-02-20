@@ -25,6 +25,7 @@
 #include "messages/set-config.h"
 #include "messages/flow-mod.h"
 #include "messages/group-mod.h"
+#include "messages/flow-multipart-request.h"
 
 
 extern VALUE mTrema;
@@ -102,6 +103,14 @@ pack_group_mod_msg( VALUE self, VALUE options ) {
 }
 
 
+static VALUE
+pack_flow_multipart_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_flow_multipart_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
 void
 Init_messages( void ) {
   mMessages = rb_define_module_under( mTrema, "Messages" );
@@ -112,6 +121,7 @@ Init_messages( void ) {
   rb_define_module_function( mMessages, "pack_set_config_msg", pack_set_config_msg, 1 );
   rb_define_module_function( mMessages, "pack_flow_mod_msg", pack_flow_mod_msg, 1 );
   rb_define_module_function( mMessages, "pack_group_mod_msg", pack_group_mod_msg, 1 );
+  rb_define_module_function( mMessages, "pack_flow_multipart_request_msg", pack_flow_multipart_request_msg, 1 );
 
   rb_require( "trema/messages" );
 }

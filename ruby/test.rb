@@ -49,6 +49,7 @@ module Trema
       action = Actions::PushVlan.new ( 0x88a8 )
       bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
       ml = [
+        Messages::FlowMultipartRequest.new( table_id: 1, out_port: 2, out_group: 1, cookie: 0xffaaddee ),
         Messages::GroupMod.new( :group_id => 1, :type => OFPGT_ALL, :buckets => [ bucket ] ),
         Messages::Hello.new( :transaction_id => 123, :version => [ 0x4 ] ),
         Messages::EchoRequest.new( :transaction_id => 123, :user_data => "abcdefgh".unpack( "C" ) ),

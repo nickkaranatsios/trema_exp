@@ -63,6 +63,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                        :buffer_id => OFP_NO_BUFFER,
                        :flags => OFPFF_SEND_FLOW_REM, 
                        :table_id => 1,
+                       :cookie => 1001,
                        :hard_timeout => 0,
                        :idle_timeout => 0,
                        :out_port => 1,
@@ -90,8 +91,11 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
       gm_with_buckets = Messages::GroupMod.new( group_id: 1, command: OFPGC_MODIFY, type: OFPGT_ALL, buckets: [ bucket ] )
       send_message datapath_id, gm_with_buckets
     end
-    if @state == 4
-      send_message datapath_id, Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL, command: OFPGC_DELETE )
+    if @state == 5
+puts "sending flow_multipart_request"
+       match = Match.new( in_port: 1 )
+#      send_message datapath_id, Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL, command: OFPGC_DELETE )
+       send_flow_multipart_request datapath_id, table_id: 1, cookie: 1001, match: match
     end
 #    send_group_mod( datapath_id, group_id: 1, type: OFPGT_ALL )
   end
@@ -108,6 +112,11 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def flow_removed datapath_id, message
+    puts message.inspect
+  end
+
+
+  def multipart_reply datapath_id, message
     puts message.inspect
   end
 end

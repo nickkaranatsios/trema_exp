@@ -35,7 +35,7 @@ pack_group_mod( VALUE options ) {
   uint8_t group_type = OFPGT_ALL;
   VALUE r_group_type = rb_hash_aref( options, sym_group_type );
   if ( r_group_type != Qnil ) {
-    group_type = ( uint8_t ) NUM2INT( r_group_type );
+    group_type = ( uint8_t ) NUM2UINT( r_group_type );
   }
 
   VALUE sym_group_id = ID2SYM( rb_intern( "group_id" ) );

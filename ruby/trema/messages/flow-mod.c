@@ -109,7 +109,7 @@ pack_flow_mod( VALUE options ) {
     flags = ( uint16_t ) NUM2UINT( r_flags );
   }
 
-  VALUE sym_match = ID2SYM( rb_intern( "match " ) );
+  VALUE sym_match = ID2SYM( rb_intern( "match" ) );
   VALUE r_match = rb_hash_aref( options, sym_match );
   oxm_matches *oxm_match = NULL;
   if ( r_match != Qnil ) {
@@ -124,12 +124,18 @@ pack_flow_mod( VALUE options ) {
     instructions = pack_instruction( r_instructions );
   }
 
+printf( "cookie: %#" PRIx64 "\n", cookie );
   buffer *flow_mod = create_flow_mod( xid, cookie, cookie_mask,
                                       table_id, command, idle_timeout,
                                       hard_timeout, priority, buffer_id,
                                       out_port, out_group, flags,
                                       oxm_match, instructions );
-  delete_instructions( instructions );
+  if ( instructions != NULL ) {
+    delete_instructions( instructions );
+  }
+  if (oxm_match != NULL ) {
+    delete_oxm_matches( oxm_match );
+  }
   return flow_mod;
 }
 

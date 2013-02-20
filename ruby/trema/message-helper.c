@@ -85,7 +85,6 @@ send_flow_mod( int argc, VALUE *argv, VALUE self ) {
     
     send_controller_message( self, datapath_id, flow_mod );
   }
-
   return self;
 }
 
@@ -196,10 +195,25 @@ send_group_mod( int argc, VALUE *argv, VALUE self ) {
     
     send_controller_message( self, datapath_id, group_mod );
   }
-
   return self;
 }
 
+
+static VALUE
+send_flow_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+
+  if ( options != Qnil ) {
+    VALUE flow_multipart_request = rb_funcall( rb_eval_string( "Messages::FlowMultipartRequest" ), rb_intern( "new" ), 1, options );
+    
+    VALUE str = rb_inspect( flow_multipart_request );
+    printf( "flow_multipart_request %s\n", StringValuePtr( str ) );
+    send_controller_message( self, datapath_id, flow_multipart_request );
+  }
+  return self;
+}
 
 void
 Init_message_helper( void ) {
@@ -209,6 +223,7 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_message", send_controller_message, 2 );
   rb_define_module_function( mMessageHelper, "send_packet_out", send_packet_out, - 1 );
   rb_define_module_function( mMessageHelper, "send_group_mod", send_group_mod, -1 );
+  rb_define_module_function( mMessageHelper, "send_flow_multipart_request", send_flow_multipart_request, -1 );
 }
 
 

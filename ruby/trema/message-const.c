@@ -178,6 +178,20 @@ port_modify( VALUE self ) {
 }
 
 
+static VALUE
+experimenter_error( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPET_EXPERIMENTER );
+}
+
+
+static VALUE
+experimenter_mp( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPMP_EXPERIMENTER );
+}
+
+
 void
 Init_message_const( void ) {
   mMessageConst = rb_define_module_under( mTrema, "MessageConst" );
@@ -218,6 +232,11 @@ Init_message_const( void ) {
   rb_define_module_function( mMessageConst, "port_add" , port_add, 0 );
   rb_define_module_function( mMessageConst, "port_delete" , port_delete, 0 );
   rb_define_module_function( mMessageConst, "port_modify" , port_modify, 0 );
+
+  // experimental error code
+  rb_define_module_function( mMessageConst, "experimenter_error", experimenter_error, 0 );
+
+  rb_define_module_function( mMessageConst, "experimenter_mp", experimenter_mp, 0 );
 
   rb_require( "trema/message-const" );
 }

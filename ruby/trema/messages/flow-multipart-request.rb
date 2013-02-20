@@ -16,22 +16,18 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/packet-info"
-require "trema/messages/packet-in"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
-require "trema/messages/bucket"
-require "trema/messages/group-mod"
-require "trema/messages/error"
-require "trema/messages/flow-multipart-request"
-require "trema/messages/multipart-reply"
+module Trema
+  module Messages
+    class FlowMultipartRequest < Message
+      unsigned_int32 :transaction_id
+      unsigned_int8 :table_id
+      unsigned_int32 :out_group, :out_group
+      unsigned_int64 :cookie, presence: true
+      unsigned_int64 :cookie_mask
+      match :match
+    end
+  end
+end
 
 
 ### Local variables:

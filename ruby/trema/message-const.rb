@@ -82,15 +82,37 @@ module Trema
     enum_step %w( ofpgc_add ofpgc_modify ofpgc_delete )
 
     error_type = %w( ofppet_hello_failed
-                   ofppet_bad_request
-                   ofppet_bad_action
-                   ofppet_bad_instruction
-                   ofppet_bad_match
-                   ofppet_flow_mod_failed
-                   ofppet_group_mod_failed
-                   ofppet_table_mod_failed
-                   ofppet_queue_mod_failed )
+                     ofppet_bad_request
+                     ofppet_bad_action
+                     ofppet_bad_instruction
+                     ofppet_bad_match
+                     ofppet_flow_mod_failed
+                     ofppet_group_mod_failed
+                     ofppet_table_mod_failed
+                     ofppet_queue_mod_failed
+                     ofppet_switch_config_failed
+                     ofppet_role_request_failed
+                     ofppet_meter_mod_failed
+                     ofppet_table_features_failed )
     enum_step error_type
+    enum_hash ofppet_experimenter: experimenter_error
+
+    multipart_type = %w( ofpmp_desc
+                         ofpmp_flow
+                         ofpmp_aggregate
+                         ofpmp_table
+                         ofpmp_port_stats
+                         ofpmp_queue
+                         ofpmp_group
+                         ofpmp_group_desc
+                         ofpmp_group_features
+                         ofpmp_meter
+                         ofpmp_meter_config
+                         ofpmp_meter_features
+                         ofpmp_table_features
+                         ofpmp_port_desc )
+     enum_step multipart_type
+     enum_hash ofpmp_experimenter: experimenter_mp
   end
 end
 

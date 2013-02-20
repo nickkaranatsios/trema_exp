@@ -107,7 +107,8 @@ lookup_group_entry( const uint32_t group_id ) {
 
 
 static OFDPE
-validate_buckets( bucket_list *buckets ) {
+validate_buckets( uint8_t type, bucket_list *buckets ) {
+  assert( table != NULL );
   assert( buckets != NULL );
 
   OFDPE ret = OFDPE_SUCCESS;
@@ -116,13 +117,15 @@ validate_buckets( bucket_list *buckets ) {
       continue;
     }
     bucket *bucket = element->data;
-    if ( !switch_port_exists( bucket->watch_port ) ) {
-      ret = ERROR_OFDPE_BAD_ACTION_BAD_OUT_PORT;
-      break;
-    }
-    if ( !group_exists( bucket->watch_group ) ) {
-      ret = ERROR_OFDPE_BAD_ACTION_BAD_OUT_GROUP;
-      break;
+    if ( ( table->features.types & GROUP_TYPE_FF ) != 0 && type == OFPGT_FF ) {
+      if ( !switch_port_exists( bucket->watch_port ) ) {
+        ret = ERROR_OFDPE_GROUP_MOD_FAILED_BAD_WATCH;
+        break;
+      }
+      if ( !group_exists( bucket->watch_group ) ) {
+        ret = ERROR_OFDPE_GROUP_MOD_FAILED_BAD_WATCH;
+        break;
+      }
     }
     ret = validate_action_bucket( bucket );
     if ( ret != OFDPE_SUCCESS ) {
@@ -142,7 +145,7 @@ validate_group_entry( group_entry *entry ) {
     return ERROR_OFDPE_GROUP_MOD_FAILED_INVALID_GROUP;
   }
 
-  return validate_buckets( entry->buckets );
+  return validate_buckets( entry->type, entry->buckets );
 }
 
 
@@ -202,7 +205,7 @@ update_group_entry( const uint32_t group_id, const uint8_t type, bucket_list *bu
   }
 
   if ( ret == OFDPE_SUCCESS ) {
-    ret = validate_buckets( buckets );
+    ret = validate_buckets( entry->type, buckets );
   }
 
   if ( ret == OFDPE_SUCCESS ) {
