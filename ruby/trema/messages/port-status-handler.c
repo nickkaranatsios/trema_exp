@@ -22,7 +22,7 @@
 
 
 static void
-decode_ofp_port( VALUE attributes, struct ofp_port *port_desc ) {
+unpack_ofp_port( VALUE attributes, struct ofp_port *port_desc ) {
   HASH_SET( attributes, "port_no", UINT2NUM( port_desc->port_no ) );
   VALUE hw_addr = rb_funcall( rb_eval_string( "Trema::Mac" ), rb_intern( "new" ), 1, ULL2NUM( mac_to_uint64( port_desc->hw_addr ) ) );
   HASH_SET( attributes, "hw_addr", hw_addr );
@@ -52,7 +52,7 @@ handle_port_status( uint64_t datapath_id,
   HASH_SET( attributes, "transaction_id", UINT2NUM( transaction_id ) );
   HASH_SET( attributes, "reason", UINT2NUM( reason ) );
   
-  decode_ofp_port( attributes, &port_desc );
+  unpack_ofp_port( attributes, &port_desc );
   VALUE cPortStatus = rb_funcall( rb_eval_string( "Messages::PortStatus" ), rb_intern( "new" ), 1, attributes );
   rb_funcall( ( VALUE ) controller, rb_intern( "port_status" ), 1, cPortStatus );
 }

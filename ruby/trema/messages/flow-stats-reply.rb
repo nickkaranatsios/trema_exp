@@ -1,3 +1,4 @@
+
 #
 # Copyright (C) 2008-2013 NEC Corporation
 #
@@ -16,23 +17,20 @@
 #
 
 
-require "trema/message"
-require "trema/messages/hello"
-require "trema/messages/echo-request"
-require "trema/messages/features-request"
-require "trema/messages/get-config-request"
-require "trema/messages/set-config"
-require "trema/messages/flow-mod"
-require "trema/messages/packet-info"
-require "trema/messages/packet-in"
-require "trema/messages/port-status"
-require "trema/messages/flow-removed"
-require "trema/messages/bucket"
-require "trema/messages/group-mod"
-require "trema/messages/error"
-require "trema/messages/flow-stats-request"
-require "trema/messages/stats-base"
-require "trema/messages/flow-stats-reply"
+module Trema
+  module Messages
+    class FlowStatsReply < StatsBase
+      unsigned_int16 :length, presence: true
+      unsigned_int8 :table_id, presence: true
+      unsigned_int32 :duration_sec, :duration_nsec, presence: true
+      unsigned_int16 :priority, presence: true
+      unsigned_int16 :idle_timeout, :hard_timeout, presence: true
+      unsigned_int16 :flags, presence: true
+      unsigned_int64 :cookie, presence: true
+      unsigned_int64 :packet_count, :byte_count, presence: true
+    end
+  end
+end
 
 
 ### Local variables:

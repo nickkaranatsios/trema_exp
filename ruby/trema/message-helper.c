@@ -206,7 +206,7 @@ send_flow_multipart_request( int argc, VALUE *argv, VALUE self ) {
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
   if ( options != Qnil ) {
-    VALUE flow_multipart_request = rb_funcall( rb_eval_string( "Messages::FlowMultipartRequest" ), rb_intern( "new" ), 1, options );
+    VALUE flow_multipart_request = rb_funcall( rb_eval_string( "Messages::FlowStatsRequest" ), rb_intern( "new" ), 1, options );
     
     VALUE str = rb_inspect( flow_multipart_request );
     printf( "flow_multipart_request %s\n", StringValuePtr( str ) );

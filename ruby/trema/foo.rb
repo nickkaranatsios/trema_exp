@@ -116,7 +116,7 @@ puts "sending flow_multipart_request"
   end
 
 
-  def multipart_reply datapath_id, message
+  def flow_stats_reply datapath_id, message
     puts message.inspect
   end
 end

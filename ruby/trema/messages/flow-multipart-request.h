@@ -23,7 +23,7 @@
 #include "ruby.h"
 
 
-buffer *pack_flow_multipart_request( VALUE options );
+buffer *pack_flow_stats_request( VALUE options );
 
 
 #endif // FLOW_MULTIPART_REQUEST_H

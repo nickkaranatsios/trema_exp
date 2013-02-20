@@ -460,7 +460,7 @@ packet_in_pbb_isid( const buffer *frame ) {
 
 
 static VALUE
-decode_packet_in( packet_in *message ) {
+unpack_packet_in( packet_in *message ) {
   VALUE attributes = rb_hash_new();
 
   HASH_SET( attributes, "datapath_id", ULL2NUM( message->datapath_id ) );  
@@ -619,7 +619,7 @@ handle_packet_in( uint64_t datapath_id, packet_in message ) {
     return;
   }
 
-  VALUE cPacketIn = decode_packet_in( &message );
+  VALUE cPacketIn = unpack_packet_in( &message );
   rb_funcall( controller, rb_intern( "packet_in" ), 2, ULL2NUM( datapath_id ), cPacketIn );
 }
 

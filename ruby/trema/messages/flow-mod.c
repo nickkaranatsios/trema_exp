@@ -124,7 +124,7 @@ pack_flow_mod( VALUE options ) {
     instructions = pack_instruction( r_instructions );
   }
 
-printf( "cookie: %#" PRIx64 "\n", cookie );
+// printf( "cookie: %#" PRIx64 "\n", cookie );
   buffer *flow_mod = create_flow_mod( xid, cookie, cookie_mask,
                                       table_id, command, idle_timeout,
                                       hard_timeout, priority, buffer_id,

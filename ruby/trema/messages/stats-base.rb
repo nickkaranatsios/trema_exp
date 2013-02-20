@@ -18,13 +18,10 @@
 
 module Trema
   module Messages
-    class FlowMultipartRequest < Message
+    class StatsBase < Message
+      unsigned_int64 :datapath_id
       unsigned_int32 :transaction_id
-      unsigned_int8 :table_id
-      unsigned_int32 :out_group, :out_group
-      unsigned_int64 :cookie, presence: true
-      unsigned_int64 :cookie_mask
-      match :match
+      unsigned_int16 :type, :flags
     end
   end
 end
