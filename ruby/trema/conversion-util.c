@@ -281,7 +281,7 @@ assign_arp_protocol_addr( const oxm_match_header *hdr, VALUE r_attributes ) {
   }
   if ( *hdr == OXM_OF_ARP_SPA_W ) {
     mask = ( const uint32_t * ) ( ( const uint8_t * ) addr + sizeof ( uint32_t ) );
-    VALUE r_mask = ipv4_addr_to_r( addr );
+    VALUE r_mask = ipv4_addr_to_r( mask );
 
     HASH_SET( r_attributes, "arp_spa", r_addr );
     HASH_SET( r_attributes, "arp_spa_mask", r_mask );
@@ -291,7 +291,7 @@ assign_arp_protocol_addr( const oxm_match_header *hdr, VALUE r_attributes ) {
   }
   if ( *hdr == OXM_OF_ARP_TPA_W ) {
     mask = ( const uint32_t * ) ( ( const uint8_t * ) addr + sizeof ( uint32_t ) );
-    VALUE r_mask = ipv4_addr_to_r( addr );
+    VALUE r_mask = ipv4_addr_to_r( mask );
 
     HASH_SET( r_attributes, "arp_tpa", r_addr );
     HASH_SET( r_attributes, "arp_tpa_mask", r_mask );
@@ -596,11 +596,11 @@ ofp_match_to_r_match( const struct ofp_match *match ) {
 
   uint16_t oxms_len = 0;
   uint16_t oxm_len = 0;
-  oxm_match_header *src;
+  const oxm_match_header *src;
 
   uint16_t offset = offsetof( struct ofp_match, oxm_fields );
-  oxms_len = ( uint16_t ) ( ntohs( match->length ) - offset );
-  src = ( oxm_match_header * ) ( ( char * ) match + offset );
+  oxms_len = ( uint16_t ) ( match->length - offset );
+  src = ( const oxm_match_header * ) ( ( const char * ) match + offset );
   VALUE r_attributes = rb_hash_new();
 
   while ( oxms_len > sizeof( oxm_match_header ) ) {
@@ -612,7 +612,7 @@ ofp_match_to_r_match( const struct ofp_match *match ) {
       break;
     }
     oxms_len = ( uint16_t ) ( oxms_len - offset );
-    src = ( oxm_match_header * ) ( ( char * ) src + offset );
+    src = ( const oxm_match_header * ) ( ( const char * ) src + offset );
   }
   return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, r_attributes );
 }
@@ -620,7 +620,10 @@ ofp_match_to_r_match( const struct ofp_match *match ) {
 
 void
 r_match_to_oxm_match( VALUE r_match, oxm_matches *match ) {
-  append_oxm_match_in_port( match, ( uint32_t ) NUM2UINT( rb_iv_get( r_match, "@in_port" ) ) );
+  VALUE r_in_port = rb_iv_get( r_match, "@in_port" );
+  if ( r_in_port != Qnil ) {
+    append_oxm_match_in_port( match, ( uint32_t ) NUM2UINT( r_in_port ) );
+  }
 
   uint8_t tmp_mac_mask[ OFP_ETH_ALEN ];
   memset( tmp_mac_mask, 0, sizeof( tmp_mac_mask ) );

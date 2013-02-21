@@ -112,6 +112,8 @@ pack_flow_mod( VALUE options ) {
   VALUE r_match = rb_hash_aref( options, sym_match );
   oxm_matches *oxm_match = NULL;
   if ( r_match != Qnil ) {
+  VALUE str = rb_inspect( r_match );
+  printf( "match  %s\n", StringValuePtr( str ) );
     oxm_match = create_oxm_matches();
     r_match_to_oxm_match( r_match, oxm_match );
   }

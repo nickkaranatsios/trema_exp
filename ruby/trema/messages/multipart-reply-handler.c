@@ -39,7 +39,8 @@ unpack_flow_multipart_reply( VALUE r_attributes, void *data ) {
   HASH_SET( r_attributes, "cookie", ULL2NUM( flow_stats->cookie ) );
   HASH_SET( r_attributes, "packet_count", ULL2NUM( flow_stats->packet_count ) );
   HASH_SET( r_attributes, "byte_count", ULL2NUM( flow_stats->byte_count ) );
-  VALUE r_match = ofp_match_to_r_match( flow_stats->match );
+printf( "ofp_match length = %u\n", flow_stats->match.length );
+  VALUE r_match = ofp_match_to_r_match( &flow_stats->match );
   if ( r_match != Qnil ) {
     HASH_SET( r_attributes, "match", r_match );
   }
