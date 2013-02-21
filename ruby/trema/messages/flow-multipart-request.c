@@ -22,7 +22,7 @@
 
 
 buffer *
-pack_flow_stats_request( VALUE options ) {
+pack_flow_multipart_request( VALUE options ) {
   VALUE sym_transaction_id = ID2SYM( rb_intern( "transaction_id" ) );
 
   uint32_t xid = get_transaction_id();

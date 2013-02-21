@@ -54,7 +54,7 @@ handle_port_status( uint64_t datapath_id,
   
   unpack_ofp_port( attributes, &port_desc );
   VALUE cPortStatus = rb_funcall( rb_eval_string( "Messages::PortStatus" ), rb_intern( "new" ), 1, attributes );
-  rb_funcall( ( VALUE ) controller, rb_intern( "port_status" ), 1, cPortStatus );
+  rb_funcall( ( VALUE ) controller, rb_intern( "port_status" ), 2, ULL2NUM( datapath_id ), cPortStatus );
 }
 
 

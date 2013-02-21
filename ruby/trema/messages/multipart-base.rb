@@ -17,13 +17,11 @@
 
 
 module Trema
-  module Actions
-    #
-    # A match field to match an ICMPv6 type. For example a value of 1 signifies
-    # destination unreachable.
-    #
-    class Icmpv6Type < FlexibleAction
-      unsigned_int8 :icmpv6_type, :presence => true
+  module Messages
+    class MultipartBase < Message
+      unsigned_int64 :datapath_id
+      unsigned_int32 :transaction_id
+      unsigned_int16 :type, :flags
     end
   end
 end

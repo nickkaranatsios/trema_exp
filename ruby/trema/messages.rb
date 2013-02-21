@@ -30,9 +30,9 @@ require "trema/messages/flow-removed"
 require "trema/messages/bucket"
 require "trema/messages/group-mod"
 require "trema/messages/error"
-require "trema/messages/flow-stats-request"
-require "trema/messages/stats-base"
-require "trema/messages/flow-stats-reply"
+require "trema/messages/flow-multipart-request"
+require "trema/messages/multipart-base"
+require "trema/messages/flow-multipart-reply"
 
 
 ### Local variables:

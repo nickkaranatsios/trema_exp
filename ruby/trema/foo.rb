@@ -62,7 +62,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                        :priority => OFP_LOW_PRIORITY,
                        :buffer_id => OFP_NO_BUFFER,
                        :flags => OFPFF_SEND_FLOW_REM, 
-                       :table_id => 1,
+                       :table_id => 0,
                        :cookie => 1001,
                        :hard_timeout => 0,
                        :idle_timeout => 0,
@@ -106,7 +106,7 @@ puts "sending flow_multipart_request"
   end
 
 
-  def port_status port
+  def port_status datapath_id, port
     puts port.inspect
   end
 
@@ -116,7 +116,8 @@ puts "sending flow_multipart_request"
   end
 
 
-  def flow_stats_reply datapath_id, message
+  def flow_multipart_reply datapath_id, message
+puts "received a flow_multipart_reply"
     puts message.inspect
   end
 end

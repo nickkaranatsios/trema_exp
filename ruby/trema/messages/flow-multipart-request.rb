@@ -17,21 +17,14 @@
 
 
 module Trema
-  module Actions
-    #
-    # A match field to match a diffserv code point. The value is restricted
-    # within 0 to 63.
-    #
-    class IpDscp < FlexibleAction
-      unsigned_int8 :ip_dscp, :presence => true, :within => :check_ip_dscp_range
-
-
-      def check_ip_dscp_range ip_dscp, name
-        range = 0..63
-        unless range.include? ip_dscp
-          raise ArgumentError, "#{ name } value must be >= #{ range.first } and <= #{ range.last }." 
-        end
-      end
+  module Messages
+    class FlowMultipartRequest < Message
+      unsigned_int32 :transaction_id
+      unsigned_int8 :table_id
+      unsigned_int32 :out_group, :out_group
+      unsigned_int64 :cookie, presence: true
+      unsigned_int64 :cookie_mask
+      match :match
     end
   end
 end
