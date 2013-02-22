@@ -37,6 +37,7 @@ class RepeaterHub < Controller
     puts message.inspect
     action = Actions::SendOutPort.new( OFPP_ALL )
     ins = Instructions::ApplyAction.new( actions: [ action ] ) 
+    match = ExactMatch.from( message )
     send_flow_mod_add(
       datapath_id,
       match: ExactMatch.from( message ),
