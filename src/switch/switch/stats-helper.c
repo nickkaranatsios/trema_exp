@@ -645,8 +645,17 @@ _request_send_flow_stats( const struct ofp_flow_stats_request *req, const uint32
 
     for ( uint32_t i = 0; i < nr_stats; i++ ) {
       construct_oxm( oxm_matches, &stats[ i ].match );
-      uint16_t oxm_matches_len = get_oxm_matches_length( oxm_matches );
-      struct ofp_flow_stats *fs = xmalloc( sizeof( *fs ) + oxm_matches_len );
+
+      uint16_t match_len = get_oxm_matches_length( oxm_matches );
+      uint16_t oxm_matches_len = ( uint16_t ) ( match_len + PADLEN_TO_64( match_len ) );
+      oxm_matches_len = ( uint16_t ) ( oxm_matches_len - sizeof( struct ofp_match ) );
+      struct ofp_flow_stats *fs;
+      if ( oxm_matches_len > ( uint16_t ) sizeof( struct ofp_match ) ) {
+         fs = xmalloc( sizeof( *fs ) + oxm_matches_len );
+      }
+      else {
+        fs = xmalloc( sizeof( *fs ) );
+      }
       assign_ofp_flow_stats( fs, &stats[ i ] );
 
       // TODO this performs htons and the create_flow_multipart_reply does also htons.
@@ -656,7 +665,7 @@ _request_send_flow_stats( const struct ofp_flow_stats_request *req, const uint32
       // TODO: implement here to include the instruction set.
 
       // finally update the length construct_ofp_match performs htons on the length and type
-      fs->length = ( uint16_t ) ( sizeof( *fs ) +  ( uint16_t ) ( fs->match.length  - 4 ) );
+      fs->length = ( uint16_t ) ( sizeof( *fs ) + oxm_matches_len );
       append_to_tail( &list, ( void * ) fs );
       if ( i == nr_stats - 1 ) {
         flags &= ( uint16_t ) ~OFPMPF_REPLY_MORE;

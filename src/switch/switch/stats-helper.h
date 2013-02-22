@@ -27,6 +27,7 @@ extern "C" {
 
 #define SEND_STATS( stats_type, transaction_id, flags, list ) \
   buffer *msg = create_##stats_type##_multipart_reply( transaction_id, flags, list ); \
+error("stats message %u", msg->length ); \
   switch_send_openflow_message( msg ); \
   free_buffer( msg );
 
