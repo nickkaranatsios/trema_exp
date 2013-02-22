@@ -59,16 +59,12 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
     ins = Instructions::ApplyAction.new( actions:  [ action ] ) 
     send_flow_mod_add( datapath_id,
-                       :priority => OFP_LOW_PRIORITY,
-                       :buffer_id => OFP_NO_BUFFER,
-                       :flags => OFPFF_SEND_FLOW_REM, 
-                       :table_id => 0,
-                       :cookie => 1001,
-                       :hard_timeout => 0,
-                       :idle_timeout => 0,
-                       :out_port => 1,
-                       :out_group => 1,
-                       :instructions => [ ins ]
+                       priority: OFP_LOW_PRIORITY,
+                       buffer_id: OFP_NO_BUFFER,
+                       flags: OFPFF_SEND_FLOW_REM, 
+                       cookie: 1001,
+                       match: Match.new( eth_type: 2054 ),
+                       instructions: [ ins ]
     )
   end
 
@@ -78,26 +74,23 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     @state = @state + 1
     puts message.inspect
    
-    match = ExactMatch.from( message )
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
-    if @state == 1
-      gm_with_no_buckets = Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL )
-      send_message datapath_id, gm_with_no_buckets
+    if @state == -1
+      action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER )
+      match = Match.new( in_port: 2, arp_op: 1 )
+      ins = Instructions::ApplyAction.new( actions: [ action ] )
+      send_flow_mod_add( datapath_id,
+                         match: match,
+                         cookie: 1001,
+                         instructions: [ ins ]
+      )
     end
-    if @state == 2
-      action = Actions::PushVlan.new ( 0x88a8 )
-      bucket = Messages::Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action ] )
-      gm_with_buckets = Messages::GroupMod.new( group_id: 1, command: OFPGC_MODIFY, type: OFPGT_ALL, buckets: [ bucket ] )
-      send_message datapath_id, gm_with_buckets
-    end
-    if @state == 5
+    if @state == 10
 puts "sending flow_multipart_request"
-       match = Match.new( in_port: 1 )
-#      send_message datapath_id, Messages::GroupMod.new( group_id: 1, type: OFPGT_ALL, command: OFPGC_DELETE )
-       send_flow_multipart_request datapath_id, table_id: 1, cookie: 1001, match: match
+       match = Match.new( eth_type: 2054  )
+       send_flow_multipart_request datapath_id, cookie: 1001, match: match
     end
-#    send_group_mod( datapath_id, group_id: 1, type: OFPGT_ALL )
   end
 
 
@@ -119,6 +112,7 @@ puts "sending flow_multipart_request"
   def flow_multipart_reply datapath_id, message
 puts "received a flow_multipart_reply"
     puts message.inspect
+exit
   end
 end
 

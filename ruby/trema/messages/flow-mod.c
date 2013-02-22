@@ -112,10 +112,15 @@ pack_flow_mod( VALUE options ) {
   VALUE r_match = rb_hash_aref( options, sym_match );
   oxm_matches *oxm_match = NULL;
   if ( r_match != Qnil ) {
-  VALUE str = rb_inspect( r_match );
-  printf( "match  %s\n", StringValuePtr( str ) );
     oxm_match = create_oxm_matches();
     r_match_to_oxm_match( r_match, oxm_match );
+    
+    uint16_t match_len;
+    match_len = ( uint16_t ) ( offsetof( struct ofp_match, oxm_fields ) + get_oxm_matches_length( oxm_match ) );
+printf( "oxm_length %u\n", get_oxm_matches_length( oxm_match ) );
+printf( "total match length %u\n", match_len );
+printf( "total padded length %d\n", ( uint16_t ) ( match_len + PADLEN_TO_64( match_len ) ) );
+printf( "padded 6 %d\n", PADLEN_TO_64( 6 ) );
   }
   
   VALUE sym_instructions = ID2SYM( rb_intern( "instructions" ) );

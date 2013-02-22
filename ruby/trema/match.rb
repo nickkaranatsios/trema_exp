@@ -49,28 +49,6 @@ module Trema
     unsigned_int32 :pbb_isid
     unsigned_int64 :tunnel_id, :tunnel_id_mask
     unsigned_int16 :ipv6_exthdr, :ipv6_exthdr_mask
-    
-    
-    def self.from message
-      options = {}
-      options = message.match.class.instance_methods( false ).grep( /[a-z]+=$/ ).inject( {} ) do | options, attr |
-        options.merge( attr.to_s => process( message, attr ) )
-      end
-      self.new options
-    end
-
-
-    def self.process match, attr
-      get_attr = attr.to_s.sub( '=', '' )
-      ret = if match.respond_to? get_attr
-        match.__send__ get_attr
-      end
-      if ret.nil?
-        return 0 
-      else
-        ret
-      end 
-    end
   end
 end
 

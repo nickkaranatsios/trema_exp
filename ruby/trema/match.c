@@ -25,30 +25,11 @@ extern VALUE mTrema;
 VALUE cMatch;
 
 
-VALUE
-get_match_from( VALUE self, VALUE message ) {
-  UNUSED( self );
-  VALUE r_match = Qnil;
-
-  if ( rb_obj_is_instance_of( message, rb_eval_string( "Messages::PacketIn" ) ) ) {
-   
-    VALUE r_match = rb_iv_get( message, "@match" );
-    uint32_t in_port = NUM2UINT( rb_iv_get( r_match, "@in_port" ) );
-    VALUE r_data = rb_iv_get( message, "@data" );
-    buffer *packet = r_array_to_buffer( r_data );
-
-    oxm_matches *match = create_oxm_matches();
-    set_match_from_packet( match, in_port, NULL, packet ); 
-    r_match = oxm_match_to_r_match( match );
-  }
-  return r_match;
-}
-
-
 void
 Init_match( void ) {
   cMatch = rb_define_class_under( mTrema, "Match", rb_eval_string( "Trema::Message" ) );
-  rb_define_singleton_method( cMatch, "get_match_from", get_match_from, 1 );
+printf( "ofp_eth_type %u oxm_of_eth_type %u type converted %u\n", OFPXMT_OFB_ETH_TYPE, OXM_OF_ETH_TYPE, OXM_TYPE( 2562 ) );
+printf( "sizeof ofp_stats %d\n", sizeof( struct ofp_flow_stats ) );
   rb_require( "trema/match" );
 }
 
