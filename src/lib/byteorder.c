@@ -421,7 +421,7 @@ hton_flow_stats( struct ofp_flow_stats *dst, const struct ofp_flow_stats *src ) 
   uint16_t match_len = ( uint16_t ) ( src->match.length + PADLEN_TO_64( src->match.length ) );
   size_t offset = ( size_t ) ( offsetof( struct ofp_flow_stats, match ) + match_len );
 
-  if ( total_len >= offset ) {
+  if ( total_len > offset ) {
     struct ofp_instruction *inst_src = ( struct ofp_instruction * ) ( ( char * ) fs + offset );
     struct ofp_instruction *inst_dst = ( struct ofp_instruction * ) ( ( char * ) dst + offset );
 
