@@ -648,14 +648,7 @@ _request_send_flow_stats( const struct ofp_flow_stats_request *req, const uint32
 
       uint16_t match_len = get_oxm_matches_length( oxm_matches );
       uint16_t oxm_matches_len = ( uint16_t ) ( match_len + PADLEN_TO_64( match_len ) );
-      oxm_matches_len = ( uint16_t ) ( oxm_matches_len - sizeof( struct ofp_match ) );
-      struct ofp_flow_stats *fs;
-      if ( oxm_matches_len > ( uint16_t ) sizeof( struct ofp_match ) ) {
-         fs = xmalloc( sizeof( *fs ) + oxm_matches_len );
-      }
-      else {
-        fs = xmalloc( sizeof( *fs ) );
-      }
+      struct ofp_flow_stats *fs = xmalloc( sizeof( *fs ) + oxm_matches_len );
       assign_ofp_flow_stats( fs, &stats[ i ] );
 
       // TODO this performs htons and the create_flow_multipart_reply does also htons.
@@ -670,13 +663,16 @@ _request_send_flow_stats( const struct ofp_flow_stats_request *req, const uint32
       if ( i == nr_stats - 1 ) {
         flags &= ( uint16_t ) ~OFPMPF_REPLY_MORE;
       }
-      SEND_STATS( flow, transaction_id, flags, list )
+  buffer *msg = create_flow_multipart_reply( transaction_id, flags, list ); 
+error("stats message %u", msg->length );
+  switch_send_openflow_message( msg );
+  free_buffer(msg);
+//      SEND_STATS( flow, transaction_id, flags, list )
       delete_element( &list, ( void * ) fs );
       xfree( fs );
     }
     xfree( stats );
     delete_oxm_matches( oxm_matches );
-    delete_list( list );
   }
 }
 void ( *request_send_flow_stats)( const struct ofp_flow_stats_request *req, uint32_t transaction_id ) = _request_send_flow_stats;

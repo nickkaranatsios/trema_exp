@@ -73,7 +73,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     @state ||= 0
     @state = @state + 1
     puts message.inspect
-   
+
     action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
     if @state == -1
@@ -86,7 +86,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                          instructions: [ ins ]
       )
     end
-    if @state == 10
+    if @state == 5
 puts "sending flow_multipart_request"
        match = Match.new( eth_type: 2054  )
        send_flow_multipart_request datapath_id, cookie: 1001, match: match
