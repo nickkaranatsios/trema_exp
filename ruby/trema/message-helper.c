@@ -215,6 +215,18 @@ send_flow_multipart_request( int argc, VALUE *argv, VALUE self ) {
   return self;
 }
 
+
+static VALUE
+send_desc_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );  
+  VALUE desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 0 );
+  VALUE str = rb_inspect( desc_multipart_request );
+  send_controller_message( self, datapath_id, desc_multipart_request );
+}
+
+
 void
 Init_message_helper( void ) {
   mMessageHelper = rb_define_module_under( mTrema, "MessageHelper" );
@@ -224,6 +236,7 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_packet_out", send_packet_out, - 1 );
   rb_define_module_function( mMessageHelper, "send_group_mod", send_group_mod, -1 );
   rb_define_module_function( mMessageHelper, "send_flow_multipart_request", send_flow_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_desc_multipart_request", send_desc_multipart_request, -1 );
 }
 
 
