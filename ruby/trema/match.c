@@ -28,8 +28,6 @@ VALUE cMatch;
 void
 Init_match( void ) {
   cMatch = rb_define_class_under( mTrema, "Match", rb_eval_string( "Trema::Message" ) );
-printf( "ofp_eth_type %u oxm_of_eth_type %u type converted %u\n", OFPXMT_OFB_ETH_TYPE, OXM_OF_ETH_TYPE, OXM_TYPE( 2562 ) );
-printf( "sizeof ofp_stats %d\n", sizeof( struct ofp_flow_stats ) );
   rb_require( "trema/match" );
 }
 

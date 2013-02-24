@@ -63,7 +63,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                        buffer_id: OFP_NO_BUFFER,
                        flags: OFPFF_SEND_FLOW_REM, 
                        cookie: 1001,
-                       match: Match.new( eth_type: 2054 ),
+                       match: Match.new( in_port: 1, eth_type: 2054 ),
                        instructions: [ ins ]
     )
   end
@@ -88,7 +88,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     end
     if @state == 5
 puts "sending flow_multipart_request"
-       match = Match.new( eth_type: 2054  )
+       match = Match.new( in_port: 1, eth_type: 2054  )
        send_flow_multipart_request datapath_id, cookie: 1001, match: match
     end
   end
@@ -112,7 +112,6 @@ puts "sending flow_multipart_request"
   def flow_multipart_reply datapath_id, message
 puts "received a flow_multipart_reply"
     puts message.inspect
-exit
   end
 end
 
