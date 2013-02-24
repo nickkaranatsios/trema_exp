@@ -29,7 +29,7 @@ static void pack_eth_type( struct ofp_match *ofp_match, const match *match );
 
 static struct oxm oxm_eth_type = {
   OFPXMT_OFB_ETH_TYPE,
-  ( uint16_t ) sizeof( uint16_t ) + sizeof( uint32_t ),
+  ( uint16_t ) sizeof( uint16_t ),
   get_eth_field,
   eth_type_length,
   pack_eth_type
