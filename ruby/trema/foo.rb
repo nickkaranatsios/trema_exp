@@ -86,10 +86,20 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
                          instructions: [ ins ]
       )
     end
-    if @state == 5
-puts "sending flow_multipart_request"
+    if @state == -1
        match = Match.new( in_port: 1, eth_type: 2054  )
        send_flow_multipart_request datapath_id, cookie: 1001, match: match
+    end
+    if @state == -1
+      send_desc_multipart_request datapath_id
+    end
+    if @state == -1
+puts "sending an aggregate multipart request"
+       match = Match.new( in_port: 1, eth_type: 2054  )
+       send_aggregate_multipart_request datapath_id, table_id: 0, cookie: 1001, match: match
+    end
+    if @state == 5
+      send_table_multipart_request datapath_id
     end
   end
 
@@ -110,10 +120,25 @@ puts "sending flow_multipart_request"
 
 
   def flow_multipart_reply datapath_id, message
-puts "received a flow_multipart_reply"
+    puts message.inspect
+  end
+
+
+  def desc_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def aggregate_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def table_multipart_reply datapath_id, message
     puts message.inspect
   end
 end
+
 
 #me = TestController.new
 #me.run!

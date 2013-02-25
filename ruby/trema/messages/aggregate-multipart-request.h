@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,22 +16,21 @@
  */
 
 
-#ifndef HASH_UTIL_H
-#define HASH_UTIL_H
+#ifndef AGGREGATE_MULTIPART_REQUEST_H
+#define AGGREGATE_MULTIPART_REQUEST_H
 
 
-#define HASH_SET( hash, key, value ) \
-  rb_hash_aset( hash, ID2SYM( rb_intern( ( key ) ) ), value ) 
-
-#define HASH_REF( hash, key ) \
-  rb_hash_aref( hash, ID2SYM( rb_intern( #key ) ) )
+#include "ruby.h"
 
 
-#endif // HASH_UTIL_H
+buffer *pack_aggregate_multipart_request( VALUE options );
+
+
+#endif // AGGREGATE_MULTIPART_REQUEST_H
 
 
 /*
- * Local variables:
+ * Local variables: 
  * c-basic-offset: 2
  * indent-tabs-mode: nil
  * End:

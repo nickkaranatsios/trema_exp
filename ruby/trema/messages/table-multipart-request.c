@@ -16,18 +16,27 @@
  */
 
 
-#ifndef HASH_UTIL_H
-#define HASH_UTIL_H
+#include "trema.h"
+#include "ruby.h"
+#include "hash-util.h"
 
 
-#define HASH_SET( hash, key, value ) \
-  rb_hash_aset( hash, ID2SYM( rb_intern( ( key ) ) ), value ) 
+buffer *
+pack_table_multipart_request( VALUE options ) {
+  uint32_t xid = get_transaction_id();
+  VALUE r_xid = HASH_REF( options, transaction_id );
+  if ( r_xid != Qnil ) {
+    xid = NUM2UINT( r_xid );
+  }
 
-#define HASH_REF( hash, key ) \
-  rb_hash_aref( hash, ID2SYM( rb_intern( #key ) ) )
-
-
-#endif // HASH_UTIL_H
+  uint16_t flags = 0;
+  VALUE r_flags = HASH_REF( options, flags );
+  if ( r_flags != Qnil ) {
+    flags = ( uint16_t ) NUM2UINT( r_flags );
+  }
+  buffer *table_multipart_request = create_table_multipart_request( xid, flags );
+  return table_multipart_request;
+}
 
 
 /*
@@ -36,3 +45,5 @@
  * indent-tabs-mode: nil
  * End:
  */
+
+  

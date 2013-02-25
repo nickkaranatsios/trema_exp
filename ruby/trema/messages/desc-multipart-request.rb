@@ -18,16 +18,7 @@
 
 module Trema
   module Messages
-    class FlowMultipartReply < MultipartBase
-      unsigned_int16 :length, presence: true
-      unsigned_int8 :table_id, presence: true
-      unsigned_int32 :duration_sec, :duration_nsec, presence: true
-      unsigned_int16 :priority, presence: true
-      unsigned_int16 :idle_timeout, :hard_timeout, presence: true
-      unsigned_int16 :flags, presence: true
-      unsigned_int64 :cookie, presence: true
-      unsigned_int64 :packet_count, :byte_count, presence: true
-      match :match
+    class DescMultipartRequest < MultipartBase
     end
   end
 end

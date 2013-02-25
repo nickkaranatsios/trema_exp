@@ -221,9 +221,55 @@ send_desc_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );  
-  VALUE desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 0 );
-  VALUE str = rb_inspect( desc_multipart_request );
-  send_controller_message( self, datapath_id, desc_multipart_request );
+  VALUE desc_multipart_request = Qnil;
+  if ( options != Qnil ) {
+    desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 1, options );
+    VALUE str = rb_inspect( desc_multipart_request );
+    printf( "desc_multipart_request %s\n", StringValuePtr( str ) );
+  }
+  else {
+    desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 0 );
+  }
+  if ( desc_multipart_request != Qnil ) {
+    send_controller_message( self, datapath_id, desc_multipart_request );
+  }
+  return self;
+}
+
+
+static VALUE
+send_aggregate_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+  if ( options != Qnil ) {
+    VALUE aggregate_multipart_request = rb_funcall( rb_eval_string( "Messages::AggregateMultipartRequest" ), rb_intern( "new" ), 1, options );
+    VALUE str = rb_inspect( aggregate_multipart_request );
+    printf( "aggregate_multipart_request %s\n", StringValuePtr( str ) );
+    send_controller_message( self, datapath_id, aggregate_multipart_request );
+  }
+  return self;
+}
+
+  
+static VALUE
+send_table_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );  
+  VALUE table_multipart_request = Qnil;
+  if ( options != Qnil ) {
+    table_multipart_request = rb_funcall( rb_eval_string( "Messages::TableMultipartRequest" ), rb_intern( "new" ), 1, options );
+    VALUE str = rb_inspect( table_multipart_request );
+    printf( "table_multipart_request %s\n", StringValuePtr( str ) );
+  }
+  else {
+    table_multipart_request = rb_funcall( rb_eval_string( "Messages::TableMultipartRequest" ), rb_intern( "new" ), 0 );
+  }
+  if ( table_multipart_request != Qnil ) {
+    send_controller_message( self, datapath_id, table_multipart_request );
+  }
+  return self;
 }
 
 
@@ -237,6 +283,8 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_group_mod", send_group_mod, -1 );
   rb_define_module_function( mMessageHelper, "send_flow_multipart_request", send_flow_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_desc_multipart_request", send_desc_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_aggregate_multipart_request", send_aggregate_multipart_request, - 1 );
+  rb_define_module_function( mMessageHelper, "send_table_multipart_request", send_table_multipart_request, -1 );
 }
 
 

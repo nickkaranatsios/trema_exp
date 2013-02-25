@@ -26,6 +26,9 @@
 #include "messages/flow-mod.h"
 #include "messages/group-mod.h"
 #include "messages/flow-multipart-request.h"
+#include "messages/desc-multipart-request.h"
+#include "messages/aggregate-multipart-request.h"
+#include "messages/table-multipart-request.h"
 
 
 extern VALUE mTrema;
@@ -111,6 +114,30 @@ pack_flow_multipart_request_msg( VALUE self, VALUE options ) {
 }
 
 
+static VALUE
+pack_desc_multipart_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_desc_multipart_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_aggregate_multipart_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_aggregate_multipart_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
+static VALUE
+pack_table_multipart_request_msg( VALUE self, VALUE options ) {
+  buffer *msg = pack_table_multipart_request( options );
+  send_msg( datapath_id( options ), msg );
+  return self;
+}
+
+
 void
 Init_messages( void ) {
   mMessages = rb_define_module_under( mTrema, "Messages" );
@@ -122,6 +149,9 @@ Init_messages( void ) {
   rb_define_module_function( mMessages, "pack_flow_mod_msg", pack_flow_mod_msg, 1 );
   rb_define_module_function( mMessages, "pack_group_mod_msg", pack_group_mod_msg, 1 );
   rb_define_module_function( mMessages, "pack_flow_multipart_request_msg", pack_flow_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_desc_multipart_request_msg", pack_desc_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_aggregate_multipart_request_msg", pack_aggregate_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_table_multipart_request_msg", pack_table_multipart_request_msg, 1 );
 
   rb_require( "trema/messages" );
 }

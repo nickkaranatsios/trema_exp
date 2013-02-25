@@ -33,6 +33,12 @@ require "trema/messages/error"
 require "trema/messages/flow-multipart-request"
 require "trema/messages/multipart-base"
 require "trema/messages/flow-multipart-reply"
+require "trema/messages/desc-multipart-request"
+require "trema/messages/desc-multipart-reply"
+require "trema/messages/aggregate-multipart-request"
+require "trema/messages/aggregate-multipart-reply"
+require "trema/messages/table-multipart-request"
+require "trema/messages/table-multipart-reply"
 
 
 ### Local variables:
