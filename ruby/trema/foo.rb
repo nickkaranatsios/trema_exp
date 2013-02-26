@@ -94,12 +94,14 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
       send_desc_multipart_request datapath_id
     end
     if @state == -1
-puts "sending an aggregate multipart request"
        match = Match.new( in_port: 1, eth_type: 2054  )
        send_aggregate_multipart_request datapath_id, table_id: 0, cookie: 1001, match: match
     end
-    if @state == 5
+    if @state == -1
       send_table_multipart_request datapath_id
+    end
+    if @state == 5
+      send_port_multipart_request datapath_id
     end
   end
 
@@ -135,6 +137,11 @@ puts "sending an aggregate multipart request"
 
 
   def table_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def port_multipart_reply datapath_id, message
     puts message.inspect
   end
 end

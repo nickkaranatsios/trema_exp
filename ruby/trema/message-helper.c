@@ -273,6 +273,27 @@ send_table_multipart_request( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+static VALUE
+send_port_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+  VALUE port_multipart_request = Qnil;
+  if ( options != Qnil ) {
+    port_multipart_request = rb_funcall( rb_eval_string( "Messages::PortMultipartRequest" ), rb_intern( "new" ), 1, options );
+    VALUE str = rb_inspect( port_multipart_request );
+    printf( "port_multipart_request %s\n", StringValuePtr( str ) );
+  }
+  else {
+    port_multipart_request = rb_funcall( rb_eval_string( "Messages::PortMultipartRequest" ), rb_intern( "new" ), 1, options );
+  }
+  if ( port_multipart_request != Qnil ) {
+    send_controller_message( self, datapath_id, port_multipart_request );
+  }
+  return self;
+}
+
+
 void
 Init_message_helper( void ) {
   mMessageHelper = rb_define_module_under( mTrema, "MessageHelper" );
@@ -285,6 +306,7 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_desc_multipart_request", send_desc_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_aggregate_multipart_request", send_aggregate_multipart_request, - 1 );
   rb_define_module_function( mMessageHelper, "send_table_multipart_request", send_table_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_port_multipart_request", send_port_multipart_request, -1 );
 }
 
 

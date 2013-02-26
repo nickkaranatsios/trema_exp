@@ -18,8 +18,8 @@
 
 module Trema
   module Messages
-    class DescMultipartReply < MultipartBase
-      string :mfr_desc, :hw_desc, :sw_desc, :serial_num, :dp_desc
+    class PortMultipartRequest < MultipartBase
+      unsigned_int32 :port_no
     end
   end
 end

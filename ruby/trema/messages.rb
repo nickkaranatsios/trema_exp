@@ -39,6 +39,8 @@ require "trema/messages/aggregate-multipart-request"
 require "trema/messages/aggregate-multipart-reply"
 require "trema/messages/table-multipart-request"
 require "trema/messages/table-multipart-reply"
+require "trema/messages/port-multipart-request"
+require "trema/messages/port-multipart-reply"
 
 
 ### Local variables:

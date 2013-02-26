@@ -98,6 +98,29 @@ unpack_table_multipart_reply( VALUE r_attributes, void *data ) {
 }
 
 
+static void
+unpack_port_multipart_reply( VALUE r_attributes, void *data ) {
+  assert( data );
+  const struct ofp_port_stats *port_stats = data;
+
+  HASH_SET( r_attributes, "port_no", UINT2NUM( port_stats->port_no ) );
+  HASH_SET( r_attributes, "rx_packets", ULL2NUM( port_stats->rx_packets ) );
+  HASH_SET( r_attributes, "tx_packets", ULL2NUM( port_stats->tx_packets ) );
+  HASH_SET( r_attributes, "rx_bytes", ULL2NUM( port_stats->rx_bytes ) );
+  HASH_SET( r_attributes, "tx_bytes", ULL2NUM( port_stats->tx_bytes ) );
+  HASH_SET( r_attributes, "rx_dropped", ULL2NUM( port_stats->rx_dropped ) );
+  HASH_SET( r_attributes, "tx_dropped", ULL2NUM( port_stats->tx_dropped ) );
+  HASH_SET( r_attributes, "rx_errors", ULL2NUM( port_stats->rx_errors ) );
+  HASH_SET( r_attributes, "tx_errors", ULL2NUM( port_stats->tx_errors ) );
+  HASH_SET( r_attributes, "rx_frame_err", ULL2NUM( port_stats->rx_frame_err ) );
+  HASH_SET( r_attributes, "rx_over_err", ULL2NUM( port_stats->rx_over_err ) );
+  HASH_SET( r_attributes, "rx_crc_err", ULL2NUM( port_stats->rx_crc_err ) );
+  HASH_SET( r_attributes, "collisions", ULL2NUM( port_stats->collisions ) );
+  HASH_SET( r_attributes, "duration_sec", UINT2NUM( port_stats->duration_sec ) );
+  HASH_SET( r_attributes, "duration_nsec", UINT2NUM( port_stats->duration_nsec ) );
+}
+
+
 static VALUE
 unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t stats_type, const buffer *frame ) {
   VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
@@ -151,6 +174,14 @@ unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t sta
             }
           }
 #endif
+        }
+        break;
+        case OFPMP_PORT_STATS: {
+          unpack_port_multipart_reply( r_attributes, frame->data );
+          r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_multipart_reply" ) ) ) {
+            rb_funcall( ( VALUE ) controller, rb_intern( "port_multipart_reply" ), 2, r_dpid, r_reply_obj );
+          }
         }
         break;
         default:
