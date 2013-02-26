@@ -114,13 +114,6 @@ pack_flow_mod( VALUE options ) {
   if ( r_match != Qnil ) {
     oxm_match = create_oxm_matches();
     r_match_to_oxm_match( r_match, oxm_match );
-    
-    uint16_t match_len;
-    match_len = ( uint16_t ) ( offsetof( struct ofp_match, oxm_fields ) + get_oxm_matches_length( oxm_match ) );
-printf( "oxm_length %u\n", get_oxm_matches_length( oxm_match ) );
-printf( "total match length %u\n", match_len );
-printf( "total padded length %d\n", ( uint16_t ) ( match_len + PADLEN_TO_64( match_len ) ) );
-printf( "padded 6 %d\n", PADLEN_TO_64( 6 ) );
   }
   
   VALUE sym_instructions = ID2SYM( rb_intern( "instructions" ) );
@@ -129,8 +122,6 @@ printf( "padded 6 %d\n", PADLEN_TO_64( 6 ) );
   if ( r_instructions != Qnil ) {
     instructions = pack_instruction( r_instructions );
   }
-
-// printf( "cookie: %#" PRIx64 "\n", cookie );
   buffer *flow_mod = create_flow_mod( xid, cookie, cookie_mask,
                                       table_id, command, idle_timeout,
                                       hard_timeout, priority, buffer_id,

@@ -57,15 +57,18 @@ class FooController < Controller
   def switch_ready datapath_id
 puts "#{ __method__ } datapath_id #{ datapath_id }"
     action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
-    ins = Instructions::ApplyAction.new( actions:  [ action ] ) 
+    apply_ins = Instructions::ApplyAction.new( actions:  [ action ] ) 
+    goto_table_ins = Instructions::GotoTable.new( table_id: 1 )
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
-                       flags: OFPFF_SEND_FLOW_REM, 
                        cookie: 1001,
                        match: Match.new( in_port: 1, eth_type: 2054 ),
-                       instructions: [ ins ]
-    )
+                       instructions: [ apply_ins ] )
+#    send_flow_mod_add( datapath_id,
+#                       cookie: 1001,
+#                       table_id: 1,
+#                       instructions: [ apply_ins ] )
   end
 
 
@@ -100,8 +103,11 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     if @state == -1
       send_table_multipart_request datapath_id
     end
-    if @state == 5
+    if @state == -1
       send_port_multipart_request datapath_id
+    end
+    if @state == 5
+      send_table_features_multipart_request datapath_id
     end
   end
 
@@ -142,6 +148,11 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
 
 
   def port_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def table_features_multipart_reply datapath_id, message
     puts message.inspect
   end
 end
