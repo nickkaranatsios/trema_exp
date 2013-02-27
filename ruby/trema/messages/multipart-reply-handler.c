@@ -124,8 +124,10 @@ static void
 unpack_table_features_properties( const struct ofp_table_feature_prop_header *prop_hdr, uint16_t properties_len ) {
   uint16_t offset = 0;
   uint16_t type = prop_hdr->type;
+  int i = 0;
   while ( properties_len - offset >= ( uint16_t ) ( sizeof( struct ofp_table_feature_prop_header ) ) ) {
-    type = ( ( const struct ofp_table_feature_prop_header * )( const char * ) prop_hdr + offset )->type;
+    type = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->type;
+    i++;
 printf( "properties len %u prop_hdr->length = %d offset %u\n", properties_len, prop_hdr->length, offset );
     switch( type ) {
       case OFPTFPT_INSTRUCTIONS: {
@@ -152,6 +154,7 @@ offset = ( uint16_t ) ( offset + prop_hdr->length );
 printf( "type is %u\n", prop_hdr->type );
       break;
     }
+    if ( i == 5 ) exit(1);
   }
 }
 
