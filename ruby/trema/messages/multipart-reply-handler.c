@@ -120,41 +120,105 @@ unpack_port_multipart_reply( VALUE r_attributes, void *data ) {
   HASH_SET( r_attributes, "duration_nsec", UINT2NUM( port_stats->duration_nsec ) );
 }
 
+
+static void
+unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, uint16_t ins_len ) {
+  uint16_t prop_len = ( uint16_t ) ( ins_len - offsetof( struct ofp_table_feature_prop_instructions, instruction_ids ) );
+  uint16_t offset = 0;
+  while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_instruction ) ) {
+    const struct ofp_instruction *ins = ( const struct ofp_instruction * )( ( const char * ) ins_hdr + offset );
+printf( "ins type %u\n", ins->type );
+    offset = ( uint16_t ) ( offset + ins->len ); 
+  }
+}
+
+
+static void
+unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uint16_t act_len ) {
+  uint16_t prop_len = ( uint16_t ) ( act_len - offsetof( struct ofp_table_feature_prop_actions, action_ids ) );
+  uint16_t offset = 0;
+  while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_action_header ) ) {
+    const struct ofp_action_header *act = ( const struct ofp_action_header * )( ( const char * ) act_hdr + offset );
+printf( "act type %u\n", act->type );
+    offset = ( uint16_t ) ( offset + act->len );
+  }
+}
+
+
 static void
 unpack_table_features_properties( const struct ofp_table_feature_prop_header *prop_hdr, uint16_t properties_len ) {
   uint16_t offset = 0;
   uint16_t type = prop_hdr->type;
+  uint16_t length;
   int i = 0;
   while ( properties_len - offset >= ( uint16_t ) ( sizeof( struct ofp_table_feature_prop_header ) ) ) {
     type = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->type;
+    length = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->length;
     i++;
-printf( "properties len %u prop_hdr->length = %d offset %u\n", properties_len, prop_hdr->length, offset );
+printf( "type is %u\n", type );
+printf( "properties len %u prop_hdr->length = %d offset %u\n", properties_len, length, offset );
     switch( type ) {
-      case OFPTFPT_INSTRUCTIONS: {
-        const struct ofp_table_feature_prop_instructions *tfpi = ( const struct ofp_table_feature_prop_instructions * )( ( const char * ) prop_hdr + offset );
-printf( "tfpi length %u\n", tfpi->length );
-        offset = ( uint16_t ) ( offset + tfpi->length );
-      }
-      break;
+      case OFPTFPT_INSTRUCTIONS:
       case OFPTFPT_INSTRUCTIONS_MISS: {
         const struct ofp_table_feature_prop_instructions *tfpi = ( const struct ofp_table_feature_prop_instructions * )( ( const char * ) prop_hdr + offset );
-printf( "tfpi length %u\n", tfpi->length );
         offset = ( uint16_t ) ( offset + tfpi->length );
+        unpack_table_features_prop_instructions( tfpi->instruction_ids, tfpi->length );
       }
       break;
-      case OFPTFPT_WRITE_ACTIONS: {
+      case OFPTFPT_WRITE_ACTIONS:
+      case OFPTFPT_WRITE_ACTIONS_MISS:
+      case OFPTFPT_APPLY_ACTIONS:
+      case  OFPTFPT_APPLY_ACTIONS_MISS: {
         const struct ofp_table_feature_prop_actions *tfpa = ( const struct ofp_table_feature_prop_actions * )( ( const char * ) prop_hdr + offset );
-printf( "tfpa length %u\n", tfpa->length );
         offset = ( uint16_t ) ( offset + tfpa->length );
+        unpack_table_features_prop_actions( tfpa->action_ids, tfpa->length );
+      }
+      break;
+      case OFPTFPT_MATCH: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_WILDCARDS: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_WRITE_SETFIELD: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_WRITE_SETFIELD_MISS: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_APPLY_SETFIELD: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_APPLY_SETFIELD_MISS: {
+        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpo->length );
+      }
+      break;
+      case OFPTFPT_NEXT_TABLES: {
+        const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpnt->length );
+      }
+      break;
+      case OFPTFPT_NEXT_TABLES_MISS: {
+        const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
+        offset = ( uint16_t ) ( offset + tfpnt->length );
       }
       break;
       default:
-offset = ( uint16_t ) ( offset + prop_hdr->length );
-//        assert( 0 );
-printf( "type is %u\n", prop_hdr->type );
+        assert( 0 );
       break;
     }
-    if ( i == 5 ) exit(1);
+    if ( i == 20 ) exit(1);
   }
 }
 
