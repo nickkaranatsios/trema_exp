@@ -1154,7 +1154,7 @@ void hton_table_feature_prop_instructions( struct ofp_table_feature_prop_instruc
 
   uint16_t total_len = src->length;
   struct ofp_table_feature_prop_instructions *tfpi = xcalloc( 1, total_len );
-  memcpy( tfpi, src, total_len );
+  bcopy( src, tfpi, total_len );
 
   dst->type = htons( tfpi->type );
   dst->length = htons( tfpi->length );
@@ -1178,11 +1178,6 @@ void hton_table_feature_prop_instructions( struct ofp_table_feature_prop_instruc
 
       inst_dst = ( struct ofp_instruction * ) ( ( char * ) inst_dst + part_len );
       inst_src = ( struct ofp_instruction * ) ( ( char * ) inst_src + part_len );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( total_len );
-    if ( pad_len > 0 ) {
-      memset( inst_dst, 0, pad_len );
     }
   }
 
@@ -1228,7 +1223,7 @@ void hton_table_feature_prop_next_tables( struct ofp_table_feature_prop_next_tab
 
   uint16_t total_len = src->length;
   struct ofp_table_feature_prop_next_tables *tfpnt = xcalloc( 1, total_len );
-  memcpy( tfpnt, src, total_len );
+  bcopy( src, tfpnt, total_len );
 
   dst->type = htons( tfpnt->type );
   dst->length = htons( tfpnt->length );
@@ -1241,11 +1236,6 @@ void hton_table_feature_prop_next_tables( struct ofp_table_feature_prop_next_tab
     uint16_t i;
     for ( i = 0; i < table_num; i++ ) {
       dst->next_table_ids[ i ] = tfpnt->next_table_ids[ i ];
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( total_len );
-    if ( pad_len > 0 ) {
-      memset( &dst->next_table_ids[ i ], 0, pad_len );
     }
   }
 
@@ -1303,7 +1293,7 @@ void hton_table_feature_prop_actions( struct ofp_table_feature_prop_actions *dst
 
   uint16_t total_len = src->length;
   struct ofp_table_feature_prop_actions *tfpa = xcalloc( 1, total_len );
-  memcpy( tfpa, src, total_len );
+  bcopy( src, tfpa, total_len );
 
   dst->type = htons( tfpa->type );
   dst->length = htons( tfpa->length );
@@ -1328,11 +1318,6 @@ void hton_table_feature_prop_actions( struct ofp_table_feature_prop_actions *dst
 
       act_dst = ( struct ofp_action_header * ) ( ( char * ) act_dst + part_len );
       act_src = ( struct ofp_action_header * ) ( ( char * ) act_src + part_len );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( total_len );
-    if ( pad_len > 0 ) {
-      memset( act_dst, 0, pad_len );
     }
   }
 
@@ -1378,7 +1363,7 @@ void hton_table_feature_prop_oxm( struct ofp_table_feature_prop_oxm *dst, const 
 
   uint16_t total_len = src->length;
   struct ofp_table_feature_prop_oxm *tfpo = xcalloc( 1, total_len );
-  memcpy( tfpo, src, total_len );
+  bcopy( src, tfpo, total_len );
 
   dst->type = htons( tfpo->type );
   dst->length = htons( tfpo->length );
@@ -1391,11 +1376,6 @@ void hton_table_feature_prop_oxm( struct ofp_table_feature_prop_oxm *dst, const 
     uint16_t i;
     for ( i = 0; i < oxm_num; i++ ) {
       dst->oxm_ids[ i ] = htonl( tfpo->oxm_ids[ i ] );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( total_len );
-    if ( pad_len > 0 ) {
-      memset( &dst->oxm_ids[ i ], 0, pad_len );
     }
   }
 
@@ -1585,12 +1565,14 @@ void hton_table_features( struct ofp_table_features *dst, const struct ofp_table
   size_t offset = ( size_t ) sizeof( struct ofp_table_features );
   if ( total_len >= offset ) {
     uint16_t tfp_len = ( uint16_t ) ( total_len - offset );
+    uint16_t pad_len = ( uint16_t ) PADLEN_TO_64( tfp_len );
+    tfp_len = ( uint16_t ) ( tfp_len - pad_len );
 
     struct ofp_table_feature_prop_header *act_src = ( struct ofp_table_feature_prop_header * ) ( ( char * ) tf + offset );
     struct ofp_table_feature_prop_header *act_dst = ( struct ofp_table_feature_prop_header * ) ( ( char * ) dst + offset );
     uint16_t part_len;
 
-    while ( tfp_len >= sizeof( struct ofp_table_feature_prop_header ) ) {
+    while ( tfp_len > sizeof( struct ofp_table_feature_prop_header ) ) {
       part_len = act_src->length;
       if ( tfp_len < part_len ) {
         break;
@@ -1598,7 +1580,8 @@ void hton_table_features( struct ofp_table_features *dst, const struct ofp_table
 
       hton_table_feature_prop_header( act_dst, act_src );
 
-      offset = ( uint16_t ) ( part_len + PADLEN_TO_64( part_len ) );
+//      offset = ( uint16_t ) ( part_len + PADLEN_TO_64( part_len ) );
+      offset = ( uint16_t )part_len;
       if ( tfp_len < offset ) {
         break;
       }
