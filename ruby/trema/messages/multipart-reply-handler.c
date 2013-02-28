@@ -193,12 +193,10 @@ static VALUE
 unpack_table_features_properties( const struct ofp_table_feature_prop_header *prop_hdr, uint16_t properties_len ) {
   uint16_t offset = 0;
   uint16_t type = prop_hdr->type;
-  uint16_t length;
 
   VALUE r_properties = rb_hash_new();
   while ( properties_len - offset >= ( uint16_t ) ( sizeof( struct ofp_table_feature_prop_header ) ) ) {
     type = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->type;
-    length = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->length;
     switch( type ) {
       case OFPTFPT_INSTRUCTIONS:
       case OFPTFPT_INSTRUCTIONS_MISS: {

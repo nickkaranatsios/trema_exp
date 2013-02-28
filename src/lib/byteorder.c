@@ -1111,7 +1111,7 @@ void ntoh_table_feature_prop_instructions( struct ofp_table_feature_prop_instruc
   assert( ntohs( src->length ) != 0 );
 
   struct ofp_table_feature_prop_instructions *tfpi = xcalloc( 1, ntohs( src->length ) );
-  memcpy( tfpi, src, ntohs( src->length ) );
+  bcopy( src, tfpi, ntohs( src->length ) );
 
   dst->type = ntohs( tfpi->type );
   dst->length = ntohs( tfpi->length );
@@ -1135,11 +1135,6 @@ void ntoh_table_feature_prop_instructions( struct ofp_table_feature_prop_instruc
 
       inst_src = ( struct ofp_instruction * ) ( ( char * ) inst_src + part_len );
       inst_dst = ( struct ofp_instruction * ) ( ( char * ) inst_dst + part_len );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( dst->length );
-    if ( pad_len > 0 ) {
-      memset( inst_dst, 0, pad_len );
     }
   }
 
@@ -1191,7 +1186,7 @@ void ntoh_table_feature_prop_next_tables( struct ofp_table_feature_prop_next_tab
   assert( ntohs( src->length ) != 0 );
 
   struct ofp_table_feature_prop_next_tables *tfpnt = xcalloc( 1, ntohs( src->length ) );
-  memcpy( tfpnt, src, ntohs( src->length ) );
+  bcopy( src, tfpnt, ntohs( src->length ) );
 
   dst->type = ntohs( tfpnt->type );
   dst->length = ntohs( tfpnt->length );
@@ -1204,11 +1199,6 @@ void ntoh_table_feature_prop_next_tables( struct ofp_table_feature_prop_next_tab
     uint16_t i;
     for ( i = 0; i < table_num; i++ ) {
       dst->next_table_ids[ i ] = tfpnt->next_table_ids[ i ];
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( dst->length );
-    if ( pad_len > 0 ) {
-      memset( &dst->next_table_ids[ i ], 0, pad_len );
     }
   }
 
@@ -1249,7 +1239,7 @@ void ntoh_table_feature_prop_actions( struct ofp_table_feature_prop_actions *dst
   assert( ntohs( src->length ) != 0 );
 
   struct ofp_table_feature_prop_actions *tfpa = xcalloc( 1, ntohs( src->length ) );
-  memcpy( tfpa, src, ntohs( src->length ) );
+  bcopy( src, tfpa, ntohs( src->length ) );
 
   dst->type = ntohs( tfpa->type );
   dst->length = ntohs( tfpa->length );
@@ -1274,11 +1264,6 @@ void ntoh_table_feature_prop_actions( struct ofp_table_feature_prop_actions *dst
 
       act_src = ( struct ofp_action_header * ) ( ( char * ) act_src + part_len );
       act_dst = ( struct ofp_action_header * ) ( ( char * ) act_dst + part_len );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( dst->length );
-    if ( pad_len > 0 ) {
-      memset( act_dst, 0, pad_len );
     }
   }
 
@@ -1331,7 +1316,7 @@ void ntoh_table_feature_prop_oxm( struct ofp_table_feature_prop_oxm *dst, const 
   assert( ntohs( src->length ) != 0 );
 
   struct ofp_table_feature_prop_oxm *tfpo = xcalloc( 1, ntohs( src->length ) );
-  memcpy( tfpo, src, ntohs( src->length ) );
+  bcopy( src, tfpo, ntohs( src->length ) );
 
   dst->type = ntohs( tfpo->type );
   dst->length = ntohs( tfpo->length );
@@ -1344,11 +1329,6 @@ void ntoh_table_feature_prop_oxm( struct ofp_table_feature_prop_oxm *dst, const 
     uint16_t i;
     for ( i = 0; i < oxm_num; i++ ) {
       dst->oxm_ids[ i ] = ntohl( tfpo->oxm_ids[ i ] );
-    }
-
-    uint16_t pad_len = PADLEN_TO_64( dst->length );
-    if ( pad_len > 0 ) {
-      memset( &dst->oxm_ids[ i ], 0, pad_len );
     }
   }
 
@@ -1515,12 +1495,14 @@ void ntoh_table_features( struct ofp_table_features *dst, const struct ofp_table
   size_t offset = ( size_t ) sizeof( struct ofp_table_features );
   if ( dst->length >= offset ) {
     uint16_t tfp_len = ( uint16_t ) ( dst->length - offset );
+    uint16_t pad_len = ( uint16_t ) PADLEN_TO_64( tfp_len );
+    tfp_len = ( uint16_t ) ( tfp_len - pad_len );
 
     struct ofp_table_feature_prop_header *act_src = ( struct ofp_table_feature_prop_header * ) ( ( char * ) tf + offset );
     struct ofp_table_feature_prop_header *act_dst = ( struct ofp_table_feature_prop_header * ) ( ( char * ) dst + offset );
     uint16_t part_len;
 
-    while ( tfp_len >= sizeof( struct ofp_table_feature_prop_header ) ) {
+    while ( tfp_len > sizeof( struct ofp_table_feature_prop_header ) ) {
       part_len = ntohs( act_src->length );
       if ( tfp_len < part_len ) {
         break;
