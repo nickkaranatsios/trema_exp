@@ -266,85 +266,99 @@ get_table_features_len( flow_table_features *table_feature ) {
   len = instructions_capabilities_len( &table_feature->instructions );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_instructions, instruction_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = instructions_capabilities_len( &table_feature->instructions_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_instructions, instruction_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = actions_capabilities_len( &table_feature->write_actions );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_actions, action_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
   
   len = actions_capabilities_len( &table_feature->write_actions_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_actions, action_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = actions_capabilities_len( &table_feature->apply_actions );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_actions, action_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = actions_capabilities_len( &table_feature->apply_actions_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_actions, action_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//  total_len += len + PADLEN_TO_64( len );
   }
 
   len = match_capabilities_len( &table_feature->matches );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
   
   len = match_capabilities_len( &table_feature->wildcards );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = match_capabilities_len( &table_feature->write_setfield );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = match_capabilities_len( &table_feature->write_setfield_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = match_capabilities_len( &table_feature->apply_setfield );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = match_capabilities_len( &table_feature->apply_setfield_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_oxm, oxm_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = prop_next_table_ids_len( table_feature->next_table_ids );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   len = prop_next_table_ids_len( table_feature->next_table_ids_miss );
   if ( len ) {
     len += offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids );
-    total_len += len + PADLEN_TO_64( len );
+    total_len += len;
+//    total_len += len + PADLEN_TO_64( len );
   }
 
   return total_len;
@@ -541,7 +555,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpi->type = OFPTFPT_INSTRUCTIONS;
     struct ofp_instruction *ins = tfpi->instruction_ids;
     tfpi->length = ( uint16_t ) ( prop_hdr_len + assign_instruction_ids( ins, &table_feature->instructions ) );
-    tfpi->length = ( uint16_t ) ( tfpi->length + PADLEN_TO_64( tfpi->length ) );
+//    tfpi->length = ( uint16_t ) ( tfpi->length + PADLEN_TO_64( tfpi->length ) );
     properties_len += tfpi->length;
   }
 
@@ -550,7 +564,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpi->type = OFPTFPT_INSTRUCTIONS_MISS;
     struct ofp_instruction *ins = tfpi->instruction_ids;
     tfpi->length = ( uint16_t ) ( prop_hdr_len + assign_instruction_ids( ins, &table_feature->instructions ) );
-    tfpi->length = ( uint16_t ) ( tfpi->length + PADLEN_TO_64( tfpi->length ) );
+//   tfpi->length = ( uint16_t ) ( tfpi->length + PADLEN_TO_64( tfpi->length ) );
     properties_len += tfpi->length;
   }
 
@@ -560,7 +574,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpa->type = OFPTFPT_WRITE_ACTIONS;
     struct ofp_action_header *ac_hdr = tfpa->action_ids;
     tfpa->length = ( uint16_t ) ( prop_hdr_len + assign_action_ids( ac_hdr, &table_feature->write_actions ) );
-    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
+//    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
     properties_len += tfpa->length;
   }
   
@@ -570,7 +584,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpa->type = OFPTFPT_WRITE_ACTIONS_MISS;
     struct ofp_action_header *ac_hdr = tfpa->action_ids;
     tfpa->length = ( uint16_t ) ( prop_hdr_len + assign_action_ids( ac_hdr, &table_feature->write_actions_miss ) );
-    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
+//   tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
     properties_len += tfpa->length;
   }
   
@@ -579,7 +593,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpa->type = OFPTFPT_APPLY_ACTIONS;
     struct ofp_action_header *ac_hdr = tfpa->action_ids;
     tfpa->length = ( uint16_t ) ( prop_hdr_len + assign_action_ids( ac_hdr, &table_feature->apply_actions ) );
-    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
+//    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
     properties_len += tfpa->length;
   }
 
@@ -588,7 +602,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpa->type = OFPTFPT_APPLY_ACTIONS_MISS;
     struct ofp_action_header *ac_hdr = tfpa->action_ids;
     tfpa->length = ( uint16_t ) ( prop_hdr_len + assign_action_ids( ac_hdr, &table_feature->apply_actions_miss ) );
-    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
+//    tfpa->length = ( uint16_t ) ( tfpa->length + PADLEN_TO_64( tfpa->length ) );
     properties_len += tfpa->length;
   }
 
@@ -598,7 +612,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_MATCH;
     uint32_t *oxm_id =  ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->matches ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
 
@@ -607,7 +621,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_WILDCARDS;
     uint32_t *oxm_id = ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->wildcards ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
 
@@ -616,7 +630,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_WRITE_SETFIELD;
     uint32_t *oxm_id = ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->write_setfield ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
 
@@ -625,7 +639,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_WRITE_SETFIELD_MISS;
     uint32_t *oxm_id = ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->write_setfield_miss ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
   
@@ -634,7 +648,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_APPLY_SETFIELD;
     uint32_t *oxm_id = ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->apply_setfield ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
 
@@ -643,7 +657,7 @@ assign_table_features( flow_table_features *table_feature ) {
     tfpo->type = OFPTFPT_APPLY_SETFIELD_MISS;
     uint32_t *oxm_id = ( uint32_t * ) &tfpo->oxm_ids;
     tfpo->length = ( uint16_t ) ( prop_hdr_len + assign_oxm_ids( oxm_id, &table_feature->apply_setfield_miss ) );
-    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
+//    tfpo->length = ( uint16_t ) ( tfpo->length + PADLEN_TO_64( tfpo->length ) );
     properties_len += tfpo->length;
   }
 
@@ -659,7 +673,7 @@ assign_table_features( flow_table_features *table_feature ) {
       table_id++;
     }
   }
-  tfpnt->length = ( uint16_t ) ( tfpnt->length + PADLEN_TO_64( tfpnt->length ) );
+//  tfpnt->length = ( uint16_t ) ( tfpnt->length + PADLEN_TO_64( tfpnt->length ) );
   properties_len += tfpnt->length;
 
   tfpnt = ( struct ofp_table_feature_prop_next_tables * )( ( char * ) ofp_table_feature->properties + properties_len );
@@ -673,7 +687,7 @@ assign_table_features( flow_table_features *table_feature ) {
       table_id++;
     }
   }
-  tfpnt->length = ( uint16_t ) ( tfpnt->length + PADLEN_TO_64( tfpnt->length ) );
+//  tfpnt->length = ( uint16_t ) ( tfpnt->length + PADLEN_TO_64( tfpnt->length ) );
   properties_len += tfpnt->length;
 
   return ofp_table_feature;
