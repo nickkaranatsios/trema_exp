@@ -24,6 +24,9 @@ module Trema
 end
 
 
+WriteAction = Trema::Instructions::WriteAction
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

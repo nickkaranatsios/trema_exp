@@ -25,6 +25,9 @@ module Trema
 end
 
 
+GotoTable = Trema::Instructions::GotoTable
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

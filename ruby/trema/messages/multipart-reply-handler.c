@@ -44,7 +44,6 @@ unpack_flow_multipart_reply( VALUE r_attributes, void *data ) {
   HASH_SET( r_attributes, "cookie", ULL2NUM( flow_stats->cookie ) );
   HASH_SET( r_attributes, "packet_count", ULL2NUM( flow_stats->packet_count ) );
   HASH_SET( r_attributes, "byte_count", ULL2NUM( flow_stats->byte_count ) );
-printf( "ofp_match length = %u\n", flow_stats->match.length );
   VALUE r_match = ofp_match_to_r_match( &flow_stats->match );
   if ( r_match != Qnil ) {
     HASH_SET( r_attributes, "match", r_match );
@@ -121,48 +120,92 @@ unpack_port_multipart_reply( VALUE r_attributes, void *data ) {
 }
 
 
-static void
+static VALUE
 unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, uint16_t ins_len ) {
   uint16_t prop_len = ( uint16_t ) ( ins_len - offsetof( struct ofp_table_feature_prop_instructions, instruction_ids ) );
+  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
+  prop_len = ( uint16_t ) ( prop_len -  padded_len );
   uint16_t offset = 0;
+
+  VALUE r_instruction_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_instruction ) ) {
     const struct ofp_instruction *ins = ( const struct ofp_instruction * )( ( const char * ) ins_hdr + offset );
-printf( "ins type %u\n", ins->type );
+    rb_ary_push( r_instruction_ids, UINT2NUM( ins->type ) );
     offset = ( uint16_t ) ( offset + ins->len ); 
   }
+
+  return r_instruction_ids;
 }
 
 
-static void
+static VALUE
 unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uint16_t act_len ) {
   uint16_t prop_len = ( uint16_t ) ( act_len - offsetof( struct ofp_table_feature_prop_actions, action_ids ) );
+  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
+  prop_len = ( uint16_t ) ( prop_len -  padded_len );
   uint16_t offset = 0;
+
+  VALUE r_action_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_action_header ) ) {
     const struct ofp_action_header *act = ( const struct ofp_action_header * )( ( const char * ) act_hdr + offset );
-printf( "act type %u\n", act->type );
+    rb_ary_push( r_action_ids, UINT2NUM( act->type ) );
     offset = ( uint16_t ) ( offset + act->len );
   }
+
+  return r_action_ids;
 }
 
 
-static void
+static VALUE
+unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
+  uint16_t prop_len = ( uint16_t ) ( oxm_len - offsetof( struct ofp_table_feature_prop_oxm, oxm_ids ) );
+  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
+  prop_len = ( uint16_t ) ( prop_len -  padded_len );
+  
+  uint16_t nr_oxms = prop_len / ( uint16_t ) sizeof( uint32_t );
+
+  VALUE r_oxm_ids = rb_ary_new();
+  for ( uint16_t i = 0; i < nr_oxms; i++ ) {
+    rb_ary_push( r_oxm_ids, UINT2NUM( oxm_hdr[ i ] ) );
+  }
+
+  return r_oxm_ids;
+}
+
+
+static VALUE
+unpack_table_features_prop_next_tables( const uint8_t *next_table_hdr, uint16_t next_table_len ) {
+  uint16_t prop_len = ( uint16_t ) ( next_table_len - offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids ) );
+  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
+  prop_len = ( uint16_t ) ( prop_len -  padded_len );
+
+  uint16_t nr_next_table_ids = prop_len / ( uint16_t ) sizeof( uint8_t );
+  VALUE r_next_table_ids = rb_ary_new();
+  for ( uint16_t i = 0; i < nr_next_table_ids; i++ ) {
+    rb_ary_push( r_next_table_ids, UINT2NUM( next_table_hdr[ i ] ) );
+  }
+
+  return r_next_table_ids;
+}
+
+
+static VALUE
 unpack_table_features_properties( const struct ofp_table_feature_prop_header *prop_hdr, uint16_t properties_len ) {
   uint16_t offset = 0;
   uint16_t type = prop_hdr->type;
   uint16_t length;
-  int i = 0;
+
+  VALUE r_properties = rb_hash_new();
   while ( properties_len - offset >= ( uint16_t ) ( sizeof( struct ofp_table_feature_prop_header ) ) ) {
     type = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->type;
     length = ( ( const struct ofp_table_feature_prop_header * )( ( const char * ) prop_hdr + offset ) )->length;
-    i++;
-printf( "type is %u\n", type );
-printf( "properties len %u prop_hdr->length = %d offset %u\n", properties_len, length, offset );
     switch( type ) {
       case OFPTFPT_INSTRUCTIONS:
       case OFPTFPT_INSTRUCTIONS_MISS: {
         const struct ofp_table_feature_prop_instructions *tfpi = ( const struct ofp_table_feature_prop_instructions * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpi->length );
-        unpack_table_features_prop_instructions( tfpi->instruction_ids, tfpi->length );
+        VALUE r_instruction_ids = unpack_table_features_prop_instructions( tfpi->instruction_ids, tfpi->length );
+        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_instruction_ids );
       }
       break;
       case OFPTFPT_WRITE_ACTIONS:
@@ -171,55 +214,36 @@ printf( "properties len %u prop_hdr->length = %d offset %u\n", properties_len, l
       case  OFPTFPT_APPLY_ACTIONS_MISS: {
         const struct ofp_table_feature_prop_actions *tfpa = ( const struct ofp_table_feature_prop_actions * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpa->length );
-        unpack_table_features_prop_actions( tfpa->action_ids, tfpa->length );
+        VALUE r_action_ids = unpack_table_features_prop_actions( tfpa->action_ids, tfpa->length );
+        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_action_ids );
       }
       break;
-      case OFPTFPT_MATCH: {
-        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
-      }
-      break;
-      case OFPTFPT_WILDCARDS: {
-        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
-      }
-      break;
-      case OFPTFPT_WRITE_SETFIELD: {
-        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
-      }
-      break;
-      case OFPTFPT_WRITE_SETFIELD_MISS: {
-        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
-      }
-      break;
-      case OFPTFPT_APPLY_SETFIELD: {
-        const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
-      }
-      break;
+      case OFPTFPT_MATCH:
+      case OFPTFPT_WILDCARDS:
+      case OFPTFPT_WRITE_SETFIELD:
+      case OFPTFPT_WRITE_SETFIELD_MISS:
+      case OFPTFPT_APPLY_SETFIELD:
       case OFPTFPT_APPLY_SETFIELD_MISS: {
         const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpo->length );
+        VALUE r_oxm_ids = unpack_table_features_prop_oxm( tfpo->oxm_ids, tfpo->length );
+        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_oxm_ids );
       }
       break;
-      case OFPTFPT_NEXT_TABLES: {
-        const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpnt->length );
-      }
-      break;
+      case OFPTFPT_NEXT_TABLES:
       case OFPTFPT_NEXT_TABLES_MISS: {
         const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpnt->length );
+        VALUE r_next_table_ids = unpack_table_features_prop_next_tables( tfpnt->next_table_ids, tfpnt->length );
+        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_next_table_ids );
       }
       break;
       default:
         assert( 0 );
       break;
     }
-    if ( i == 20 ) exit(1);
   }
+  return r_properties;
 }
 
 
@@ -238,7 +262,8 @@ unpack_table_features_multipart_reply( VALUE r_attributes, void *data ) {
 
   uint16_t total_prop_len = ( uint16_t ) ( table_features->length - offsetof( struct ofp_table_features, properties ) );
   if  ( total_prop_len >= ( uint16_t ) sizeof( struct ofp_table_feature_prop_header ) ) {
-    unpack_table_features_properties( table_features->properties, total_prop_len );
+    VALUE r_properties = unpack_table_features_properties( table_features->properties, total_prop_len );
+    HASH_SET( r_attributes, "properties", r_properties );
   }
 }
 
@@ -308,7 +333,6 @@ unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t sta
         break;
         case OFPMP_TABLE_FEATURES: {
           unpack_table_features_multipart_reply( r_attributes, frame->data );
-exit(1);
           r_reply_obj = rb_funcall( rb_eval_string( "Messages::TableFeaturesMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
           if ( rb_respond_to( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ) ) ) {
             rb_funcall( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ), 2, r_dpid, r_reply_obj );

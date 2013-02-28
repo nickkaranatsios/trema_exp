@@ -25,6 +25,9 @@ module Trema
 end
 
 
+Meter = Trema::Instructions::Meter
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

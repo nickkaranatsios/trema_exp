@@ -56,9 +56,9 @@ class FooController < Controller
 
   def switch_ready datapath_id
 puts "#{ __method__ } datapath_id #{ datapath_id }"
-    action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
-    apply_ins = Instructions::ApplyAction.new( actions:  [ action ] ) 
-    goto_table_ins = Instructions::GotoTable.new( table_id: 1 )
+    action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
+    apply_ins = ApplyAction.new( actions:  [ action ] ) 
+    goto_table_ins = GotoTable.new( table_id: 1 )
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
@@ -77,12 +77,12 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     @state = @state + 1
     puts message.inspect
 
-    action = Actions::SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
+    action = SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
     if @state == -1
-      action = Actions::SendOutPort.new( port_number: OFPP_CONTROLLER )
+      action = SendOutPort.new( port_number: OFPP_CONTROLLER )
       match = Match.new( in_port: 2, arp_op: 1 )
-      ins = Instructions::ApplyAction.new( actions: [ action ] )
+      ins = ApplyAction.new( actions: [ action ] )
       send_flow_mod_add( datapath_id,
                          match: match,
                          cookie: 1001,

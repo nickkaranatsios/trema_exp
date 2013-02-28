@@ -79,6 +79,9 @@ module Trema
 end
 
 
+SendOutPort = Trema::Actions::SendOutPort
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

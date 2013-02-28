@@ -26,6 +26,9 @@ module Trema
 end
 
 
+WriteMetadata = Trema::Instructions::WriteMetadata
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

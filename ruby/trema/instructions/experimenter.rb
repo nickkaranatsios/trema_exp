@@ -33,6 +33,9 @@ module Trema
 end
 
 
+Experimenter = Trema::Instructions::Experimenter
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

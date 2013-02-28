@@ -24,6 +24,7 @@ module Trema
       string :name
       unsigned_int64 :metadata_match, :metadata_write
       unsigned_int32 :config, :max_entries
+      array :properties
     end
   end
 end

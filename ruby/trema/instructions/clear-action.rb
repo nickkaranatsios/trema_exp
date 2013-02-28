@@ -24,6 +24,9 @@ module Trema
 end
 
 
+ClearAction = Trema::Instructions::ClearAction
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

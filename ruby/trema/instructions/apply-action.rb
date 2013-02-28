@@ -24,6 +24,9 @@ module Trema
 end
 
 
+ApplyAction = Trema::Instructions::ApplyAction
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
