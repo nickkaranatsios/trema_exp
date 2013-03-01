@@ -1,5 +1,38 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
+module Storage
+  def store( instance, id )
+    _instances[ name ] << id
+  end
+
+  def retrieve name
+    _instances[ name ]
+  end
+
+  private
+  def _instances
+    @_instances ||= Hash.new{ |h,k| h[k] = [] }
+  end
+end
+
+
+class Base
+  include Storage
+  def self.find_id subclass
+    subclass.ofp_id
+  end
+end
+
+class Lower < Base
+  def self.ofp_id
+    1
+  end
+end
+
+puts Base.find_id Lower
+exit
+
+
 class Fixnum
   def unsigned_16bit?
     true

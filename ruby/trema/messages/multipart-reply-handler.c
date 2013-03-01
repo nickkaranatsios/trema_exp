@@ -28,6 +28,26 @@ static VALUE r_table_stats_pool = Qnil;
 #endif
 
 
+static const char *table_feature_prop_type_name[] = {
+  "instructions",
+  "instructions_miss",
+  "next_tables",
+  "next_tables_miss",
+  "write_actions",
+  "write_actions_miss",
+  "apply_actions",
+  "apply_actions_miss",
+  "match",
+  "",
+  "wildcards",
+  "",
+  "write_setfield",
+  "write_setfield_miss",
+  "apply_setfield",
+  "apply_setfield_miss"
+};
+
+
 static void
 unpack_flow_multipart_reply( VALUE r_attributes, void *data ) {
   assert( data );
@@ -122,9 +142,8 @@ unpack_port_multipart_reply( VALUE r_attributes, void *data ) {
 
 static VALUE
 unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, uint16_t ins_len ) {
+  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( ins_len - offsetof( struct ofp_table_feature_prop_instructions, instruction_ids ) );
-  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
-  prop_len = ( uint16_t ) ( prop_len -  padded_len );
   uint16_t offset = 0;
 
   VALUE r_instruction_ids = rb_ary_new();
@@ -140,9 +159,8 @@ unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, 
 
 static VALUE
 unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uint16_t act_len ) {
+  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( act_len - offsetof( struct ofp_table_feature_prop_actions, action_ids ) );
-  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
-  prop_len = ( uint16_t ) ( prop_len -  padded_len );
   uint16_t offset = 0;
 
   VALUE r_action_ids = rb_ary_new();
@@ -158,11 +176,9 @@ unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uin
 
 static VALUE
 unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
+  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( oxm_len - offsetof( struct ofp_table_feature_prop_oxm, oxm_ids ) );
-  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
-  prop_len = ( uint16_t ) ( prop_len -  padded_len );
-  
-  uint16_t nr_oxms = prop_len / ( uint16_t ) sizeof( uint32_t );
+  uint16_t nr_oxms = ( uint16_t ) ( prop_len / sizeof( uint32_t ) );
 
   VALUE r_oxm_ids = rb_ary_new();
   for ( uint16_t i = 0; i < nr_oxms; i++ ) {
@@ -175,14 +191,16 @@ unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
 
 static VALUE
 unpack_table_features_prop_next_tables( const uint8_t *next_table_hdr, uint16_t next_table_len ) {
+  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( next_table_len - offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids ) );
-  uint16_t padded_len = ( uint16_t ) PADLEN_TO_64( prop_len );
-  prop_len = ( uint16_t ) ( prop_len -  padded_len );
+  uint16_t nr_next_table_ids = ( uint16_t ) ( prop_len / sizeof( uint8_t ) );
+  // TODO temporary hack
+  uint8_t last_table = 0;
 
-  uint16_t nr_next_table_ids = prop_len / ( uint16_t ) sizeof( uint8_t );
   VALUE r_next_table_ids = rb_ary_new();
-  for ( uint16_t i = 0; i < nr_next_table_ids; i++ ) {
+  for ( uint16_t i = 0; i < nr_next_table_ids && last_table != 254; i++ ) {
     rb_ary_push( r_next_table_ids, UINT2NUM( next_table_hdr[ i ] ) );
+    last_table = next_table_hdr[ i ];
   }
 
   return r_next_table_ids;
@@ -203,7 +221,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
         const struct ofp_table_feature_prop_instructions *tfpi = ( const struct ofp_table_feature_prop_instructions * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpi->length );
         VALUE r_instruction_ids = unpack_table_features_prop_instructions( tfpi->instruction_ids, tfpi->length );
-        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_instruction_ids );
+        HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_instruction_ids );
       }
       break;
       case OFPTFPT_WRITE_ACTIONS:
@@ -213,7 +231,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
         const struct ofp_table_feature_prop_actions *tfpa = ( const struct ofp_table_feature_prop_actions * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpa->length );
         VALUE r_action_ids = unpack_table_features_prop_actions( tfpa->action_ids, tfpa->length );
-        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_action_ids );
+        HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_action_ids );
       }
       break;
       case OFPTFPT_MATCH:
@@ -225,7 +243,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
         const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpo->length );
         VALUE r_oxm_ids = unpack_table_features_prop_oxm( tfpo->oxm_ids, tfpo->length );
-        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_oxm_ids );
+        HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_oxm_ids );
       }
       break;
       case OFPTFPT_NEXT_TABLES:
@@ -233,7 +251,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
         const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
         offset = ( uint16_t ) ( offset + tfpnt->length );
         VALUE r_next_table_ids = unpack_table_features_prop_next_tables( tfpnt->next_table_ids, tfpnt->length );
-        rb_hash_aset( r_properties, rb_funcall( UINT2NUM( type ), rb_intern( "to_s" ), 0 ), r_next_table_ids );
+        HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_next_table_ids );
       }
       break;
       default:
