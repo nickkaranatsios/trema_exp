@@ -142,13 +142,16 @@ unpack_port_multipart_reply( VALUE r_attributes, void *data ) {
 
 static VALUE
 unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, uint16_t ins_len ) {
-  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( ins_len - offsetof( struct ofp_table_feature_prop_instructions, instruction_ids ) );
   uint16_t offset = 0;
 
   VALUE r_instruction_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_instruction ) ) {
     const struct ofp_instruction *ins = ( const struct ofp_instruction * )( ( const char * ) ins_hdr + offset );
+    // if padding is added should be zero
+    if ( !ins->len ) {
+      break;
+    }
     rb_ary_push( r_instruction_ids, UINT2NUM( ins->type ) );
     offset = ( uint16_t ) ( offset + ins->len ); 
   }
@@ -176,7 +179,6 @@ unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uin
 
 static VALUE
 unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
-  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( oxm_len - offsetof( struct ofp_table_feature_prop_oxm, oxm_ids ) );
   uint16_t nr_oxms = ( uint16_t ) ( prop_len / sizeof( uint32_t ) );
 
@@ -191,7 +193,6 @@ unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
 
 static VALUE
 unpack_table_features_prop_next_tables( const uint8_t *next_table_hdr, uint16_t next_table_len ) {
-  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( next_table_len - offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids ) );
   uint16_t nr_next_table_ids = ( uint16_t ) ( prop_len / sizeof( uint8_t ) );
   // TODO temporary hack

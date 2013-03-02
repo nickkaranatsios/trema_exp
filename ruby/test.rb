@@ -1,12 +1,12 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
 module Storage
-  def store( instance, id )
-    _instances[ name ] << id
+  def store( subclass, id )
+    _instances[ id ] = subclass
   end
 
-  def retrieve name
-    _instances[ name ]
+  def retrieve id
+    _instances[ id ]
   end
 
   private
@@ -17,19 +17,28 @@ end
 
 
 class Base
-  include Storage
-  def self.find_id subclass
-    subclass.ofp_id
+  class << self
+    def action_types
+      @action_types ||= Hash.new{ | h, k | h[ k ] = [] }
+    end
+
+    def find action_type
+      puts self.action_types.inspect
+      self.action_types[ action_type ]
+    end
+
+    def action_type type
+      self.action_types[ type ] = self; 
+    end
   end
 end
 
-class Lower < Base
-  def self.ofp_id
-    1
-  end
+class SendOutPort < Base
+  action_type 1
 end
 
-puts Base.find_id Lower
+x =  Base.find 1
+x.inspect
 exit
 
 

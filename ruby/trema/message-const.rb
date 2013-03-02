@@ -113,6 +113,24 @@ module Trema
                          ofpmp_port_desc )
      enum_step multipart_type
      enum_hash ofpmp_experimenter: experimenter_mp
+     
+     enum_hash( ofpat_output: at_output,
+                ofpat_copy_ttl_out: at_copy_ttl_out, 
+                ofpat_copy_ttl_in: at_copy_ttl_in,
+                ofpat_set_mpls_ttl: at_set_mpls_ttl,
+                ofpat_dec_mpls_ttl: at_dec_mpls_ttl,
+                ofpat_push_vlan: at_push_vlan,
+                ofpat_pop_vlan: at_pop_vlan,
+                ofpat_push_mpls: at_push_mpls,
+                ofpat_pop_mpls: at_pop_mpls,
+                ofpat_set_queue: at_set_queue,
+                ofpat_group: at_group,
+                ofpat_set_nw_ttl: at_set_nw_ttl,
+                ofpat_dec_nw_ttl: at_dec_nw_ttl,
+                ofpat_set_field: at_set_field,
+                ofpat_push_pbb: at_push_pbb,
+                ofpat_pob_pbb: at_pop_pbb,
+                ofpat_experimenter: at_experimenter )
   end
 end
 

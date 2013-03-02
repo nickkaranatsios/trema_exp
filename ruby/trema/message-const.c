@@ -192,6 +192,125 @@ experimenter_mp( VALUE self ) {
 }
 
 
+static VALUE
+at_output( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_OUTPUT );
+}
+  
+
+static VALUE
+at_copy_ttl_out( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_COPY_TTL_OUT );
+}
+
+
+static VALUE
+at_copy_ttl_in( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_COPY_TTL_IN );
+}
+
+
+static VALUE
+at_set_mpls_ttl( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_SET_MPLS_TTL );
+}
+
+
+static VALUE
+at_dec_mpls_ttl( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_DEC_MPLS_TTL );
+}
+
+
+static VALUE
+at_push_vlan( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_PUSH_VLAN );
+}
+
+
+static VALUE
+at_pop_vlan( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_POP_VLAN );
+}
+
+
+static VALUE
+at_push_mpls( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_PUSH_MPLS );
+}
+
+
+static VALUE
+at_pop_mpls( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_POP_MPLS );
+}
+
+
+static VALUE
+at_set_queue( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_SET_QUEUE );
+}
+
+
+static VALUE
+at_group( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_GROUP );
+}
+
+
+static VALUE
+at_set_nw_ttl( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_SET_NW_TTL );
+}
+
+
+static VALUE
+at_dec_nw_ttl( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_DEC_NW_TTL );
+}
+
+
+static VALUE
+at_set_field( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_SET_FIELD );
+}
+
+
+static VALUE
+at_push_pbb( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_PUSH_PBB );
+}
+
+
+static VALUE
+at_pop_pbb( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_POP_PBB );
+}
+
+
+static VALUE
+at_experimenter( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPAT_EXPERIMENTER );
+}
+
+
 void
 Init_message_const( void ) {
   mMessageConst = rb_define_module_under( mTrema, "MessageConst" );
@@ -237,6 +356,26 @@ Init_message_const( void ) {
   rb_define_module_function( mMessageConst, "experimenter_error", experimenter_error, 0 );
 
   rb_define_module_function( mMessageConst, "experimenter_mp", experimenter_mp, 0 );
+
+  // action_types
+  rb_define_module_function( mMessageConst, "at_output", at_output, 0 );
+  rb_define_module_function( mMessageConst, "at_copy_ttl_out", at_copy_ttl_out, 0 );
+  rb_define_module_function( mMessageConst, "at_copy_ttl_in", at_copy_ttl_in, 0 );
+  rb_define_module_function( mMessageConst, "at_set_mpls_ttl", at_set_mpls_ttl, 0 );
+  rb_define_module_function( mMessageConst, "at_dec_mpls_ttl", at_dec_mpls_ttl, 0 );
+  rb_define_module_function( mMessageConst, "at_push_vlan", at_push_vlan, 0 );
+  rb_define_module_function( mMessageConst, "at_pop_vlan", at_pop_vlan, 0 );
+  rb_define_module_function( mMessageConst, "at_push_mpls", at_push_mpls, 0 );
+  rb_define_module_function( mMessageConst, "at_pop_mpls", at_pop_mpls, 0 );
+  rb_define_module_function( mMessageConst, "at_set_queue", at_set_queue, 0 );
+  rb_define_module_function( mMessageConst, "at_group", at_group, 0 );
+  rb_define_module_function( mMessageConst, "at_set_nw_ttl", at_set_nw_ttl, 0 );
+  rb_define_module_function( mMessageConst, "at_dec_nw_ttl", at_dec_nw_ttl, 0 );
+  rb_define_module_function( mMessageConst, "at_set_field", at_set_field, 0 );
+  rb_define_module_function( mMessageConst, "at_push_pbb", at_push_pbb, 0 );
+  rb_define_module_function( mMessageConst, "at_pop_pbb", at_pop_pbb, 0 );
+  rb_define_module_function( mMessageConst, "at_experimenter", at_experimenter, 0 );
+                        
 
   rb_require( "trema/message-const" );
 }
