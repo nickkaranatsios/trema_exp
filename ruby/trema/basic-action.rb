@@ -17,11 +17,13 @@
 
 
 require "trema/accessor"
+require "trema/mapping"
 
 
 module Trema
   class BasicAction < Accessor
     include Actions
+    include Mapping
     #
     # appends its action into a list of actions
     #

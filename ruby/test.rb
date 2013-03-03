@@ -1,47 +1,50 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
-module ClassMethods
-  def store( subclass, id )
-    ClassMethods._instances[ id ] = subclass
+module Mapping
+  def self.included mod
+    mod.extend ClassMethods
   end
 
-  def retrieve
-    ClassMethods._instances
-  end
 
-  def self._instances
-    @_instances ||= Hash.new{ |h,k| h[k] = [] }
+  module ClassMethods
+    def store id, klass 
+      ClassMethods.associates[ id ] = klass
+    end
+
+    def retrieve type
+      ClassMethods.associates[ type ]
+    end
+
+    def self.associates
+      @_associates ||= Hash.new{ |h,k| h[k] = [] }
+    end
   end
 end
 
 
-class Base
-  extend ClassMethods
+class BasicAction
+  include Mapping
+
   class << self
-     attr_accessor :test
     def action_type type
-      self.test ||= {}
-      self.test[ type ] = self
-      store( self, type )
-puts self.test.inspect
+      store type, self
     end
 
-    def search
-      puts test.inspect
-#      retrieve
+    def search type
+      retrieve type
     end
   end
 end
 
-class SendOutPort < Base
+class SendOutPort < BasicAction
   action_type 1
 end
 
-class EthSrc < Base
+class EthSrc < BasicAction
   action_type 2
 end
 
-puts Base.search
+puts BasicAction.search 1
 exit
 
 class Fixnum
