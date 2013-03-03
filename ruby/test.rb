@@ -1,34 +1,34 @@
 $LOAD_PATH.unshift File.expand_path( File.join( File.dirname( __FILE__ ), "." ) )
 
-module Storage
+module ClassMethods
   def store( subclass, id )
-    _instances[ id ] = subclass
+    ClassMethods._instances[ id ] = subclass
   end
 
-  def retrieve id
-    _instances[ id ]
+  def retrieve
+    ClassMethods._instances
   end
 
-  private
-  def _instances
+  def self._instances
     @_instances ||= Hash.new{ |h,k| h[k] = [] }
   end
 end
 
 
 class Base
+  extend ClassMethods
   class << self
-    def action_types
-      @action_types ||= Hash.new{ | h, k | h[ k ] = [] }
-    end
-
-    def find action_type
-      puts self.action_types.inspect
-      self.action_types[ action_type ]
-    end
-
+     attr_accessor :test
     def action_type type
-      self.action_types[ type ] = self; 
+      self.test ||= {}
+      self.test[ type ] = self
+      store( self, type )
+puts self.test.inspect
+    end
+
+    def search
+      puts test.inspect
+#      retrieve
     end
   end
 end
@@ -37,10 +37,12 @@ class SendOutPort < Base
   action_type 1
 end
 
-x =  Base.find 1
-x.inspect
-exit
+class EthSrc < Base
+  action_type 2
+end
 
+puts Base.search
+exit
 
 class Fixnum
   def unsigned_16bit?
