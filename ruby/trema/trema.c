@@ -39,9 +39,9 @@ Init_trema( void ) {
 
   Init_controller();
   Init_logger();
+  Init_message_const();
   Init_actions();
   Init_instructions();
-  Init_message_const();
   Init_messages();
   Init_message_handler();
   Init_message_helper();

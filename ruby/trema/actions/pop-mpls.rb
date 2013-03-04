@@ -32,7 +32,10 @@ module Trema
     end
   end
 end
-  
+
+
+PopMpls = Trema::Actions::PopMpls
+
 
 ### Local variables:
 ### mode: Ruby

@@ -27,6 +27,9 @@ module Trema
 end
 
 
+Ipv6DstAddr = Trema::Actions::Ipv6DstAddr
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

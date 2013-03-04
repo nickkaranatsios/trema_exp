@@ -152,7 +152,13 @@ unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, 
     if ( !ins->len ) {
       break;
     }
-    rb_ary_push( r_instruction_ids, UINT2NUM( ins->type ) );
+
+    VALUE r_type = UINT2NUM( ins->type );
+    VALUE r_klass = rb_funcall( rb_eval_string( "Instruction" ), rb_intern( "search" ), 1, r_type );
+    if ( !NIL_P( r_klass ) ) {
+      r_type = r_klass;
+    }
+    rb_ary_push( r_instruction_ids, r_type );
     offset = ( uint16_t ) ( offset + ins->len ); 
   }
 
@@ -169,7 +175,13 @@ unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uin
   VALUE r_action_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_action_header ) ) {
     const struct ofp_action_header *act = ( const struct ofp_action_header * )( ( const char * ) act_hdr + offset );
-    rb_ary_push( r_action_ids, UINT2NUM( act->type ) );
+
+    VALUE r_type = UINT2NUM( act->type );
+    VALUE r_klass = rb_funcall( rb_eval_string( "BasicAction" ), rb_intern( "search" ), 1, r_type );
+    if  ( !NIL_P( r_klass ) ) {
+      r_type = r_klass;
+    }
+    rb_ary_push( r_action_ids, r_type );
     offset = ( uint16_t ) ( offset + act->len );
   }
 
@@ -184,7 +196,12 @@ unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
 
   VALUE r_oxm_ids = rb_ary_new();
   for ( uint16_t i = 0; i < nr_oxms; i++ ) {
-    rb_ary_push( r_oxm_ids, UINT2NUM( oxm_hdr[ i ] ) );
+    VALUE r_field = UINT2NUM( OXM_FIELD( oxm_hdr[ i ] ) );
+    VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 1, r_field );
+    if ( !NIL_P( r_klass ) ) {
+      r_field = r_klass;
+    }
+    rb_ary_push( r_oxm_ids, r_field );
   }
 
   return r_oxm_ids;

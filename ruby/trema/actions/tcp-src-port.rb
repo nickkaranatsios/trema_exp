@@ -30,6 +30,9 @@ module Trema
 end
 
 
+TcpSrcPort = Trema::Actions::TcpSrcPort
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

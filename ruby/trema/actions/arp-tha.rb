@@ -31,6 +31,9 @@ module Trema
 end
 
 
+ArpTha = Trema::Actions::ArpTha
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

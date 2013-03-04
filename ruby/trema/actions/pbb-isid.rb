@@ -29,6 +29,9 @@ module Trema
 end
 
 
+PbbIsid  = Trema::Actions::PbbIsid
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -30,6 +30,9 @@ module Trema
 end
 
 
+EthDst = Trema::Actions::EthDst
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

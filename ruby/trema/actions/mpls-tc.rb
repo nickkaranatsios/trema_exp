@@ -37,6 +37,9 @@ module Trema
 end
 
 
+MplsTc = Trema::Actions::MplsTc
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -311,6 +311,13 @@ at_experimenter( VALUE self ) {
 }
 
 
+static VALUE
+it_experimenter( VALUE self ) {
+  UNUSED( self );
+  return UINT2NUM( OFPIT_EXPERIMENTER );
+}
+
+
 void
 Init_message_const( void ) {
   mMessageConst = rb_define_module_under( mTrema, "MessageConst" );
@@ -376,6 +383,8 @@ Init_message_const( void ) {
   rb_define_module_function( mMessageConst, "at_pop_pbb", at_pop_pbb, 0 );
   rb_define_module_function( mMessageConst, "at_experimenter", at_experimenter, 0 );
                         
+  // experimenter instruction type
+  rb_define_module_function( mMessageConst, "it_experimenter", it_experimenter, 0 );
 
   rb_require( "trema/message-const" );
 }

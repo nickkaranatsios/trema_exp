@@ -41,6 +41,9 @@ module Trema
 end
 
 
+SetQueue = Trema::Actions::SetQueue
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

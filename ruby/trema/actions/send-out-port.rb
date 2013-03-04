@@ -44,9 +44,9 @@ module Trema
     #
     class SendOutPort < BasicAction
       DEFAULT_MAX_LEN = 2 ** 16 - 1
-      action_type ::OFPAT_OUTPUT
   
   
+      ofp_type OFPAT_OUTPUT
       unsigned_int32 :port_number, :presence => true
       unsigned_int16 :max_len
       alias :port :port_number

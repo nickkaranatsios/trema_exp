@@ -30,6 +30,9 @@ module Trema
 end
 
 
+EthSrc = Trema::Actions::EthSrc
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -28,6 +28,9 @@ module Trema
 end
 
 
+TunnelId = Trema::Actions::TunnelId
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

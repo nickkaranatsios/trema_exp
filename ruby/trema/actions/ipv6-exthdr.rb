@@ -29,6 +29,9 @@ module Trema
 end
 
 
+Ipv6Exthdr = Trema::Actions::Ipv6Exthdr
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

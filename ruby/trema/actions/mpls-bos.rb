@@ -36,6 +36,9 @@ module Trema
 end
 
 
+MplsBos = Trema::Actions::MplsBos
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

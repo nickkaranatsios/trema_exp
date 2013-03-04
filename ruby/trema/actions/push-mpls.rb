@@ -34,6 +34,9 @@ module Trema
 end
 
 
+PushMpls = Trema::Actions::PushMpls
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

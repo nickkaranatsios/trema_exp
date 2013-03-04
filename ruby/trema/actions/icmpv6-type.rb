@@ -29,6 +29,9 @@ module Trema
 end
 
 
+Icmpv6Type = Trema::Actions::Icmpv6Type
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

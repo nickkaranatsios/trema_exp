@@ -30,6 +30,9 @@ module Trema
 end
 
 
+MplsLabel = Trema::Actions::MplsLabel
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

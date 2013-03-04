@@ -28,6 +28,9 @@ module Trema
 end
 
 
+Ipv6FlowLabel = Trema::Actions::Ipv6FlowLabel
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

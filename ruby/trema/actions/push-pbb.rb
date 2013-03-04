@@ -39,6 +39,9 @@ module Trema
 end
 
 
+PushPbb = Trema::Actions::PushPbb
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

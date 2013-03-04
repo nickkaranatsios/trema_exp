@@ -28,6 +28,9 @@ module Trema
 end
 
 
+Metadata = Trema::Actions::Metadata
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

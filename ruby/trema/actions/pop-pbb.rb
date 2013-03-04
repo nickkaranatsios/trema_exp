@@ -27,6 +27,9 @@ module Trema
 end
 
 
+PopPbb = Trema::Actions::PopPbb
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

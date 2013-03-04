@@ -19,15 +19,16 @@
 module Trema
   module Actions
     #
-    # A match field to match an IPv4 source address
+    # An action that decrements the IPv4 ttl field
     #
-    class Ipv4SrcAddr < ActionIpAddr
+    class DecIpTtl < BasicAction
+      ofp_type OFPAT_DEC_NW_TTL
     end
   end
 end
 
 
-Ipv4SrcAddr = Trema::Actions::Ipv4SrcAddr
+DecIpTtl = Trema::Actions::DecIpTtl
 
 
 ### Local variables:

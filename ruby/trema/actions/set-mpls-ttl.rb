@@ -39,6 +39,9 @@ module Trema
 end
 
 
+SetMplsTtl = Trema::Actions::SetMplsTtl
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

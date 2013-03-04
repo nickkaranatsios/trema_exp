@@ -28,6 +28,9 @@ module Trema
 end
 
 
+DecMplsTtl = Trema::Actions::DecMplsTtl
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -28,6 +28,9 @@ module Trema
 end
 
 
+IpProto = Trema::Actions::IpProto
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

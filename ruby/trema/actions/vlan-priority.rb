@@ -28,6 +28,9 @@ module Trema
 end
 
 
+VlanPriority = Trema::Actions::VlanPriority
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

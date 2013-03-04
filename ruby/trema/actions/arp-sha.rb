@@ -28,6 +28,9 @@ module Trema
 end
 
 
+ArpSha = Trema::Actions::ArpSha
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

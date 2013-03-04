@@ -30,6 +30,9 @@ module Trema
 end
 
 
+UdpDstPort = Trema::Actions::UdpDstPort
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

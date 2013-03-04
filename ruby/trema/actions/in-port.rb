@@ -28,6 +28,9 @@ module Trema
 end
 
 
+InPort = Trema::Actions::InPort
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

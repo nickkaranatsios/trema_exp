@@ -28,6 +28,9 @@ module Trema
 end
 
 
+ArpTpa = Trema::Actions::ArpTpa
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

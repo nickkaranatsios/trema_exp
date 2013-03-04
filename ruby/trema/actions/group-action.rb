@@ -38,10 +38,14 @@ module Trema
       # @raise [ArgumentError] if group_id is not specified.
       # @raise [ArgumentError] if group_id is not an unsigned 32-bit integer.
       #
+      ofp_type OFPAT_GROUP
       unsigned_int32 :group_id, presence: true
     end
   end
 end
+
+
+GroupAction = Trema::Actions::GroupAction
 
 
 ### Local variables:

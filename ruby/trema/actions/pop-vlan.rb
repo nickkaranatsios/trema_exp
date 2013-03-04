@@ -27,6 +27,9 @@ module Trema
 end
 
 
+PopVlan = Trema::Actions::PopVlan
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

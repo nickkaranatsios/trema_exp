@@ -30,6 +30,9 @@ module Trema
 end
 
 
+Ipv6NdSll = Trema::Actions::Ipv6NdSll
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

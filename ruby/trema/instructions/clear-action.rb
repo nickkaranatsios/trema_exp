@@ -19,6 +19,7 @@
 module Trema
   module Instructions
     class ClearAction < Instruction
+      ofp_type OFPIT_CLEAR_ACTIONS
     end
   end
 end

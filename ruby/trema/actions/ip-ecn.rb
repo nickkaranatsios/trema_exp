@@ -28,6 +28,9 @@ module Trema
 end
 
 
+IpEcn = Trema::Actions::IpEcn
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

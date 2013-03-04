@@ -23,6 +23,7 @@ module Trema
     # IPv4 packets.
     #
     class SetIpTtl < BasicAction
+      ofp_type OFPAT_SET_NW_TTL
       #
       # An action that replaces an existing IP TTL value. The packet checksum
       # must be re-calculated.
@@ -40,6 +41,9 @@ module Trema
     end
   end
 end
+
+
+SetIpTtl = Trema::Actions::SetIpTtl
 
 
 ### Local variables:

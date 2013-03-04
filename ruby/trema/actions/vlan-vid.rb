@@ -28,6 +28,9 @@ module Trema
 end
 
 
+VlanVid = Trema::Actions::VlanVid
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

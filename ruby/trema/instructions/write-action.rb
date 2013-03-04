@@ -19,6 +19,7 @@
 module Trema
   module Instructions
     class WriteAction < InstructionAction
+      ofp_type OFPIT_WRITE_ACTIONS
     end
   end
 end

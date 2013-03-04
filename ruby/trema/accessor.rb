@@ -16,6 +16,7 @@
 #
 
 
+require "trema/mapping"
 
 
 module Trema
@@ -23,6 +24,8 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
+    # mixin mapping of ofp type to implemententation class.
+    include Mapping
     USER_DEFINED_TYPES = %w( ip_addr mac match packet_info array string bool )
 
 
@@ -34,7 +37,18 @@ module Trema
       end
 
 
+      def ofp_type type
+        store type, self
+      end
+
+
+      def search type
+        retrieve type
+      end
+
+
       def inherited klass
+        map_to_ofp_type klass
         primitive_sizes.each do | each |
           define_accessor_meth :"unsigned_int#{ each }"
           define_method :"check_unsigned_int#{ each }" do | number, name |

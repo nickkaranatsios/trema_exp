@@ -49,6 +49,9 @@ module Trema
 end
 
 
+PushVlan = Trema::Actions::PushVlan
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

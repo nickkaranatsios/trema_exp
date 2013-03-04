@@ -32,6 +32,9 @@ module Trema
 end
 
 
+CopyTtlOut = Trema::Actions::CopyTtlOut
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

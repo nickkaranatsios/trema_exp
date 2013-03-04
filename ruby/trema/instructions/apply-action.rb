@@ -19,6 +19,7 @@
 module Trema
   module Instructions
     class ApplyAction < InstructionAction
+      ofp_type OFPIT_APPLY_ACTIONS
     end
   end
 end

@@ -37,6 +37,9 @@ module Trema
 end
 
 
+IpDscp = Trema::Actions::IpDscp
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

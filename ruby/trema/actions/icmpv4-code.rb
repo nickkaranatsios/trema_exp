@@ -30,6 +30,9 @@ module Trema
 end
 
 
+Icmpv4Code = Trema::Actions::Icmpv4Code
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

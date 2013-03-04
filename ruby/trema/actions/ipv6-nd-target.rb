@@ -27,6 +27,9 @@ module Trema
 end
 
 
+Ipv6NdTarget = Trema::Actions::Ipv6NdTarget
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

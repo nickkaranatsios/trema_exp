@@ -28,6 +28,9 @@ module Trema
 end
 
 
+EtherType = Trema::Actions::EtherType
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

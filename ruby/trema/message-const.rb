@@ -129,8 +129,61 @@ module Trema
                 ofpat_dec_nw_ttl: at_dec_nw_ttl,
                 ofpat_set_field: at_set_field,
                 ofpat_push_pbb: at_push_pbb,
-                ofpat_pob_pbb: at_pop_pbb,
+                ofpat_pop_pbb: at_pop_pbb,
                 ofpat_experimenter: at_experimenter )
+
+    instruction_type = %w( ofpit_goto_table
+                           ofpit_write_metadata
+                           ofpit_write_actions
+                           ofpit_apply_actions
+                           ofpit_clear_actions
+                           ofpit_meter )
+                           
+    enum_step 1, instruction_type
+    enum_hash ofpit_experimenter: it_experimenter
+
+    oxm_match_fields = %w( ofpxmt_ofb_in_port
+                           ofpxmt_ofb_in_phy_port
+                           ofpxmt_ofb_metadata
+                           ofpxmt_ofb_eth_dst
+                           ofpxmt_ofb_eth_src
+                           ofpxmt_ofp_eth_type
+                           ofpxmt_ofp_vlan_vid
+                           ofpxmt_ofp_vlan_pcp
+                           ofpxmt_ofp_ip_dscp
+                           ofpxmt_ofp_ip_ecn
+                           ofpxmt_ofp_ip_proto
+                           ofpxmt_ofp_ipv4_src
+                           ofpxmt_ofp_ipv4_dst
+                           ofpxmt_ofp_tcp_src
+                           ofpxmt_ofp_tcp_dst
+                           ofpxmt_ofp_udp_src
+                           ofpxmt_ofp_udp_dst
+                           ofpxmt_ofp_sctp_src
+                           ofpxmt_ofp_sctp_dst
+                           ofpxmt_ofp_icmpv4_type
+                           ofpxmt_ofp_icmpv4_code
+                           ofpxmt_ofp_arp_op
+                           ofpxmt_ofp_arp_spa
+                           ofpxmt_ofp_arp_tpa
+                           ofpxmt_ofp_arp_sha
+                           ofpxmt_ofp_arp_tha
+                           ofpxmt_ofp_ipv6_src
+                           ofpxmt_ofp_ipv6_dst
+                           ofpxmt_ofp_ipv6_flabel
+                           ofpxmt_ofp_icmpv6_type
+                           ofpxmt_ofp_icmpv6_code
+                           ofpxmt_ofp_ipv6_nd_target
+                           ofpxmt_ofp_ipv6_nd_sll
+                           ofpxmt_ofp_ipv6_nd_tll
+                           ofpxmt_ofp_mpls_label
+                           ofpxmt_ofp_mpls_tc
+                           ofpxmt_ofp_mpls_bos
+                           ofpxmt_ofp_pbb_isid
+                           ofpxmt_ofp_tunnel_id
+                           ofpxmt_ofp_ipv6_exthdr )
+                           
+    enum_step oxm_match_fields
   end
 end
 
