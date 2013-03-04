@@ -21,7 +21,15 @@ require "trema/accessor"
 
 module Trema
   class BasicAction < Accessor
-    include Actions
+   include Actions
+
+
+    def self.ofp_type type
+      namespace = "OFPAT_"
+      store "#{ namespace }#{ type }", self
+    end
+
+
     #
     # appends its action into a list of actions
     #

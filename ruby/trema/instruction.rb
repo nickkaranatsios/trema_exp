@@ -24,6 +24,12 @@ module Trema
     include Instructions
 
 
+    def self.ofp_type type
+      namespace = "OFPIT_"
+      store "#{ namespace }#{ type }", self
+    end
+
+
     #
     # packs its instruction into a list of instructions
     #

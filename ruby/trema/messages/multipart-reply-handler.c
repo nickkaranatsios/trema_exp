@@ -154,7 +154,7 @@ unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, 
     }
 
     VALUE r_type = UINT2NUM( ins->type );
-    VALUE r_klass = rb_funcall( rb_eval_string( "Instruction" ), rb_intern( "search" ), 1, r_type );
+    VALUE r_klass = rb_funcall( rb_eval_string( "Instruction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPIT" ), r_type );
     if ( !NIL_P( r_klass ) ) {
       r_type = r_klass;
     }
@@ -177,7 +177,7 @@ unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uin
     const struct ofp_action_header *act = ( const struct ofp_action_header * )( ( const char * ) act_hdr + offset );
 
     VALUE r_type = UINT2NUM( act->type );
-    VALUE r_klass = rb_funcall( rb_eval_string( "BasicAction" ), rb_intern( "search" ), 1, r_type );
+    VALUE r_klass = rb_funcall( rb_eval_string( "BasicAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPAT" ), r_type );
     if  ( !NIL_P( r_klass ) ) {
       r_type = r_klass;
     }
@@ -197,7 +197,7 @@ unpack_table_features_prop_oxm( const uint32_t *oxm_hdr, uint16_t oxm_len ) {
   VALUE r_oxm_ids = rb_ary_new();
   for ( uint16_t i = 0; i < nr_oxms; i++ ) {
     VALUE r_field = UINT2NUM( OXM_FIELD( oxm_hdr[ i ] ) );
-    VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 1, r_field );
+    VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPXMT_OFP" ), r_field );
     if ( !NIL_P( r_klass ) ) {
       r_field = r_klass;
     }

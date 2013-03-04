@@ -37,18 +37,14 @@ module Trema
       end
 
 
-      def ofp_type type
-        store type, self
-      end
-
-
-      def search type
-        retrieve type
+      def search type, sub_key
+        key = "#{ type }_#{ sub_key }"
+        retrieve key
       end
 
 
       def inherited klass
-        map_to_ofp_type klass
+        map_ofp_type klass
         primitive_sizes.each do | each |
           define_accessor_meth :"unsigned_int#{ each }"
           define_method :"check_unsigned_int#{ each }" do | number, name |

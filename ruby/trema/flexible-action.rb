@@ -24,6 +24,12 @@ module Trema
     include Actions
 
 
+    def self.ofp_type type
+      namespace = "OFPXMT_OFP_" 
+      store "#{ namespace }#{ type }", self
+    end
+
+
     def pack_match oxm_match
       params = {}
       instance_variables.each do | each |

@@ -23,51 +23,35 @@ module Mapping
 
 
   module ClassMethods
-    def map_to_ofp_type klass
+    def map_ofp_type klass
       name = klass.name.demodulize.underscore
-      store_at klass, name
-      store_it klass, name
-      store_xmt klass, name
+puts "name = #{ name }"
+      %w( OFPAT OFPIT OFPXMT_OFP ).each do | prefix |
+        store_if_valid prefix, klass, name
+      end
     end
 
 
-    def store id, klass 
-      ClassMethods.associates[ id ] = klass
+    def store key, value 
+puts "key #{ key } #{ value }"
+      ClassMethods.associates[ key ] = value
     end
 
 
-    def retrieve type
-      ClassMethods.associates[ type ]
+    def retrieve key
+      ClassMethods.associates[ key ]
     end
 
 
     private
 
 
-    def store_at klass, name
+    def store_if_valid prefix, klass, name
       begin
-        type = eval( "OFPAT_#{ name.upcase }" )
-        store type, klass
+        type = eval( "#{ prefix }_#{ name.upcase }" )
+        store "#{ prefix }_#{ type }", klass
       rescue NameError
       end     
-   end
-
-
-   def store_it klass, name
-     begin
-        type = eval( "OFPIT_#{ name.upcase }" )
-        store type, klass
-      rescue NameError
-      end     
-   end
-
-
-   def store_xmt klass, name
-     begin
-       type = eval( "OFPXMT_OFB_#{ name.upcase }" )
-       store type, klass
-     rescue NameError
-     end
    end
 
 
