@@ -59,11 +59,12 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
     apply_ins = ApplyAction.new( actions:  [ action ] ) 
     goto_table_ins = GotoTable.new( table_id: 1 )
+    # to match ping packets use eth_type: 2054 to match lldp packets use 0x88cc
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
                        cookie: 1001,
-                       match: Match.new( in_port: 1, eth_type: 2054 ),
+                       match: Match.new( in_port: 1, eth_type: 0x88cc ),
                        instructions: [ apply_ins ] )
 #    send_flow_mod_add( datapath_id,
 #                       cookie: 1001,

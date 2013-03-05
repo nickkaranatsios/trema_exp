@@ -19,43 +19,38 @@
 #include "trema.h"
 #include "ruby.h"
 #include "bucket-helper.h"
+#include "hash-util.h"
 
 
 buffer *
 pack_group_mod( VALUE options ) {
-  VALUE sym_transaction_id = ID2SYM( rb_intern( "transaction_id" ) );
-
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = rb_hash_aref( options, sym_transaction_id );
-  if ( r_xid != Qnil ) {
+  VALUE r_xid = HASH_REF( options, transaction_id );
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
-  VALUE sym_group_type = ID2SYM( rb_intern( "type" ) );
   uint8_t group_type = OFPGT_ALL;
-  VALUE r_group_type = rb_hash_aref( options, sym_group_type );
-  if ( r_group_type != Qnil ) {
+  VALUE r_group_type = HASH_REF( options, group_type );
+  if ( !NIL_P( r_group_type ) ) {
     group_type = ( uint8_t ) NUM2UINT( r_group_type );
   }
 
-  VALUE sym_group_id = ID2SYM( rb_intern( "group_id" ) );
   uint32_t group_id = 0;
-  VALUE r_group_id = rb_hash_aref( options, sym_group_id );
-  if ( r_group_id != Qnil ) {
+  VALUE r_group_id = HASH_REF( options, group_id );
+  if ( !NIL_P( r_group_id ) ) {
     group_id = ( uint32_t ) NUM2UINT( r_group_id );
   }
 
-  VALUE sym_command = ID2SYM( rb_intern( "command" ) );
   uint16_t command = OFPGC_ADD;
-  VALUE r_command = rb_hash_aref( options, sym_command );
-  if ( r_command != Qnil ) {
+  VALUE r_command = HASH_REF( options, command );
+  if ( !NIL_P( r_command ) ) {
     command = ( uint16_t ) NUM2UINT( r_command );
   }
 
-  VALUE sym_buckets = ID2SYM( rb_intern( "buckets" ) );
   openflow_buckets *buckets = NULL;
-  VALUE r_bucket = rb_hash_aref( options, sym_buckets );
-  if ( r_bucket != Qnil ) {
+  VALUE r_bucket = HASH_REF( options, buckets );
+  if ( !NIL_P( r_bucket ) ) {
     buckets = pack_buckets( r_bucket );
   }
   buffer *group_mod = create_group_mod( xid, command, group_type,
