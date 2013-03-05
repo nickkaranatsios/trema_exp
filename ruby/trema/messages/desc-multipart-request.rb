@@ -18,7 +18,7 @@
 
 module Trema
   module Messages
-    class DescMultipartRequest < MultipartBase
+    class DescMultipartRequest < MultipartRequest
     end
   end
 end

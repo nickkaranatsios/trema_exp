@@ -22,6 +22,7 @@ module Trema
     # A field to match a 20-bit IPv6 flow label
     #
     class Ipv6FlowLabel < FlexibleAction
+      ofp_type OFPXMT_OFB_IPV6_FLABEL
       unsigned_int32 :ipv6_flow_label, :presence => true
     end
   end

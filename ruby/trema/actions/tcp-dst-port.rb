@@ -25,6 +25,7 @@ module Trema
     # A match field to match a TCP destination port
     #
     class TcpDstPort < TransportPort
+      ofp_type OFPXMT_OFB_TCP_DST
     end
   end
 end

@@ -19,7 +19,7 @@
 
 module Trema
   module Messages
-    class AggregateMultipartRequest < MultipartBase
+    class AggregateMultipartRequest < MultipartRequest
       unsigned_int8 :table_id 
       unsigned_int32 :out_group, :out_port
       unsigned_int64 :cookie, :cookie_mask

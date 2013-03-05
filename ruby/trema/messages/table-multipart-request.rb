@@ -19,7 +19,7 @@
 
 module Trema
   module Messages
-    class TableMultipartRequest < MultipartBase
+    class TableMultipartRequest < MultipartRequest
     end
   end
 end

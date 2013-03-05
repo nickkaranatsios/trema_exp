@@ -25,6 +25,7 @@ module Trema
     # A match field to match a SCTP source port
     #
     class SctpSrcPort < TransportPort
+      ofp_type OFPXMT_OFB_SCTP_SRC
     end
   end
 end

@@ -22,6 +22,7 @@ module Trema
     # A field to match an ethernet type
     #
     class EtherType < FlexibleAction
+      ofp_type OFPXMT_OFB_ETH_TYPE
       unsigned_int16 :ether_type, presence: true
     end
   end

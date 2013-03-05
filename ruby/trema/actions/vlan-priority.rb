@@ -22,6 +22,7 @@ module Trema
     # A match field to match a VLAN priority
     #
     class VlanPriority < FlexibleAction
+      ofp_type OFPXMT_OFB_VLAN_PCP
       unsigned_int8 :vlan_priority, :presence => true
     end
   end

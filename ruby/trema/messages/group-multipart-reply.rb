@@ -18,13 +18,12 @@
 
 module Trema
   module Messages
-    class TableFeaturesMultipartReply < MultipartReply
-      unsigned_int32 :length
-      unsigned_int8 :table_id
-      string :name
-      unsigned_int64 :metadata_match, :metadata_write
-      unsigned_int32 :config, :max_entries
-      array :properties
+    class GroupMultipartReply < MultipartReply
+      unsigned_int16 :length, presence: true
+      unsigned_int32 :group_id, :ref_count, presence: true
+      unsigned_int64 :packet_count, :byte_count, presence: true
+      unsigned_int32 :duration_sec, :duration_nsec, presence: true
+      array :bucket_stats
     end
   end
 end

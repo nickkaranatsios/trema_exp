@@ -25,6 +25,7 @@ module Trema
     # A match field to match a TCP source port
     #
     class TcpSrcPort < TransportPort
+      ofp_type OFPXMT_OFB_TCP_SRC
     end
   end
 end

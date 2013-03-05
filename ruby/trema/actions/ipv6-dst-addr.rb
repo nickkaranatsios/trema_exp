@@ -22,6 +22,7 @@ module Trema
     # A match field to match a 128-bit IPv6 destination address
     #
     class Ipv6DstAddr < ActionIpAddr
+      ofp_type OFPXMT_OFB_IPV6_DST
     end
   end
 end

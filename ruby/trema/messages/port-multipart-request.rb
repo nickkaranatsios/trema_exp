@@ -18,7 +18,7 @@
 
 module Trema
   module Messages
-    class PortMultipartRequest < MultipartBase
+    class PortMultipartRequest < MultipartRequest
       unsigned_int32 :port_no
     end
   end

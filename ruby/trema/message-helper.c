@@ -20,6 +20,7 @@
 #include "ruby.h"
 #include "action-common.h"
 #include "conversion-util.h"
+#include "message-helper.h"
 
 
 extern VALUE mTrema;
@@ -44,7 +45,7 @@ static VALUE
 send_controller_message( VALUE self, VALUE datapath_id, VALUE message ) {
   VALUE id_pack_msg = rb_intern( "pack_msg" );
 
-  if ( message != Qnil ) {
+  if ( !NIL_P( message ) ) {
     switch ( TYPE( message ) ) {
       case T_ARRAY: {
           VALUE *each = RARRAY_PTR( message );
@@ -76,7 +77,7 @@ send_flow_mod( int argc, VALUE *argv, VALUE self ) {
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
-  if ( options != Qnil ) {
+  if ( !NIL_P( options ) ) {
     VALUE flow_mod = rb_funcall( rb_eval_string( "Messages::FlowMod" ), rb_intern( "new" ), 1, options );
 
     // the two lines below are for temporary debug
@@ -100,30 +101,15 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
   buffer *data = NULL;
   openflow_actions *actions = NULL;
   uint32_t in_port = OFPP_ANY;
-#ifdef REMOVE
-  buffer *allocated_data = NULL;
-  VALUE opt_zero_padding = Qnil;
-#endif
-
-  if ( options != Qnil ) {
+  if ( !NIL_P( options ) ) {
 
     VALUE opt_action = rb_hash_aref( options, ID2SYM( rb_intern( "actions" ) ) );
-    if ( opt_action != Qnil ) {
+    if ( !NIL_P( opt_action ) ) {
       actions = pack_basic_action( opt_action );
     }
 
     VALUE opt_message = rb_hash_aref( options, ID2SYM( rb_intern( "packet_in" ) ) );
-#ifdef REMOVE
-    // TODO this is not necessary. 
-    opt_zero_padding = rb_hash_aref( options, ID2SYM( rb_intern( "zero_padding" ) ) );
-    if ( opt_zero_padding != Qnil ) {
-      if ( TYPE( opt_zero_padding ) != T_TRUE && TYPE( opt_zero_padding ) != T_FALSE ) {
-        rb_raise( rb_eTypeError, ":zero_padding must be true or false" );
-      }
-    }
-#endif
-
-    if ( opt_message != Qnil ) {
+    if ( !NIL_P( opt_message ) ) {
 
       if ( datapath_id == rb_iv_get( opt_message, "@datapath_id" ) ) {
         buffer_id = NUM2UINT( rb_iv_get( opt_message, "@buffer_id" ) );
@@ -136,19 +122,8 @@ send_packet_out( int argc, VALUE *argv, VALUE self ) {
     }
 
 
-#ifdef REMOVE
-    if ( data != NULL && data->length + ETH_FCS_LENGTH < ETH_MINIMUM_LENGTH &&
-      opt_zero_padding != Qnil && TYPE( opt_zero_padding ) == T_TRUE ) {
-      if ( allocated_data == NULL ) {
-        allocated_data = duplicate_buffer( data );
-        data = allocated_data;
-      }
-      fill_ether_padding( allocated_data );
-    }
-#endif
-
     buffer *packet_out;
-    if ( buffer_id == OFP_NO_BUFFER && opt_message != Qnil ) {
+    if ( buffer_id == OFP_NO_BUFFER && !NIL_P( opt_message ) ) {
       buffer *frame = duplicate_buffer( data );
       fill_ether_padding( frame );
 
@@ -186,7 +161,7 @@ send_group_mod( int argc, VALUE *argv, VALUE self ) {
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
 
-  if ( options != Qnil ) {
+  if ( !NIL_P( options ) ) {
     VALUE group_mod = rb_funcall( rb_eval_string( "Messages::GroupMod" ), rb_intern( "new" ), 1, options );
 
     // the two lines below are for temporary debug
@@ -204,15 +179,7 @@ send_flow_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
-
-  if ( options != Qnil ) {
-    VALUE flow_multipart_request = rb_funcall( rb_eval_string( "Messages::FlowMultipartRequest" ), rb_intern( "new" ), 1, options );
-    
-    VALUE str = rb_inspect( flow_multipart_request );
-    printf( "flow_multipart_request %s\n", StringValuePtr( str ) );
-    send_controller_message( self, datapath_id, flow_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( flow, "Messages::FlowMultipartRequest", self, datapath_id, options );
 }
 
 
@@ -221,19 +188,7 @@ send_desc_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );  
-  VALUE desc_multipart_request = Qnil;
-  if ( options != Qnil ) {
-    desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 1, options );
-    VALUE str = rb_inspect( desc_multipart_request );
-    printf( "desc_multipart_request %s\n", StringValuePtr( str ) );
-  }
-  else {
-    desc_multipart_request = rb_funcall( rb_eval_string( "Messages::DescMultipartRequest" ), rb_intern( "new" ), 0 );
-  }
-  if ( desc_multipart_request != Qnil ) {
-    send_controller_message( self, datapath_id, desc_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( desc, "Messages::DescMultipartRequest", self, datapath_id, options );
 }
 
 
@@ -242,13 +197,7 @@ send_aggregate_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
-  if ( options != Qnil ) {
-    VALUE aggregate_multipart_request = rb_funcall( rb_eval_string( "Messages::AggregateMultipartRequest" ), rb_intern( "new" ), 1, options );
-    VALUE str = rb_inspect( aggregate_multipart_request );
-    printf( "aggregate_multipart_request %s\n", StringValuePtr( str ) );
-    send_controller_message( self, datapath_id, aggregate_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( aggregate, "Messages::AggregateMultipartRequest", self, datapath_id, options );
 }
 
   
@@ -257,19 +206,7 @@ send_table_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );  
-  VALUE table_multipart_request = Qnil;
-  if ( options != Qnil ) {
-    table_multipart_request = rb_funcall( rb_eval_string( "Messages::TableMultipartRequest" ), rb_intern( "new" ), 1, options );
-    VALUE str = rb_inspect( table_multipart_request );
-    printf( "table_multipart_request %s\n", StringValuePtr( str ) );
-  }
-  else {
-    table_multipart_request = rb_funcall( rb_eval_string( "Messages::TableMultipartRequest" ), rb_intern( "new" ), 0 );
-  }
-  if ( table_multipart_request != Qnil ) {
-    send_controller_message( self, datapath_id, table_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( table, "Messages::TableMultipartRequest", self, datapath_id, options );
 }
 
 
@@ -278,20 +215,9 @@ send_port_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );
-  VALUE port_multipart_request = Qnil;
-  if ( options != Qnil ) {
-    port_multipart_request = rb_funcall( rb_eval_string( "Messages::PortMultipartRequest" ), rb_intern( "new" ), 1, options );
-    VALUE str = rb_inspect( port_multipart_request );
-    printf( "port_multipart_request %s\n", StringValuePtr( str ) );
-  }
-  else {
-    port_multipart_request = rb_funcall( rb_eval_string( "Messages::PortMultipartRequest" ), rb_intern( "new" ), 1, options );
-  }
-  if ( port_multipart_request != Qnil ) {
-    send_controller_message( self, datapath_id, port_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( port, "Messages::PortMultipartRequest", self, datapath_id, options );
 }
+
 
 
 static VALUE
@@ -299,19 +225,16 @@ send_table_features_multipart_request( int argc, VALUE *argv, VALUE self ) {
   VALUE datapath_id = Qnil;
   VALUE options = Qnil;
   rb_scan_args( argc, argv, "11", &datapath_id, &options );  
-  VALUE table_features_multipart_request = Qnil;
-  if ( options != Qnil ) {
-    table_features_multipart_request = rb_funcall( rb_eval_string( "Messages::TableFeaturesMultipartRequest" ), rb_intern( "new" ), 1, options );
-    VALUE str = rb_inspect( table_features_multipart_request );
-    printf( "table_features_multipart_request %s\n", StringValuePtr( str ) );
-  }
-  else {
-    table_features_multipart_request = rb_funcall( rb_eval_string( "Messages::TableFeaturesMultipartRequest" ), rb_intern( "new" ), 0 );
-  }
-  if ( table_features_multipart_request != Qnil ) {
-    send_controller_message( self, datapath_id, table_features_multipart_request );
-  }
-  return self;
+  SEND_MULTIPART_REQUEST( table_features, "Messages::TableFeaturesMultipartRequest", self, datapath_id, options );
+}
+
+
+static VALUE
+send_group_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );  
+  SEND_MULTIPART_REQUEST( group, "Messages::GroupMultipartRequest", self, datapath_id, options );
 }
 
 
@@ -329,6 +252,7 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_table_multipart_request", send_table_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_port_multipart_request", send_port_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_table_features_multipart_request", send_table_features_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_group_multipart_request", send_group_multipart_request, -1 );
 }
 
 

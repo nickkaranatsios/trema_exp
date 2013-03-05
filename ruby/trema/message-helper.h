@@ -23,6 +23,22 @@
 #include "ruby.h"
 
 
+#define SEND_MULTIPART_REQUEST( type, klass_name, self, datapath_id, options ) \
+  do {                                                               \
+    VALUE type##_multipart_request = Qnil;                           \
+    if ( !NIL_P( options ) ) {                                       \
+      type##_multipart_request = rb_funcall( rb_eval_string( klass_name ), rb_intern( "new" ), 1, options ); \
+    }                                                                \
+    else {                                                           \
+      type##_multipart_request = rb_funcall( rb_eval_string( klass_name ), rb_intern( "new" ), 0 ); \
+    }                                                                \
+    if ( !NIL_P( type##_multipart_request ) ) {                      \
+      send_controller_message( self, datapath_id, type##_multipart_request ); \
+    } \
+    return self;                                                     \
+  } while( 0 ) 
+
+
 void Init_message_helper( void );
 
 

@@ -18,7 +18,7 @@
 
 module Trema
   module Messages
-    class MultipartBase < Message
+    class MultipartReply < Message
       unsigned_int64 :datapath_id
       unsigned_int32 :transaction_id
       unsigned_int16 :type, :flags

@@ -22,7 +22,7 @@
 
 
 buffer *
-pack_port_multipart_request( VALUE options ) {
+pack_group_multipart_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
   VALUE r_xid = HASH_REF( options, transaction_id );
   if ( !NIL_P( r_xid ) ) {
@@ -34,14 +34,16 @@ pack_port_multipart_request( VALUE options ) {
   if ( !NIL_P( r_flags ) ) {
     flags = ( uint16_t ) NUM2UINT( r_flags );
   }
-
-  uint32_t port_no = OFPP_ANY;
-  VALUE r_port_no = HASH_REF( options, port_no );
-  if ( !NIL_P( r_port_no ) ) {
-    port_no = NUM2UINT( r_port_no );
+ 
+  uint32_t group_id = OFPG_ALL;
+  VALUE r_group_id = HASH_REF( options, group_id );
+  if ( !NIL_P( r_group_id ) ) {
+    group_id = NUM2UINT( r_group_id );
   }
-  buffer *port_multipart_request = create_port_multipart_request( xid, flags, port_no );
-  return port_multipart_request;
+  buffer *group_multipart_request = create_group_multipart_request( xid,
+                                                                    flags,
+                                                                    group_id );
+  return group_multipart_request; 
 }
 
 

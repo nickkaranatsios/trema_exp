@@ -18,13 +18,9 @@
 
 module Trema
   module Messages
-    class TableFeaturesMultipartReply < MultipartReply
-      unsigned_int32 :length
-      unsigned_int8 :table_id
-      string :name
-      unsigned_int64 :metadata_match, :metadata_write
-      unsigned_int32 :config, :max_entries
-      array :properties
+    class MultipartRequest < Message
+      unsigned_int32 :transaction_id
+      unsigned_int16 :flags
     end
   end
 end

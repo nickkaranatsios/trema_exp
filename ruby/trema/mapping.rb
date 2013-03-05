@@ -25,15 +25,13 @@ module Mapping
   module ClassMethods
     def map_ofp_type klass
       name = klass.name.demodulize.underscore
-puts "name = #{ name }"
-      %w( OFPAT OFPIT OFPXMT_OFP ).each do | prefix |
+      %w( OFPAT OFPIT OFPXMT_OFB ).each do | prefix |
         store_if_valid prefix, klass, name
       end
     end
 
 
     def store key, value 
-puts "key #{ key } #{ value }"
       ClassMethods.associates[ key ] = value
     end
 
@@ -56,7 +54,6 @@ puts "key #{ key } #{ value }"
 
 
    def self.associates
-#      @_associates ||= Hash.new{ |h,k| h[k] = [] }
       @_associates ||= Hash.new
     end
   end

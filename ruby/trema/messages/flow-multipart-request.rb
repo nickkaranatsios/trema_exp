@@ -18,8 +18,7 @@
 
 module Trema
   module Messages
-    class FlowMultipartRequest < Message
-      unsigned_int32 :transaction_id
+    class FlowMultipartRequest < MultipartRequest
       unsigned_int8 :table_id
       unsigned_int32 :out_group, :out_group
       unsigned_int64 :cookie, presence: true

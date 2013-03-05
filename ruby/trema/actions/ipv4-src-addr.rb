@@ -22,6 +22,7 @@ module Trema
     # A match field to match an IPv4 source address
     #
     class Ipv4SrcAddr < ActionIpAddr
+      ofp_type OFPXMT_OFB_IPV4_SRC
     end
   end
 end

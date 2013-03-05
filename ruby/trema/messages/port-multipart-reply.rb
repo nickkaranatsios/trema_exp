@@ -18,7 +18,7 @@
 
 module Trema
   module Messages
-    class PortMultipartReply < MultipartBase
+    class PortMultipartReply < MultipartReply
       unsigned_int32 :port_no
       unsigned_int64 :rx_packets, :tx_packets
       unsigned_int64 :rx_bytes, :tx_bytes

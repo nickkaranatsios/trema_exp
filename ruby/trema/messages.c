@@ -18,6 +18,7 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "hash-util.h"
 #include "messages/hello.h"
 #include "messages/echo-request.h"
 #include "messages/features-request.h"
@@ -30,7 +31,9 @@
 #include "messages/aggregate-multipart-request.h"
 #include "messages/table-multipart-request.h"
 #include "messages/port-multipart-request.h"
+#include "messages/port-desc-multipart-request.h"
 #include "messages/table-features-multipart-request.h"
+#include "messages/group-multipart-request.h"
 
 
 extern VALUE mTrema;
@@ -39,10 +42,17 @@ VALUE mMessages;
 
 static uint64_t
 datapath_id( VALUE options ) {
-  VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
-  VALUE dpid_ruby = rb_hash_aref( options, sym_datapath_id );
-  return NUM2ULL( dpid_ruby );
+  VALUE r_dpid = HASH_REF( options, datapath_id );
+  return NUM2ULL( r_dpid );
 }
+
+
+#define PACK_MSG( type, self, options )      \
+  do {                                       \
+    buffer *msg = pack_##type( options );    \
+    send_msg( datapath_id( options ), msg ); \
+    return self;                             \
+  } while( 0 )
 
 
 static void
@@ -54,108 +64,95 @@ send_msg( uint64_t datapath_id, buffer *msg ) {
 
 static VALUE
 pack_hello_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_hello( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( hello, self, options );
 }
 
 
 static VALUE
 pack_echo_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_echo_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( echo_request, self, options );
 }
 
 
 static VALUE
 pack_features_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_features_request( options );
-  send_msg( datapath_id( options ), msg );
+  PACK_MSG( features_request, self, options );
   return self;
 }
 
 
 static VALUE
 pack_get_config_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_get_config_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( get_config_request, self, options );
 }
 
 
 static VALUE
 pack_set_config_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_set_config( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( set_config, self, options );
 }
 
 
 static VALUE
 pack_flow_mod_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_flow_mod( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( flow_mod, self, options );
 }
 
 
 static VALUE
 pack_group_mod_msg( VALUE self, VALUE options ) {
-  buffer *msg= pack_group_mod( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( group_mod, self, options );
 }
 
 
 static VALUE
 pack_flow_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_flow_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( flow_multipart_request, self, options );
 }
 
 
 static VALUE
 pack_desc_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_desc_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( desc_multipart_request, self, options );
 }
 
 
 static VALUE
 pack_aggregate_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_aggregate_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( aggregate_multipart_request, self, options );
 }
 
 
 static VALUE
 pack_table_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_table_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( table_multipart_request, self, options );
 }
 
 
 static VALUE
 pack_port_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_port_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( port_multipart_request, self, options );
+}
+
+
+static VALUE
+pack_port_desc_multipart_request_msg( VALUE self, VALUE options ) {
+  PACK_MSG( port_desc_multipart_request, self, options );
 }
 
 
 static VALUE
 pack_table_features_multipart_request_msg( VALUE self, VALUE options ) {
-  buffer *msg = pack_table_features_multipart_request( options );
-  send_msg( datapath_id( options ), msg );
-  return self;
+  PACK_MSG( table_features_multipart_request, self, options );
 }
 
   
+static VALUE
+pack_group_multipart_request_msg( VALUE self, VALUE options ) {
+  PACK_MSG( group_multipart_request, self, options );
+}
+ 
+
 void
 Init_messages( void ) {
   mMessages = rb_define_module_under( mTrema, "Messages" );
@@ -171,7 +168,9 @@ Init_messages( void ) {
   rb_define_module_function( mMessages, "pack_aggregate_multipart_request_msg", pack_aggregate_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_table_multipart_request_msg", pack_table_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_port_multipart_request_msg", pack_port_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_port_desc_multipart_request_msg", pack_port_desc_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_table_features_multipart_request_msg", pack_table_features_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_group_multipart_request_msg", pack_group_multipart_request_msg, 1 );
 
   rb_require( "trema/messages" );
 }

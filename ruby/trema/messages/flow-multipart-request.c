@@ -19,43 +19,44 @@
 #include "trema.h"
 #include "ruby.h"
 #include "conversion-util.h"
+#include "hash-util.h"
 
 
 buffer *
 pack_flow_multipart_request( VALUE options ) {
-  VALUE sym_transaction_id = ID2SYM( rb_intern( "transaction_id" ) );
-
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = rb_hash_aref( options, sym_transaction_id );
-  if ( r_xid != Qnil ) {
+  VALUE r_xid = HASH_REF( options, transaction_id );
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
+  uint16_t flags = 0;
+  VALUE r_flags = HASH_REF( options, flags );
+  if ( !NIL_P( r_flags ) ) {
+    flags = ( uint16_t ) NUM2UINT( r_flags );
+  }
+  
   uint8_t table_id = OFPTT_ALL;
-  VALUE sym_table_id = ID2SYM( rb_intern( "table" ) );
-  VALUE r_table_id = rb_hash_aref( options, sym_table_id );
-  if ( r_table_id != Qnil ) {
+  VALUE r_table_id = HASH_REF( options, table_id );
+  if ( !NIL_P( r_table_id ) ) {
     table_id = ( uint8_t ) NUM2UINT( r_table_id );
   }
 
   uint32_t out_port = OFPP_ANY;
-  VALUE sym_out_port = ID2SYM( rb_intern( "out_port" ) );
-  VALUE r_out_port = rb_hash_aref( options, sym_out_port );
-  if ( r_out_port != Qnil ) {
+  VALUE r_out_port = HASH_REF( options, out_port );
+  if ( !NIL_P( r_out_port ) ) {
     out_port = ( uint32_t ) NUM2UINT( r_out_port );
   }
 
   uint32_t out_group = OFPG_ANY;
-  VALUE sym_out_group = ID2SYM( rb_intern( "out_group" ) );
-  VALUE r_out_group = rb_hash_aref( options, sym_out_group );
-  if ( r_out_group != Qnil ) {
+  VALUE r_out_group = HASH_REF( options, out_group );
+  if ( !NIL_P( r_out_group ) ) {
     out_group = ( uint32_t ) NUM2UINT( r_out_group );
   }
   
   uint64_t cookie = 0;
-  VALUE sym_cookie = ID2SYM( rb_intern( "cookie" ) );
-  VALUE r_cookie = rb_hash_aref( options, sym_cookie );
-  if ( r_cookie != Qnil ) {
+  VALUE r_cookie = HASH_REF( options, cookie );
+  if ( !NIL_P( r_cookie ) ) {
     cookie = ( uint64_t ) NUM2ULL( r_cookie );
   }
   else {
@@ -63,22 +64,20 @@ pack_flow_multipart_request( VALUE options ) {
   }
 
   uint64_t cookie_mask = 0;
-  VALUE sym_cookie_mask = ID2SYM( rb_intern( "cookie_mask" ) );
-  VALUE r_cookie_mask = rb_hash_aref( options, sym_cookie_mask );
-  if ( r_cookie_mask != Qnil ) {
+  VALUE r_cookie_mask = HASH_REF( options, cookie_mask );
+  if ( !NIL_P( r_cookie_mask ) ) {
     cookie_mask = ( uint64_t ) NUM2ULL( r_cookie_mask );
   }
   
-  VALUE sym_match = ID2SYM( rb_intern( "match" ) );
-  VALUE r_match = rb_hash_aref( options, sym_match );
+  VALUE r_match = HASH_REF( options, match );
   oxm_matches *oxm_match = NULL;
-  if ( r_match != Qnil ) {
+  if ( !NIL_P( r_match ) ) {
     oxm_match = create_oxm_matches();
     r_match_to_oxm_match( r_match, oxm_match );
   }
   
   buffer *flow_multipart_request = create_flow_multipart_request( xid,
-                                                                  OFPMP_FLOW,
+                                                                  flags,
                                                                   table_id,
                                                                   out_port,
                                                                   out_group,

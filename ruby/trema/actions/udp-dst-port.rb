@@ -25,6 +25,7 @@ module Trema
     # A match field to match a UDP destination port
     #
     class UdpDstPort < TransportPort
+      ofp_type OFPXMT_OFB_UDP_DST
     end
   end
 end

@@ -25,13 +25,13 @@ buffer *
 pack_table_multipart_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
   VALUE r_xid = HASH_REF( options, transaction_id );
-  if ( r_xid != Qnil ) {
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
   uint16_t flags = 0;
   VALUE r_flags = HASH_REF( options, flags );
-  if ( r_flags != Qnil ) {
+  if ( !NIL_P( r_flags ) ) {
     flags = ( uint16_t ) NUM2UINT( r_flags );
   }
   buffer *table_multipart_request = create_table_multipart_request( xid, flags );

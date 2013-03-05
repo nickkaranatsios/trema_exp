@@ -25,8 +25,8 @@ module Trema
 
 
     def self.ofp_type type
-      namespace = "OFPXMT_OFP_" 
-      store "#{ namespace }#{ type }", self
+      prefix = "OFPXMT_OFB" 
+      store "#{ prefix }_#{ type }", self
     end
 
 

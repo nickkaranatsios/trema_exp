@@ -25,6 +25,7 @@ module Trema
     # A match field to match a UDP source port
     #
     class UdpSrcPort < TransportPort
+      ofp_type OFPXMT_OFB_UDP_SRC
     end
   end
 end

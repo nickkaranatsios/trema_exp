@@ -26,50 +26,50 @@ buffer *
 pack_aggregate_multipart_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
   VALUE r_xid = HASH_REF( options, transaction_id );
-  if ( r_xid != Qnil ) {
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
   
   uint16_t flags = 0;
   VALUE r_flags = HASH_REF( options, flags );
-  if ( r_flags != Qnil ) {
+  if ( !NIL_P( r_flags )  ) {
     flags = ( uint16_t ) NUM2UINT( r_flags );
   }
 
   uint8_t table_id = OFPTT_ALL;
   VALUE r_table_id = HASH_REF( options, table_id );
-  if ( r_table_id != Qnil ) {
+  if ( !NIL_P( r_table_id ) ) {
     table_id = ( uint8_t ) NUM2UINT( r_table_id );
   }
   
   uint32_t out_port = OFPP_ANY;
   VALUE r_out_port = HASH_REF( options, out_port );
-  if ( r_out_port != Qnil ) {
+  if ( !NIL_P( r_out_port ) ) {
     out_port = NUM2UINT( r_out_port );
   }
 
   uint32_t out_group = OFPG_ANY;
   VALUE r_out_group = HASH_REF( options, out_group );
-  if ( r_out_group != Qnil ) {
+  if ( !NIL_P( r_out_group ) ) {
     out_group = NUM2UINT( r_out_group );
   }
 
   uint64_t cookie = 0;
   VALUE r_cookie = HASH_REF( options, cookie );
-  if ( r_cookie != Qnil ) {
+  if ( !NIL_P( r_cookie ) ) {
     cookie = ( uint64_t ) NUM2ULL( r_cookie );
   }
 
   uint64_t cookie_mask = 0;
   VALUE r_cookie_mask = HASH_REF( options, cookie_mask );
-  if ( r_cookie_mask != Qnil ) {
+  if ( !NIL_P( r_cookie_mask ) ) {
     cookie_mask = ( uint64_t ) NUM2ULL( r_cookie_mask );
   }
 
   
   VALUE r_match = HASH_REF( options, match );
   oxm_matches *oxm_match = NULL;
-  if ( r_match != Qnil ) {
+  if ( !NIL_P( r_match ) ) {
     oxm_match = create_oxm_matches();
     r_match_to_oxm_match( r_match, oxm_match );
   }
@@ -87,5 +87,3 @@ pack_aggregate_multipart_request( VALUE options ) {
  * indent-tabs-mode: nil
  * End:
  */
-
-  

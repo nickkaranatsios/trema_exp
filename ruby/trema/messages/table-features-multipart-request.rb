@@ -18,7 +18,7 @@
 
 module Trema
   module Messages
-    class TableFeaturesMultipartRequest < MultipartBase
+    class TableFeaturesMultipartRequest < MultipartRequest
     end
   end
 end

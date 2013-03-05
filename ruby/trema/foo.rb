@@ -106,8 +106,11 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     if @state == -1
       send_port_multipart_request datapath_id
     end
-    if @state == 5
+    if @state == -1
       send_table_features_multipart_request datapath_id
+    end
+    if @state == 5
+      send_group_multipart_request datapath_id, 1
     end
   end
 

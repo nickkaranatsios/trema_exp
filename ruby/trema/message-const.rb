@@ -147,41 +147,41 @@ module Trema
                            ofpxmt_ofb_metadata
                            ofpxmt_ofb_eth_dst
                            ofpxmt_ofb_eth_src
-                           ofpxmt_ofp_eth_type
-                           ofpxmt_ofp_vlan_vid
-                           ofpxmt_ofp_vlan_pcp
-                           ofpxmt_ofp_ip_dscp
-                           ofpxmt_ofp_ip_ecn
-                           ofpxmt_ofp_ip_proto
-                           ofpxmt_ofp_ipv4_src
-                           ofpxmt_ofp_ipv4_dst
-                           ofpxmt_ofp_tcp_src
-                           ofpxmt_ofp_tcp_dst
-                           ofpxmt_ofp_udp_src
-                           ofpxmt_ofp_udp_dst
-                           ofpxmt_ofp_sctp_src
-                           ofpxmt_ofp_sctp_dst
-                           ofpxmt_ofp_icmpv4_type
-                           ofpxmt_ofp_icmpv4_code
-                           ofpxmt_ofp_arp_op
-                           ofpxmt_ofp_arp_spa
-                           ofpxmt_ofp_arp_tpa
-                           ofpxmt_ofp_arp_sha
-                           ofpxmt_ofp_arp_tha
-                           ofpxmt_ofp_ipv6_src
-                           ofpxmt_ofp_ipv6_dst
-                           ofpxmt_ofp_ipv6_flabel
-                           ofpxmt_ofp_icmpv6_type
-                           ofpxmt_ofp_icmpv6_code
-                           ofpxmt_ofp_ipv6_nd_target
-                           ofpxmt_ofp_ipv6_nd_sll
-                           ofpxmt_ofp_ipv6_nd_tll
-                           ofpxmt_ofp_mpls_label
-                           ofpxmt_ofp_mpls_tc
-                           ofpxmt_ofp_mpls_bos
-                           ofpxmt_ofp_pbb_isid
-                           ofpxmt_ofp_tunnel_id
-                           ofpxmt_ofp_ipv6_exthdr )
+                           ofpxmt_ofb_eth_type
+                           ofpxmt_ofb_vlan_vid
+                           ofpxmt_ofb_vlan_pcp
+                           ofpxmt_ofb_ip_dscp
+                           ofpxmt_ofb_ip_ecn
+                           ofpxmt_ofb_ip_proto
+                           ofpxmt_ofb_ipv4_src
+                           ofpxmt_ofb_ipv4_dst
+                           ofpxmt_ofb_tcp_src
+                           ofpxmt_ofb_tcp_dst
+                           ofpxmt_ofb_udp_src
+                           ofpxmt_ofb_udp_dst
+                           ofpxmt_ofb_sctp_src
+                           ofpxmt_ofb_sctp_dst
+                           ofpxmt_ofb_icmpv4_type
+                           ofpxmt_ofb_icmpv4_code
+                           ofpxmt_ofb_arp_op
+                           ofpxmt_ofb_arp_spa
+                           ofpxmt_ofb_arp_tpa
+                           ofpxmt_ofb_arp_sha
+                           ofpxmt_ofb_arp_tha
+                           ofpxmt_ofb_ipv6_src
+                           ofpxmt_ofb_ipv6_dst
+                           ofpxmt_ofb_ipv6_flabel
+                           ofpxmt_ofb_icmpv6_type
+                           ofpxmt_ofb_icmpv6_code
+                           ofpxmt_ofb_ipv6_nd_target
+                           ofpxmt_ofb_ipv6_nd_sll
+                           ofpxmt_ofb_ipv6_nd_tll
+                           ofpxmt_ofb_mpls_label
+                           ofpxmt_ofb_mpls_tc
+                           ofpxmt_ofb_mpls_bos
+                           ofpxmt_ofb_pbb_isid
+                           ofpxmt_ofb_tunnel_id
+                           ofpxmt_ofb_ipv6_exthdr )
                            
     enum_step oxm_match_fields
   end
