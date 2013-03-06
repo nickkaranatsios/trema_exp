@@ -55,7 +55,7 @@ class FooController < Controller
 
 
   def switch_ready datapath_id
-puts "#{ __method__ } datapath_id #{ datapath_id }"
+    puts "#{ __method__ } datapath_id #{ datapath_id }"
 
     action_set = SetField.new( :action_set => [ UdpDstPort.new( 1000 ) ] )
     bucket = Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action_set ] )
@@ -122,7 +122,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     if @state == -1
       send_table_features_multipart_request datapath_id
     end
-    if @state == -1
+    if @state == 15
       send_group_multipart_request datapath_id, 1
     end
   end
