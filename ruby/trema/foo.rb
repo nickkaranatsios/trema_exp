@@ -56,15 +56,27 @@ class FooController < Controller
 
   def switch_ready datapath_id
 puts "#{ __method__ } datapath_id #{ datapath_id }"
-    action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
-    apply_ins = ApplyAction.new( actions:  [ action ] ) 
-    goto_table_ins = GotoTable.new( table_id: 1 )
+
+    action_set = SetField.new( :action_set => [ UdpDstPort.new( 1000 ) ] )
+    bucket = Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action_set ] )
+    group_mod_add = GroupMod.new( group_id: 1, type:  OFPGT_SELECT, buckets: [ bucket ] )
+    send_message datapath_id, group_mod_add
+    sleep 1
+    
+    group_action = GroupAction.new( 1 )
+    redirect_action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
+    apply_ins = ApplyAction.new( actions:  [ group_action, redirect_action ] ) 
+    
+    #goto_table_ins = GotoTable.new( table_id: 1 )
+    #match = Match.new( in_port: 1, eth_type: 0x88cc )
+    #match = Match.new( in_port: 1, eth_type: 2054 )
+    match = Match.new( in_port: 1 )
     # to match ping packets use eth_type: 2054 to match lldp packets use 0x88cc
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
                        cookie: 1001,
-                       match: Match.new( in_port: 1, eth_type: 0x88cc ),
+                       match: match,
                        instructions: [ apply_ins ] )
 #    send_flow_mod_add( datapath_id,
 #                       cookie: 1001,
@@ -78,7 +90,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     @state = @state + 1
     puts message.inspect
 
-    action = SendOutPort.new( :port_number => OFPP_ALL, :max_len => OFPCML_NO_BUFFER ) 
+    action = SendOutPort.new( :port_number => 2, :max_len => OFPCML_NO_BUFFER ) 
     send_packet_out( datapath_id, :packet_in => message, :actions => [ action ] )
     if @state == -1
       action = SendOutPort.new( port_number: OFPP_CONTROLLER )
@@ -110,7 +122,7 @@ puts "#{ __method__ } datapath_id #{ datapath_id }"
     if @state == -1
       send_table_features_multipart_request datapath_id
     end
-    if @state == 5
+    if @state == -1
       send_group_multipart_request datapath_id, 1
     end
   end

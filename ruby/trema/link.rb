@@ -79,6 +79,7 @@ module Trema
         @name_peer = nil
         @peers = @stanza.peers - [ real_eth ]
       else
+puts @stanza.inspect
         @name = "trema#{ @link_id }-0"
         @name_peer = "trema#{ @link_id }-1"
         @peers = @stanza.peers

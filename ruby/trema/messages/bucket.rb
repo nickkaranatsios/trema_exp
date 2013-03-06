@@ -28,6 +28,9 @@ module Trema
 end
 
 
+Bucket = Trema::Messages::Bucket
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

@@ -24,6 +24,8 @@
 
 buffer *
 pack_group_mod( VALUE options ) {
+  VALUE r_str = rb_inspect( options );
+  printf( "options %s\n", StringValuePtr( r_str ) );
   uint32_t xid = get_transaction_id();
   VALUE r_xid = HASH_REF( options, transaction_id );
   if ( !NIL_P( r_xid ) ) {
@@ -31,7 +33,7 @@ pack_group_mod( VALUE options ) {
   }
 
   uint8_t group_type = OFPGT_ALL;
-  VALUE r_group_type = HASH_REF( options, group_type );
+  VALUE r_group_type = HASH_REF( options, type );
   if ( !NIL_P( r_group_type ) ) {
     group_type = ( uint8_t ) NUM2UINT( r_group_type );
   }

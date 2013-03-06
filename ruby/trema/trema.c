@@ -36,6 +36,8 @@ VALUE mTrema;
 void
 Init_trema( void ) {
   mTrema = rb_define_module( "Trema" );
+  rb_require( "trema/host" );
+  rb_require( "trema/path" );
 
   Init_controller();
   Init_logger();
