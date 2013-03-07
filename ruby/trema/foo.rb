@@ -57,9 +57,13 @@ class FooController < Controller
   def switch_ready datapath_id
     puts "#{ __method__ } datapath_id #{ datapath_id }"
 
-    action_set = SetField.new( :action_set => [ UdpDstPort.new( 1000 ) ] )
-    bucket = Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action_set ] )
-    group_mod_add = GroupMod.new( group_id: 1, type:  OFPGT_SELECT, buckets: [ bucket ] )
+    action_set_dst = SetField.new( action_set: [ UdpDstPort.new( 1111 ) ] )
+    bucket_dst = Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action_set_dst ] )
+
+    action_set_src = SetField.new( action_set: [ UdpSrcPort.new( 2222 ) ] )
+    bucket_src = Bucket.new( watch_port: 2, watch_group: 1, weight: 2, actions: [ action_set_src ] )
+
+    group_mod_add = GroupMod.new( group_id: 1, type:  OFPGT_SELECT, buckets: [ bucket_dst, bucket_src ] )
     send_message datapath_id, group_mod_add
     sleep 1
     
@@ -119,10 +123,10 @@ class FooController < Controller
     if @state == -1
       send_port_multipart_request datapath_id
     end
-    if @state == -1
+    if @state == 5
       send_table_features_multipart_request datapath_id
     end
-    if @state == 15
+    if @state == -1 
       send_group_multipart_request datapath_id, 1
     end
   end
@@ -169,6 +173,11 @@ class FooController < Controller
 
 
   def table_features_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def group_multipart_reply datapath_id, message
     puts message.inspect
   end
 end

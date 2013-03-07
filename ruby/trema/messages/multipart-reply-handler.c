@@ -302,17 +302,17 @@ unpack_table_features_multipart_reply( VALUE r_attributes, void *data ) {
 }
 
 
-
 static VALUE
-unpack_bucket_counter( const struct ofp_bucket_counter  *bucket_counter, uint16_t bucket_counter_len ) {
-  uint16_t nr_bucket_stats = ( uint16_t ) ( bucket_counter_len / sizeof( *bucket_counter ) );
-  VALUE r_bucket_stats_ary = Qnil;
-  if ( nr_bucket_stats ) {
-     r_bucket_stats_ary = rb_ary_new2( nr_bucket_stats * 2 );
-  }
-  for ( uint16_t i = 0; i < nr_bucket_stats; i++ ) {
-    rb_ary_push( r_bucket_stats_ary, ULL2NUM( bucket_counter[ i ].packet_count ) );
-    rb_ary_push( r_bucket_stats_ary, ULL2NUM( bucket_counter[ i ].byte_count ) );
+unpack_bucket_counter( const struct ofp_bucket_counter  *src_bucket_counter, uint16_t bucket_counter_len ) {
+  VALUE r_bucket_stats_ary = rb_ary_new();
+  uint16_t offset = 0;
+  uint16_t nr_bucket_counters = bucket_counter_len / ( uint16_t ) sizeof( *src_bucket_counter );
+
+  for ( uint16_t i = 0; i < nr_bucket_counters; i++ ) {
+    rb_ary_push( r_bucket_stats_ary, ULL2NUM( src_bucket_counter->packet_count ) );
+    rb_ary_push( r_bucket_stats_ary, ULL2NUM( src_bucket_counter->byte_count ) );
+    offset = ( uint16_t ) ( offset + sizeof( *src_bucket_counter ) );
+    src_bucket_counter = ( const struct ofp_bucket_counter * )( ( const char * ) src_bucket_counter + offset );
   }
   return r_bucket_stats_ary;
 }
@@ -327,14 +327,15 @@ unpack_group_multipart_reply( VALUE r_attributes, void *data ) {
   HASH_SET( r_attributes, "group_id", UINT2NUM( group_stats->group_id ) );
   HASH_SET( r_attributes, "ref_count", UINT2NUM( group_stats->ref_count ) );
   HASH_SET( r_attributes, "packet_count", ULL2NUM( group_stats->packet_count ) );
-  HASH_SET( r_attributes, "byte_couunt", ULL2NUM( group_stats->byte_count ) );
+  HASH_SET( r_attributes, "byte_count", ULL2NUM( group_stats->byte_count ) );
   HASH_SET( r_attributes, "duration_sec", UINT2NUM( group_stats->duration_sec ) );
   HASH_SET( r_attributes, "duration_nsec", UINT2NUM( group_stats->duration_nsec ) );
 
   uint16_t bucket_counter_len = ( uint16_t ) ( group_stats->length - offsetof( struct ofp_group_stats, bucket_stats ) );
   VALUE r_bucket_stats_ary = Qnil;
-  if ( bucket_counter_len > ( uint16_t ) sizeof( *group_stats ) ) {
-    r_bucket_stats_ary = unpack_bucket_counter( group_stats->bucket_stats, bucket_counter_len );
+  if ( bucket_counter_len >= ( uint16_t ) sizeof( struct ofp_bucket_counter ) ) {
+    const struct ofp_bucket_counter *bc_src = ( const struct ofp_bucket_counter * )( ( const char * ) group_stats + offsetof( struct ofp_group_stats, bucket_stats ) );
+    r_bucket_stats_ary = unpack_bucket_counter( bc_src, bucket_counter_len );
   }
   HASH_SET( r_attributes, "bucket_stats", r_bucket_stats_ary );
 }

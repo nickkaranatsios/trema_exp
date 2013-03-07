@@ -180,7 +180,7 @@ pack_bucket_counter( struct ofp_bucket_counter *dst_bucket_counter, list_element
     src_bucket_counter = e->data;
     if ( src_bucket_counter != NULL ) {
       memcpy( dst_bucket_counter, src_bucket_counter, sizeof( *dst_bucket_counter ) );
-      dst_bucket_counter = ( struct ofp_bucket_counter * ) ( ( char * )( dst_bucket_counter + sizeof( *dst_bucket_counter ) ) );
+      dst_bucket_counter = ( struct ofp_bucket_counter * )( ( char * ) dst_bucket_counter + sizeof( *dst_bucket_counter ) );
     }
   }
 }
@@ -819,7 +819,7 @@ void ( *request_send_port_stats )( const struct ofp_port_stats_request *req, con
 
 
 static buffer *
-assign_group_stats( const group_stats *stats ) {
+assign_group_stats( group_stats *stats ) {
   uint16_t length = ( uint16_t )( sizeof( struct ofp_group_stats ) + list_length_of( stats->bucket_stats ) * sizeof( struct ofp_bucket_counter ) );
   buffer *buffer = alloc_buffer_with_length( length );
   append_back_buffer( buffer, length );
@@ -834,8 +834,8 @@ assign_group_stats( const group_stats *stats ) {
   group_stats->byte_count = stats->byte_count;
   group_stats->duration_sec = stats->duration_sec;
   group_stats->duration_nsec = stats->duration_nsec;
-  void *p = ( char * ) ( group_stats + offsetof( struct ofp_group_stats, bucket_stats ) );
-  pack_bucket_counter( p, stats->bucket_stats ); 
+  struct ofp_bucket_counter *bucket_counter = ( struct ofp_bucket_counter * )( ( char * ) group_stats + offsetof( struct ofp_group_stats, bucket_stats ) );
+  pack_bucket_counter( bucket_counter, stats->bucket_stats ); 
   return buffer;
 }
 
