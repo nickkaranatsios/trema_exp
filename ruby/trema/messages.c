@@ -34,6 +34,7 @@
 #include "messages/port-desc-multipart-request.h"
 #include "messages/table-features-multipart-request.h"
 #include "messages/group-multipart-request.h"
+#include "messages/group-desc-multipart-request.h"
 
 
 extern VALUE mTrema;
@@ -146,12 +147,18 @@ pack_table_features_multipart_request_msg( VALUE self, VALUE options ) {
   PACK_MSG( table_features_multipart_request, self, options );
 }
 
-  
+
 static VALUE
 pack_group_multipart_request_msg( VALUE self, VALUE options ) {
   PACK_MSG( group_multipart_request, self, options );
 }
- 
+
+
+static VALUE
+pack_group_desc_multipart_request_msg( VALUE self, VALUE options ) {
+  PACK_MSG( group_desc_multipart_request, self, options );
+}
+
 
 void
 Init_messages( void ) {
@@ -171,6 +178,7 @@ Init_messages( void ) {
   rb_define_module_function( mMessages, "pack_port_desc_multipart_request_msg", pack_port_desc_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_table_features_multipart_request_msg", pack_table_features_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_group_multipart_request_msg", pack_group_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_group_desc_multipart_request_msg", pack_group_desc_multipart_request_msg, 1 );
 
   rb_require( "trema/messages" );
 }

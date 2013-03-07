@@ -210,7 +210,6 @@ unpack_table_features_prop_next_tables( const uint8_t *next_table_hdr, uint16_t 
   VALUE r_next_table_ids = rb_ary_new();
   for ( uint16_t i = 0; i < nr_next_table_ids; i++ ) {
     rb_ary_push( r_next_table_ids, UINT2NUM( next_table_hdr[ i ] ) );
-    last_table = next_table_hdr[ i ];
   }
 
   return r_next_table_ids;

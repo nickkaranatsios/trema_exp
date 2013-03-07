@@ -164,7 +164,7 @@ pack_bucket( struct ofp_bucket *ofp_bucket, bucket_list **list ) {
       ofp_bucket->weight = bucket->weight;
       ofp_bucket->watch_port = bucket->watch_port;
       ofp_bucket->watch_group = bucket->watch_group;
-      void *p = ofp_bucket->actions;
+      void *p = ( char * ) ( ofp_bucket + offsetof( struct ofp_bucket, actions ) );
       action_pack( p, &bucket->actions );
       ofp_bucket = ( struct ofp_bucket * ) ( ( char * )( ofp_bucket + bucket_length ) );
     }
