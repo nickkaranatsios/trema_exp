@@ -148,11 +148,6 @@ unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, 
   VALUE r_instruction_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_instruction ) ) {
     const struct ofp_instruction *ins = ( const struct ofp_instruction * )( ( const char * ) ins_hdr + offset );
-    // if padding is added should be zero
-    if ( !ins->len ) {
-      break;
-    }
-
     VALUE r_type = UINT2NUM( ins->type );
     VALUE r_klass = rb_funcall( rb_eval_string( "Instruction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPIT" ), r_type );
     if ( !NIL_P( r_klass ) ) {
@@ -175,7 +170,6 @@ unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uin
   VALUE r_action_ids = rb_ary_new();
   while ( prop_len - offset >= ( uint16_t ) sizeof( struct ofp_action_header ) ) {
     const struct ofp_action_header *act = ( const struct ofp_action_header * )( ( const char * ) act_hdr + offset );
-
     VALUE r_type = UINT2NUM( act->type );
     VALUE r_klass = rb_funcall( rb_eval_string( "BasicAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPAT" ), r_type );
     if  ( !NIL_P( r_klass ) ) {
@@ -212,11 +206,9 @@ static VALUE
 unpack_table_features_prop_next_tables( const uint8_t *next_table_hdr, uint16_t next_table_len ) {
   uint16_t prop_len = ( uint16_t ) ( next_table_len - offsetof( struct ofp_table_feature_prop_next_tables, next_table_ids ) );
   uint16_t nr_next_table_ids = ( uint16_t ) ( prop_len / sizeof( uint8_t ) );
-  // TODO temporary hack
-  uint8_t last_table = 0;
 
   VALUE r_next_table_ids = rb_ary_new();
-  for ( uint16_t i = 0; i < nr_next_table_ids && last_table != 254; i++ ) {
+  for ( uint16_t i = 0; i < nr_next_table_ids; i++ ) {
     rb_ary_push( r_next_table_ids, UINT2NUM( next_table_hdr[ i ] ) );
     last_table = next_table_hdr[ i ];
   }
@@ -237,7 +229,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
       case OFPTFPT_INSTRUCTIONS:
       case OFPTFPT_INSTRUCTIONS_MISS: {
         const struct ofp_table_feature_prop_instructions *tfpi = ( const struct ofp_table_feature_prop_instructions * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpi->length );
+        offset = ( uint16_t ) ( offset + tfpi->length + PADLEN_TO_64( tfpi->length ) );
         VALUE r_instruction_ids = unpack_table_features_prop_instructions( tfpi->instruction_ids, tfpi->length );
         HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_instruction_ids );
       }
@@ -247,7 +239,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
       case OFPTFPT_APPLY_ACTIONS:
       case  OFPTFPT_APPLY_ACTIONS_MISS: {
         const struct ofp_table_feature_prop_actions *tfpa = ( const struct ofp_table_feature_prop_actions * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpa->length );
+        offset = ( uint16_t ) ( offset + tfpa->length + PADLEN_TO_64( tfpa->length ) );
         VALUE r_action_ids = unpack_table_features_prop_actions( tfpa->action_ids, tfpa->length );
         HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_action_ids );
       }
@@ -259,7 +251,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
       case OFPTFPT_APPLY_SETFIELD:
       case OFPTFPT_APPLY_SETFIELD_MISS: {
         const struct ofp_table_feature_prop_oxm *tfpo = ( const struct ofp_table_feature_prop_oxm * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpo->length );
+        offset = ( uint16_t ) ( offset + tfpo->length + PADLEN_TO_64( tfpo->length ) );
         VALUE r_oxm_ids = unpack_table_features_prop_oxm( tfpo->oxm_ids, tfpo->length );
         HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_oxm_ids );
       }
@@ -267,7 +259,7 @@ unpack_table_features_properties( const struct ofp_table_feature_prop_header *pr
       case OFPTFPT_NEXT_TABLES:
       case OFPTFPT_NEXT_TABLES_MISS: {
         const struct ofp_table_feature_prop_next_tables *tfpnt = ( const struct ofp_table_feature_prop_next_tables * )( ( const char * ) prop_hdr + offset );
-        offset = ( uint16_t ) ( offset + tfpnt->length );
+        offset = ( uint16_t ) ( offset + tfpnt->length + PADLEN_TO_64( tfpnt->length ) );
         VALUE r_next_table_ids = unpack_table_features_prop_next_tables( tfpnt->next_table_ids, tfpnt->length );
         HASH_SET( r_properties, table_feature_prop_type_name[ type ], r_next_table_ids );
       }
