@@ -27,12 +27,12 @@ assign_metadata( const oxm_match_header *hdr, VALUE options ) {
   const uint64_t *value = ( const uint64_t * ) ( ( const char * ) hdr + sizeof ( oxm_match_header ) );
 
   if ( *hdr == OXM_OF_METADATA ) {
-    rb_hash_aset( options, ID2SYM( rb_intern( "metadata" ) ), ULL2NUM( *value ) );
+    HASH_SET( options, "metadata", ULL2NUM( *value ) );
   }
   if ( *hdr == OXM_OF_METADATA_W ) {
     const uint64_t *mask = ( const uint64_t * ) ( ( const char * ) value + sizeof ( uint64_t ) );
-    rb_hash_aset( options, ID2SYM( rb_intern( "metadata" ) ), ULL2NUM( *value ) );
-    rb_hash_aset( options, ID2SYM( rb_intern( "metadata_mask" ) ), ULL2NUM( *mask ) );
+    HASH_SET( options, "metadata", ULL2NUM( *value ) );
+    HASH_SET( options, "metadata_mask", ULL2NUM( *mask ) );
   }
 }
 

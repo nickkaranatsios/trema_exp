@@ -24,7 +24,7 @@
 
 static uint32_t eth_src_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t eth_src_length( const match *match );
-static void pack_eth_src( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_eth_src( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_eth_src = {
@@ -67,13 +67,12 @@ eth_src_length( const match *match ) {
 }
 
 
-static void
-pack_eth_src( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_eth_src( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->eth_src[ 0 ].valid ) {
-    ofp_match->type = oxm_eth_src.type;
-    ofp_match->length = oxm_eth_src.length;
-    memcpy( &ofp_match->oxm_fields, &match->eth_src[ 0 ].value, oxm_eth_src.length );
   }
+  return 0;
 }
 
 

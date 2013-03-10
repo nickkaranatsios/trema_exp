@@ -24,7 +24,7 @@
 
 static uint32_t arp_spa_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t arp_spa_length( const match *match );
-static void pack_arp_spa( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_arp_spa( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_arp_spa = {
@@ -67,13 +67,12 @@ arp_spa_length( const match *match ) {
 }
 
 
-static void
-pack_arp_spa( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_arp_spa( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->arp_spa.valid ) {
-    ofp_match->type = oxm_arp_spa.type;
-    ofp_match->length = oxm_arp_spa.length;
-    memcpy( &ofp_match->oxm_fields, &match->arp_spa.value, oxm_arp_spa.length );
   }
+  return 0;
 }
 
 

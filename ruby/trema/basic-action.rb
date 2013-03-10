@@ -33,7 +33,7 @@ module Trema
     #
     # appends its action into a list of actions
     #
-    def pack_action action
+    def pack_basic_action action
       params = {}
       instance_variables.each do | each |
         params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )

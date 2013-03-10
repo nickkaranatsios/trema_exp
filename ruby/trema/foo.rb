@@ -183,6 +183,11 @@ class FooController < Controller
   def group_multipart_reply datapath_id, message
     puts message.inspect
   end
+
+
+  def group_desc_multipart_reply datapath_id, message
+    puts message.inspect
+  end
 end
 
 

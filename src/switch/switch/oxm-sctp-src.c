@@ -24,7 +24,7 @@
 
 static uint32_t sctp_src_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t sctp_src_length( const match *match );
-static void pack_sctp_src( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_sctp_src( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_sctp_src = {
@@ -64,13 +64,12 @@ sctp_src_length( const match *match ) {
 }
 
 
-static void
-pack_sctp_src( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_sctp_src( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->sctp_src.valid ) {
-    ofp_match->type = oxm_sctp_src.type;
-    ofp_match->length = oxm_sctp_src.length;
-    memcpy( &ofp_match->oxm_fields, &match->sctp_src.value, oxm_sctp_src.length );
   }
+  return 0;
 }
 
 

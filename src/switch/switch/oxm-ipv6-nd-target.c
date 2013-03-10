@@ -24,7 +24,7 @@
 
 static uint32_t ipv6_nd_target_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t ipv6_nd_target_length( const match *match );
-static void pack_ipv6_nd_target( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_ipv6_nd_target( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_ipv6_nd_target = {
@@ -64,13 +64,12 @@ ipv6_nd_target_length( const match *match ) {
 }
 
 
-static void
-pack_ipv6_nd_target( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_ipv6_nd_target( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->ipv6_nd_target[ 0 ].valid ) {
-    ofp_match->type = oxm_ipv6_nd_target.type;
-    ofp_match->length = oxm_ipv6_nd_target.length;
-    memcpy( &ofp_match->oxm_fields, &match->ipv6_nd_target[ 0 ].value, oxm_ipv6_nd_target.length );
   }
+  return 0;
 }
 
 

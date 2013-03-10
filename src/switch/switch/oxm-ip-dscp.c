@@ -24,7 +24,7 @@
 
 static uint32_t ip_dscp_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t ip_dscp_length( const match *match );
-static void pack_ip_dscp( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_ip_dscp( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_ip_dscp = {
@@ -64,13 +64,12 @@ ip_dscp_length( const match *match ) {
 }
 
 
-static void
-pack_ip_dscp( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_ip_dscp( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->ip_dscp.valid ) {
-    ofp_match->type = oxm_ip_dscp.type;
-    ofp_match->length = oxm_ip_dscp.length;
-    memcpy( &ofp_match->oxm_fields, &match->ip_dscp.value, oxm_ip_dscp.length );
   }
+  return 0;
 }
 
 

@@ -24,7 +24,7 @@
 
 static uint32_t vlan_pcp_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t vlan_pcp_length( const match *match );
-static void pack_vlan_pcp( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_vlan_pcp( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_vlan_pcp = {
@@ -64,13 +64,12 @@ vlan_pcp_length( const match *match ) {
 }
 
 
-static void
-pack_vlan_pcp( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_vlan_pcp( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->vlan_pcp.valid ) {
-    ofp_match->type = oxm_vlan_pcp.type;
-    ofp_match->length = oxm_vlan_pcp.length;
-    memcpy( &ofp_match->oxm_fields, &match->vlan_pcp.value, oxm_vlan_pcp.length );
   }
+  return 0;
 }
 
 

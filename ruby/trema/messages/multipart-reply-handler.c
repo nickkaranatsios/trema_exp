@@ -21,11 +21,7 @@
 #include "ruby.h"
 #include "hash-util.h"
 #include "conversion-util.h"
-
-
-#ifdef LATER
-static VALUE r_table_stats_pool = Qnil;
-#endif
+#include "oxm-helper.h"
 
 
 static const char *table_feature_prop_type_name[] = {
@@ -163,7 +159,6 @@ unpack_table_features_prop_instructions( const struct ofp_instruction *ins_hdr, 
 
 static VALUE
 unpack_table_features_prop_actions( const struct ofp_action_header *act_hdr, uint16_t act_len ) {
-  // TODO The length given is the total padded_len but unsure how much padding is added to correctly substract.
   uint16_t prop_len = ( uint16_t ) ( act_len - offsetof( struct ofp_table_feature_prop_actions, action_ids ) );
   uint16_t offset = 0;
 
@@ -333,6 +328,92 @@ unpack_group_multipart_reply( VALUE r_attributes, void *data ) {
 
 
 static VALUE
+unpack_action_set_field( const struct ofp_action_set_field *src ) {
+  VALUE r_attributes = rb_hash_new();
+  VALUE r_flexible_action = Qnil;
+  uint32_t field_length = src->len - offsetof( struct ofp_action_set_field, field );
+
+  if ( field_length > sizeof( oxm_match_header ) ) {
+    const oxm_match_header *oxm_src = ( const oxm_match_header * ) src->field;
+    assign_match( oxm_src, r_attributes );
+    VALUE r_field = UINT2NUM( OXM_FIELD( *oxm_src ) );
+    VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPXMT_OFB" ), r_field );
+    r_flexible_action = rb_funcall( r_klass, rb_intern( "new" ), 1, r_attributes );
+  }
+
+  return r_flexible_action;
+}
+
+
+static void
+unpack_action( const struct ofp_action_header *ac_hdr, VALUE r_action_ary ) {
+  switch ( ac_hdr->type ) {
+    case OFPAT_SET_FIELD: {
+      rb_ary_push( r_action_ary, unpack_action_set_field( ( const struct ofp_action_set_field * ) ac_hdr ) );
+    }
+    break;
+    default:
+    break;
+  }
+}
+
+
+static VALUE
+unpack_bucket( const struct ofp_bucket *bucket ) {
+  VALUE r_bucket_ary = rb_ary_new();
+  VALUE r_action_ary = rb_ary_new();
+  uint32_t offset = offsetof( struct ofp_bucket, actions );
+  uint32_t actions_len = bucket->len - offset;
+
+  VALUE r_bucket_attrs = rb_hash_new();
+  while ( actions_len >= sizeof( struct ofp_action_header * ) ) {
+    const struct ofp_action_header *ac_hdr = ( const struct ofp_action_header * ) ( ( const char * ) bucket + offset ); 
+    HASH_SET( r_bucket_attrs, "weight", UINT2NUM( bucket->weight ) );
+    HASH_SET( r_bucket_attrs, "watch_port", UINT2NUM( bucket->watch_port ) );
+    HASH_SET( r_bucket_attrs, "watch_group", UINT2NUM( bucket->watch_group ) );
+
+    uint16_t part_length = ac_hdr->len;
+    if ( actions_len < part_length ) {
+      break;
+    }
+    unpack_action( ac_hdr, r_action_ary );
+    HASH_SET( r_bucket_attrs, "actions", r_action_ary );
+    rb_ary_push( r_bucket_ary, rb_funcall( rb_eval_string( "Messages::Bucket" ), rb_intern( "new" ), 1, r_bucket_attrs ) );
+    
+    actions_len -= part_length;
+    offset += part_length;
+  }
+
+  return r_bucket_ary;
+}
+
+
+static void
+unpack_group_desc_multipart_reply( VALUE r_attributes, void *data ) {
+  assert( data );
+  const struct ofp_group_desc_stats *group_desc_stats = data;
+
+  HASH_SET( r_attributes, "length", UINT2NUM( group_desc_stats->length ) );
+  HASH_SET( r_attributes, "group_id", UINT2NUM( group_desc_stats->group_id ) );
+
+  uint32_t offset = offsetof( struct ofp_group_desc_stats, buckets );
+  uint32_t buckets_len = group_desc_stats->length - offset;
+  VALUE r_bucket_ary = Qnil;
+  while ( buckets_len >= sizeof( struct ofp_bucket ) ) {
+    const struct ofp_bucket *bucket = ( const struct ofp_bucket * ) ( ( const char * ) group_desc_stats + offset );
+
+    uint16_t parts_length = bucket->len;
+    if ( buckets_len < parts_length ) {
+      break;
+    }
+    r_bucket_ary = unpack_bucket( bucket );
+  }
+
+  HASH_SET( r_attributes, "buckets", r_bucket_ary );
+}
+
+
+static VALUE
 unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t stats_type, const buffer *frame ) {
   VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
   VALUE r_dpid = rb_hash_aref( r_attributes, sym_datapath_id );
@@ -400,6 +481,14 @@ unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t sta
           r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
           if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_multipart_reply" ) ) ) {
             rb_funcall( ( VALUE ) controller, rb_intern( "group_multipart_reply" ), 2, r_dpid, r_reply_obj );
+          }
+        }
+        break;
+        case OFPMP_GROUP_DESC: {
+          unpack_group_desc_multipart_reply( r_attributes, frame->data );
+          r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" )  ) ) {
+            rb_funcall( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
           }
         }
         break;

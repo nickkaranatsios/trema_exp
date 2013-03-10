@@ -24,7 +24,7 @@
 
 static uint32_t ip_ecn_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t ip_ecn_length( const match *match );
-static void pack_ip_ecn( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_ip_ecn( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_ip_ecn = {
@@ -64,13 +64,12 @@ ip_ecn_length( const match *match ) {
 }
 
 
-static void
-pack_ip_ecn( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_ip_ecn( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->ip_ecn.valid ) {
-    ofp_match->type = oxm_ip_ecn.type;
-    ofp_match->length = oxm_ip_ecn.length;
-    memcpy( &ofp_match->oxm_fields, &match->ip_ecn.value, oxm_ip_ecn.length );
   }
+  return 0;
 }
 
 

@@ -24,7 +24,7 @@
 
 static uint32_t icmpv6_code_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t icmpv6_code_length( const match *match );
-static void pack_icmpv6_code( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_icmpv6_code( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_icmpv6_code = {
@@ -64,13 +64,12 @@ icmpv6_code_length( const match *match ) {
 }
 
 
-static void
-pack_icmpv6_code( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_icmpv6_code( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->icmpv6_code.valid ) {
-    ofp_match->type = oxm_icmpv6_code.type;
-    ofp_match->length = oxm_icmpv6_code.length;
-    memcpy( &ofp_match->oxm_fields, &match->icmpv6_code.value, oxm_icmpv6_code.length );
   }
+  return 0;
 }
 
 

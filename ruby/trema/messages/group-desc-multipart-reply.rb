@@ -16,27 +16,12 @@
 #
 
 
-require "trema/accessor"
-
-
 module Trema
-  class FlexibleAction < Accessor
-    include Actions
-
-
-    def self.ofp_type type
-      prefix = "OFPXMT_OFB" 
-      store "#{ prefix }_#{ type }", self
-    end
-
-
-    def pack_flexible_action oxm_match
-      params = {}
-      instance_variables.each do | each |
-        params[ each.to_s.sub( '@', '' ).to_sym ] = instance_variable_get( each )
-      end
-      method = "pack_#{ self.class.name.demodulize.underscore }"
-      __send__ method, oxm_match, params
+  module Messages
+    class GroupDescMultipartReply < MultipartReply
+      unsigned_int16 :length, presence: true
+      unsigned_int32 :group_id, presence: true
+      array :buckets
     end
   end
 end

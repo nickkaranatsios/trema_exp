@@ -24,7 +24,7 @@
 
 static uint32_t get_icmpv4_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t icmpv4_type_length( const match *match );
-static void pack_icmpv4_type( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_icmpv4_type( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_icmpv4_type = {
@@ -64,13 +64,12 @@ icmpv4_type_length( const match *match ) {
 }
 
 
-static void
-pack_icmpv4_type( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_icmpv4_type( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->icmpv4_type.valid ) {
-    ofp_match->type = oxm_icmpv4_type.type;
-    ofp_match->length = oxm_icmpv4_type.length;
-    memcpy( &ofp_match->oxm_fields, &match->icmpv4_type.value, oxm_icmpv4_type.length );
   }
+  return 0;
 }
 
 

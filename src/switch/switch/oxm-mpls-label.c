@@ -24,7 +24,7 @@
 
 static uint32_t mpls_label_field( const bool attr, const enum oxm_ofb_match_fields oxm_type );
 static uint16_t mpls_label_length( const match *match );
-static void pack_mpls_label( struct ofp_match *ofp_match, const match *match );
+static uint16_t pack_mpls_label( oxm_match_header *hdr, const match *match );
 
 
 static struct oxm oxm_mpls_label = {
@@ -64,13 +64,12 @@ mpls_label_length( const match *match ) {
 }
 
 
-static void
-pack_mpls_label( struct ofp_match *ofp_match, const match *match ) {
+static uint16_t
+pack_mpls_label( oxm_match_header *hdr, const match *match ) {
+  UNUSED( hdr );
   if ( match->mpls_label.valid ) {
-    ofp_match->type = oxm_mpls_label.type;
-    ofp_match->length = oxm_mpls_label.length;
-    memcpy( &ofp_match->oxm_fields, &match->mpls_label.value, oxm_mpls_label.length );
   }
+  return 0;
 }
 
 
