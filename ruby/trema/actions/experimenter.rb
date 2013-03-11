@@ -22,6 +22,7 @@ module Trema
     # An action to set an experimenter action.
     #
     class Experimenter < BasicAction
+      ofp_type OFPAT_EXPERIMENTER
       #
       # Creates an action to set an experimenter action.
       #

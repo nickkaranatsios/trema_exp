@@ -33,7 +33,7 @@ module Trema
       DEFAULT_ETHER_TYPE = 0x88e7
   
   
-      unsigned_int16 :ether_type
+      unsigned_int16 :ether_type, presence: true
     end
   end
 end
