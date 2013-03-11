@@ -35,6 +35,7 @@
 #include "messages/table-features-multipart-request.h"
 #include "messages/group-multipart-request.h"
 #include "messages/group-desc-multipart-request.h"
+#include "messages/port-desc-multipart-request.h"
 
 
 extern VALUE mTrema;

@@ -48,6 +48,7 @@ require "trema/messages/group-multipart-request"
 require "trema/messages/group-multipart-reply"
 require "trema/messages/group-desc-multipart-request"
 require "trema/messages/group-desc-multipart-reply"
+require "trema/messages/port-desc-multipart-request"
 
 
 ### Local variables:
