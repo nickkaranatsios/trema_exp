@@ -21,7 +21,6 @@
 #include "ruby.h"
 #include "hash-util.h"
 #include "conversion-util.h"
-#include "oxm-helper.h"
 
 
 static const char *table_feature_prop_type_name[] = {
@@ -335,9 +334,12 @@ unpack_action_set_field( const struct ofp_action_set_field *src ) {
 
   if ( field_length > sizeof( oxm_match_header ) ) {
     const oxm_match_header *oxm_src = ( const oxm_match_header * ) src->field;
-    assign_match( oxm_src, r_attributes );
+    assign_r_match( oxm_src, r_attributes );
+
+
     VALUE r_field = UINT2NUM( OXM_FIELD( *oxm_src ) );
     VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPXMT_OFB" ), r_field );
+    
     r_flexible_action = rb_funcall( r_klass, rb_intern( "new" ), 1, r_attributes );
   }
 
@@ -349,7 +351,16 @@ static void
 unpack_action( const struct ofp_action_header *ac_hdr, VALUE r_action_ary ) {
   switch ( ac_hdr->type ) {
     case OFPAT_SET_FIELD: {
-      rb_ary_push( r_action_ary, unpack_action_set_field( ( const struct ofp_action_set_field * ) ac_hdr ) );
+      VALUE r_options = rb_hash_new();
+      VALUE r_action = unpack_action_set_field( ( const struct ofp_action_set_field * ) ac_hdr );
+      VALUE r_action_set = rb_ary_new();
+      if ( !NIL_P( r_action ) ) {
+        rb_ary_push( r_action_set, r_action );
+      }
+      HASH_SET( r_options, "action_set", r_action_set );
+
+      VALUE set_field = rb_funcall( rb_eval_string( "SetField" ), rb_intern( "new" ), 1, r_options ); 
+      rb_ary_push( r_action_ary, set_field );
     }
     break;
     default:
@@ -360,31 +371,30 @@ unpack_action( const struct ofp_action_header *ac_hdr, VALUE r_action_ary ) {
 
 static VALUE
 unpack_bucket( const struct ofp_bucket *bucket ) {
-  VALUE r_bucket_ary = rb_ary_new();
   VALUE r_action_ary = rb_ary_new();
   uint32_t offset = offsetof( struct ofp_bucket, actions );
   uint32_t actions_len = bucket->len - offset;
 
   VALUE r_bucket_attrs = rb_hash_new();
+  HASH_SET( r_bucket_attrs, "weight", UINT2NUM( bucket->weight ) );
+  HASH_SET( r_bucket_attrs, "watch_port", UINT2NUM( bucket->watch_port ) );
+  HASH_SET( r_bucket_attrs, "watch_group", UINT2NUM( bucket->watch_group ) );
+
   while ( actions_len >= sizeof( struct ofp_action_header * ) ) {
     const struct ofp_action_header *ac_hdr = ( const struct ofp_action_header * ) ( ( const char * ) bucket + offset ); 
-    HASH_SET( r_bucket_attrs, "weight", UINT2NUM( bucket->weight ) );
-    HASH_SET( r_bucket_attrs, "watch_port", UINT2NUM( bucket->watch_port ) );
-    HASH_SET( r_bucket_attrs, "watch_group", UINT2NUM( bucket->watch_group ) );
 
     uint16_t part_length = ac_hdr->len;
     if ( actions_len < part_length ) {
       break;
     }
     unpack_action( ac_hdr, r_action_ary );
-    HASH_SET( r_bucket_attrs, "actions", r_action_ary );
-    rb_ary_push( r_bucket_ary, rb_funcall( rb_eval_string( "Messages::Bucket" ), rb_intern( "new" ), 1, r_bucket_attrs ) );
     
     actions_len -= part_length;
     offset += part_length;
   }
-
-  return r_bucket_ary;
+  HASH_SET( r_bucket_attrs, "actions", r_action_ary );
+  VALUE r_bucket = rb_funcall( rb_eval_string( "Messages::Bucket" ), rb_intern( "new" ), 1, r_bucket_attrs );
+  return r_bucket;
 }
 
 
@@ -398,17 +408,19 @@ unpack_group_desc_multipart_reply( VALUE r_attributes, void *data ) {
 
   uint32_t offset = offsetof( struct ofp_group_desc_stats, buckets );
   uint32_t buckets_len = group_desc_stats->length - offset;
-  VALUE r_bucket_ary = Qnil;
+  VALUE r_bucket_ary = rb_ary_new();
   while ( buckets_len >= sizeof( struct ofp_bucket ) ) {
     const struct ofp_bucket *bucket = ( const struct ofp_bucket * ) ( ( const char * ) group_desc_stats + offset );
 
-    uint16_t parts_length = bucket->len;
-    if ( buckets_len < parts_length ) {
+    uint16_t part_length = bucket->len;
+    if ( buckets_len < part_length ) {
       break;
     }
-    r_bucket_ary = unpack_bucket( bucket );
+    buckets_len -= part_length;
+    offset += part_length;
+    VALUE r_bucket = unpack_bucket( bucket );
+    rb_ary_push( r_bucket_ary, r_bucket );
   }
-
   HASH_SET( r_attributes, "buckets", r_bucket_ary );
 }
 

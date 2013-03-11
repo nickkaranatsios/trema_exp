@@ -29,7 +29,7 @@ static uint16_t pack_icmpv6_code( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_icmpv6_code = {
   OFPXMT_OFB_ICMPV6_CODE,
-  ( uint16_t ) sizeof( uint8_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint8_t ),
   icmpv6_code_field,
   icmpv6_code_length,
   pack_icmpv6_code
@@ -66,8 +66,11 @@ icmpv6_code_length( const match *match ) {
 
 static uint16_t
 pack_icmpv6_code( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->icmpv6_code.valid ) {
+    *hdr = OXM_OF_ICMPV6_CODE;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->icmpv6_code.value;
+    return oxm_icmpv6_code.length;
   }
   return 0;
 }

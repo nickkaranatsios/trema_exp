@@ -29,7 +29,7 @@ static uint16_t pack_vlan_vid( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_vlan_vid = {
   OFPXMT_OFB_VLAN_VID,
-  ( uint16_t ) sizeof( uint16_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint16_t ),
   vlan_vid_field,
   vlan_vid_length,
   pack_vlan_vid
@@ -69,8 +69,11 @@ vlan_vid_length( const match *match ) {
 
 static uint16_t
 pack_vlan_vid( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->vlan_vid.valid ) {
+    *hdr = OXM_OF_VLAN_VID;
+    uint16_t *value = ( uint16_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->vlan_vid.value;
+    return oxm_vlan_vid.length;
   }
   return 0;
 }

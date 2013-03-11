@@ -29,7 +29,7 @@ static uint16_t pack_ipv4_dst( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv4_dst = {
   OFPXMT_OFB_IPV4_DST,
-  ( uint16_t ) sizeof( uint32_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint32_t ),
   ipv4_dst_field,
   ipv4_dst_length,
   pack_ipv4_dst
@@ -69,8 +69,11 @@ ipv4_dst_length( const match *match ) {
 
 static uint16_t
 pack_ipv4_dst( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv4_dst.valid ) {
+    *hdr = OXM_OF_IPV4_DST;
+    uint32_t *value = ( uint32_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->ipv4_dst.value;
+    return oxm_ipv4_dst.length;
   }
   return 0;
 }

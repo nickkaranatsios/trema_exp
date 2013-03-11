@@ -29,7 +29,7 @@ static uint16_t pack_ip_ecn( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ip_ecn = {
   OFPXMT_OFB_IP_ECN,
-  ( uint16_t ) sizeof( uint8_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint8_t ),
   ip_ecn_field,
   ip_ecn_length,
   pack_ip_ecn
@@ -66,8 +66,11 @@ ip_ecn_length( const match *match ) {
 
 static uint16_t
 pack_ip_ecn( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ip_ecn.valid ) {
+    *hdr = OXM_OF_IP_ECN;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->ip_ecn.value;
+    return oxm_ip_ecn.length;
   }
   return 0;
 }

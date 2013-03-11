@@ -27,7 +27,9 @@ module Trema
       array :action_set, :validate_with => :check_action_set
     end
 
+
     def check_action_set action_set, name
+      # TODO validate argument
     end
   end
 end

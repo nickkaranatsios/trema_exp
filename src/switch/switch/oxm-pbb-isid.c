@@ -29,7 +29,7 @@ static uint16_t pack_pbb_isid( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_pbb_isid = {
   OFPXMT_OFB_PBB_ISID,
-  ( uint16_t ) sizeof( uint32_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint32_t ),
   pbb_isid_field,
   pbb_isid_length,
   pack_pbb_isid
@@ -66,8 +66,11 @@ pbb_isid_length( const match *match ) {
 
 static uint16_t
 pack_pbb_isid( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->pbb_isid.valid ) {
+    *hdr = OXM_OF_PBB_ISID;
+    uint32_t *value = ( uint32_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->pbb_isid.value;
+    return oxm_pbb_isid.length;
   }
   return 0;
 }

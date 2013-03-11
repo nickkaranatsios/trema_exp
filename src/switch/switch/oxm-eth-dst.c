@@ -29,7 +29,7 @@ static uint16_t pack_eth_dst( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_eth_dst = {
   OFPXMT_OFB_ETH_DST,
-  OFP_ETH_ALEN,
+  OFP_ETH_ALEN + sizeof( oxm_match_header ),
   eth_dst_field,
   eth_dst_length,
   pack_eth_dst
@@ -69,8 +69,11 @@ eth_dst_length( const match *match ) {
 
 static uint16_t
 pack_eth_dst( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->eth_dst[ 0 ].valid ) {
+    *hdr = OXM_OF_ETH_DST;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof( oxm_match_header ) );
+    memcpy( value, &match->eth_dst[ 0 ].value, OFP_ETH_ALEN );
+    return oxm_eth_dst.length;
   }
   return 0;
 }

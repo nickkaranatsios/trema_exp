@@ -29,7 +29,7 @@ static uint16_t pack_ipv6_src( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv6_src = {
   OFPXMT_OFB_IPV6_SRC,
-  IPV6_ADDRLEN,
+  IPV6_ADDRLEN + sizeof( oxm_match_header ), 
   ipv6_src_field,
   ipv6_src_length,
   pack_ipv6_src
@@ -69,8 +69,11 @@ ipv6_src_length( const match *match ) {
 
 static uint16_t
 pack_ipv6_src( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv6_src[ 0 ].valid ) {
+    *hdr = OXM_OF_IPV6_SRC;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    memcpy( value, &match->ipv6_src[ 0 ].value, IPV6_ADDRLEN );
+    return oxm_ipv6_src.length;
   }
   return 0;
 }

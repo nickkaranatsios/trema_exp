@@ -29,7 +29,7 @@ static uint16_t pack_metadata( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_metadata = {
   OFPXMT_OFB_METADATA,
-  ( uint16_t ) sizeof( uint64_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint64_t ),
   metadata_field,
   metadata_length,
   pack_metadata

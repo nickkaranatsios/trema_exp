@@ -29,7 +29,7 @@ static uint16_t pack_arp_tha( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_arp_tha = {
   OFPXMT_OFB_ARP_THA,
-  OFP_ETH_ALEN,
+  OFP_ETH_ALEN + sizeof( oxm_match_header ),
   arp_tha_field,
   arp_tha_length,
   pack_arp_tha
@@ -69,8 +69,11 @@ arp_tha_length( const match *match ) {
 
 static uint16_t
 pack_arp_tha( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->arp_tha[ 0 ].valid ) {
+    *hdr = OXM_OF_ARP_THA; 
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof( oxm_match_header ) );
+    memcpy( value, &match->arp_tha[ 0 ].value, OFP_ETH_ALEN );
+    return oxm_arp_tha.length;
   }
   return 0;
 }

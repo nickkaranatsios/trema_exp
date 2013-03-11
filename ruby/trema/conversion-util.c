@@ -19,7 +19,6 @@
 #include <assert.h>
 #include "trema.h"
 #include "ruby.h"
-#include "oxm-helper.h"
 #include "action-common.h"
 #include "hash-util.h"
 
@@ -98,18 +97,6 @@ buffer_to_r_array( const buffer *buffer ) {
 }
 
 
-VALUE
-oxm_match_to_r_match( const oxm_matches *match ) {
-  assert( match != NULL );
-
-  VALUE options = rb_hash_new();
-
-  for ( list_element *list = match->list; list != NULL; list = list->next ) {
-    oxm_match_header *oxm = list->data;
-    assign_match( oxm, options );
-  }
-  return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, options );
-}
 
 
 static void
@@ -248,9 +235,11 @@ assign_udp_port( const oxm_match_header *hdr, VALUE r_attributes ) {
   const uint16_t *value = ( const uint16_t * ) ( ( const char * ) hdr + sizeof( oxm_match_header ) );
 
   if ( *hdr == OXM_OF_UDP_SRC ) {
+    HASH_SET( r_attributes, "transport_port", UINT2NUM( *value ) );
     HASH_SET( r_attributes, "udp_src", UINT2NUM( *value ) );
   }
   if ( *hdr == OXM_OF_UDP_DST ) {
+    HASH_SET( r_attributes, "transport_port", UINT2NUM( *value ) );
     HASH_SET( r_attributes, "udp_dst", UINT2NUM( *value ) );
   }
 }
@@ -417,7 +406,7 @@ assign_ipv6_exthdr( const oxm_match_header *hdr, VALUE r_attributes ) {
 }
 
 
-static void
+void
 assign_r_match( const oxm_match_header *hdr, VALUE r_attributes ) {
   switch( *hdr ) {
     case OXM_OF_IN_PORT: {
@@ -811,6 +800,19 @@ r_match_to_oxm_match( VALUE r_match, oxm_matches *match ) {
   }
 }
 
+
+VALUE
+oxm_match_to_r_match( const oxm_matches *match ) {
+  assert( match != NULL );
+
+  VALUE options = rb_hash_new();
+
+  for ( list_element *list = match->list; list != NULL; list = list->next ) {
+    oxm_match_header *oxm = list->data;
+    assign_r_match( oxm, options );
+  }
+  return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, options );
+}
 
 
 /*

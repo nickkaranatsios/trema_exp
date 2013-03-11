@@ -29,7 +29,7 @@ static uint16_t pack_ipv6_dst( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv6_dst = {
   OFPXMT_OFB_IPV6_DST,
-  IPV6_ADDRLEN,
+  IPV6_ADDRLEN + sizeof( oxm_match_header ),
   ipv6_dst_field,
   ipv6_dst_length,
   pack_ipv6_dst
@@ -69,8 +69,11 @@ ipv6_dst_length( const match *match ) {
 
 static uint16_t
 pack_ipv6_dst( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv6_dst[ 0 ].valid ) {
+    *hdr = OXM_OF_IPV6_DST;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    memcpy( value, &match->ipv6_dst[ 0 ].value, IPV6_ADDRLEN );
+    return oxm_ipv6_dst.length;
   }
   return 0;
 }

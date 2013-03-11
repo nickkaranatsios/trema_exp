@@ -29,7 +29,7 @@ static uint16_t pack_ipv6_flabel( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv6_flabel = {
   OFPXMT_OFB_IPV6_FLABEL,
-  ( uint16_t ) sizeof( uint32_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint32_t ),
   ipv6_flabel_field,
   ipv6_flabel_length,
   pack_ipv6_flabel
@@ -69,8 +69,11 @@ ipv6_flabel_length( const match *match ) {
 
 static uint16_t
 pack_ipv6_flabel( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv6_flabel.valid ) {
+    *hdr = OXM_OF_IPV6_FLABEL;
+    uint32_t *value = ( uint32_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->ipv6_flabel.value;
+    return oxm_ipv6_flabel.length;
   }
   return 0;
 }

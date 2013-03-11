@@ -29,7 +29,7 @@ static uint16_t pack_ipv6_exthdr( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv6_exthdr = {
   OFPXMT_OFB_IPV6_EXTHDR,
-  ( uint16_t ) sizeof( uint16_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint16_t ),
   ipv6_exthdr_field,
   ipv6_exthdr_length,
   pack_ipv6_exthdr
@@ -69,8 +69,11 @@ ipv6_exthdr_length( const match *match ) {
 
 static uint16_t
 pack_ipv6_exthdr( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv6_exthdr.valid ) {
+    *hdr = OXM_OF_IPV6_EXTHDR;
+    uint16_t *value = ( uint16_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->ipv6_exthdr.value;
+    return oxm_ipv6_exthdr.length;
   }
   return 0;
 }

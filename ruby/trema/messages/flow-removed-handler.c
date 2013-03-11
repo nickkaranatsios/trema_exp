@@ -19,7 +19,6 @@
 #include "trema.h"
 #include "ruby.h"
 #include "hash-util.h"
-#include "oxm-helper.h"
 
 
 void

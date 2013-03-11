@@ -29,7 +29,7 @@ static uint16_t pack_arp_sha( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_arp_sha = {
   OFPXMT_OFB_ARP_SHA,
-  OFP_ETH_ALEN,
+  OFP_ETH_ALEN + sizeof( oxm_match_header ),
   arp_sha_field,
   arp_sha_length,
   pack_arp_sha
@@ -71,6 +71,10 @@ static uint16_t
 pack_arp_sha( oxm_match_header *hdr, const match *match ) {
   UNUSED( hdr );
   if ( match->arp_sha[ 0 ].valid ) {
+    *hdr = OXM_OF_ARP_SHA; 
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    memcpy( value, &match->arp_spa.value, OFP_ETH_ALEN );
+    return oxm_arp_sha.length;
   }
   return 0;
 }

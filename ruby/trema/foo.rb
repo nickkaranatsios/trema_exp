@@ -61,7 +61,7 @@ class FooController < Controller
     bucket_dst = Bucket.new( watch_port: 1, watch_group: 1, weight: 2, actions: [ action_set_dst ] )
 
     action_set_src = SetField.new( action_set: [ UdpSrcPort.new( 2222 ) ] )
-    bucket_src = Bucket.new( watch_port: 2, watch_group: 1, weight: 2, actions: [ action_set_src ] )
+    bucket_src = Bucket.new( watch_port: 2, watch_group: 1, weight: 3, actions: [ action_set_src ] )
 
     group_mod_add = GroupMod.new( group_id: 1, type:  OFPGT_SELECT, buckets: [ bucket_dst, bucket_src ] )
     send_message datapath_id, group_mod_add

@@ -29,7 +29,7 @@ static uint16_t pack_tcp_src( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_tcp_src = {
   OFPXMT_OFB_TCP_SRC,
-  ( uint16_t ) sizeof( uint16_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint16_t ),
   tcp_src_field,
   tcp_src_length,
   pack_tcp_src
@@ -66,8 +66,11 @@ tcp_src_length( const match *match ) {
 
 static uint16_t
 pack_tcp_src( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->tcp_src.valid ) {
+    *hdr = OXM_OF_TCP_SRC;
+    uint16_t *value = ( uint16_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->tcp_src.value;
+    return oxm_tcp_src.length;
   }
   return 0;
 }

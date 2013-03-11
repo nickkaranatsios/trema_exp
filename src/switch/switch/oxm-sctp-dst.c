@@ -29,7 +29,7 @@ static uint16_t pack_sctp_dst( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_sctp_dst = {
   OFPXMT_OFB_SCTP_DST,
-  ( uint16_t ) sizeof( uint16_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint16_t ),
   sctp_dst_field,
   sctp_dst_length,
   pack_sctp_dst
@@ -66,8 +66,11 @@ sctp_dst_length( const match *match ) {
 
 static uint16_t
 pack_sctp_dst( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->sctp_dst.valid ) {
+    *hdr = OXM_OF_SCTP_DST;
+    uint16_t *value = ( uint16_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->sctp_dst.value;
+    return oxm_sctp_dst.length;
   }
   return 0;
 }

@@ -29,7 +29,7 @@ static uint16_t pack_arp_op( oxm_match_header *, const match *match );
 
 static struct oxm oxm_arp_op = {
   OFPXMT_OFB_ARP_OP,
-  ( uint16_t ) sizeof( uint16_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint16_t ),
   arp_op_field,
   arp_op_length,
   pack_arp_op
@@ -66,8 +66,11 @@ arp_op_length( const match *match ) {
 
 static uint16_t
 pack_arp_op( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->arp_op.valid ) {
+    *hdr = OXM_OF_ARP_OP; 
+    uint16_t *value = ( uint16_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->arp_op.value;
+    return oxm_arp_op.length;
   }
   return 0;
 }

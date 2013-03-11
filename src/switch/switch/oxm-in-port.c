@@ -29,7 +29,7 @@ static uint16_t pack_in_port( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_in_port = {
   OFPXMT_OFB_IN_PORT,
-  ( uint16_t ) sizeof( uint32_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint32_t ),
   in_port_field,
   in_port_length,
   pack_in_port

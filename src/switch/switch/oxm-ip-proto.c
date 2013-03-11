@@ -29,7 +29,7 @@ static uint16_t pack_ip_proto( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ip_proto = {
   OFPXMT_OFB_IP_PROTO,
-  ( uint16_t ) sizeof( uint8_t ),
+  ( uint16_t ) sizeof( oxm_match_header ) + sizeof( uint8_t ),
   ip_proto_field,
   ip_proto_length,
   pack_ip_proto
@@ -66,8 +66,11 @@ ip_proto_length( const match *match ) {
 
 static uint16_t
 pack_ip_proto( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ip_proto.valid ) {
+    *hdr = OXM_OF_IP_PROTO;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    *value = match->ip_proto.value;
+    return oxm_ip_proto.length;
   }
   return 0;
 }

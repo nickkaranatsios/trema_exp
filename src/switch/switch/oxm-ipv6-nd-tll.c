@@ -29,7 +29,7 @@ static uint16_t pack_ipv6_nd_tll( oxm_match_header *hdr, const match *match );
 
 static struct oxm oxm_ipv6_nd_tll = {
   OFPXMT_OFB_IPV6_ND_TLL,
-  OFP_ETH_ALEN,
+  OFP_ETH_ALEN + sizeof( oxm_match_header ),
   ipv6_nd_tll_field,
   ipv6_nd_tll_length,
   pack_ipv6_nd_tll
@@ -66,8 +66,11 @@ ipv6_nd_tll_length( const match *match ) {
 
 static uint16_t
 pack_ipv6_nd_tll( oxm_match_header *hdr, const match *match ) {
-  UNUSED( hdr );
   if ( match->ipv6_nd_tll[ 0 ].valid ) {
+    *hdr = OXM_OF_IPV6_ND_TLL;
+    uint8_t *value = ( uint8_t * ) ( ( char * ) hdr + sizeof ( oxm_match_header ) );
+    memcpy( value, &match->ipv6_nd_tll[ 0 ].valid, OFP_ETH_ALEN );
+    return oxm_ipv6_nd_tll.length;
   }
   return 0;
 }
