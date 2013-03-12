@@ -19,6 +19,7 @@
 #include "trema.h"
 #include "ruby.h"
 #include "hash-util.h"
+#include "conversion-util.h"
 
 
 void
@@ -39,30 +40,28 @@ handle_flow_removed( uint64_t datapath_id,
   if ( !rb_respond_to( ( VALUE ) controller, rb_intern( "flow_removed" ) ) ) {
     return;
   }
-  VALUE attributes = rb_hash_new();
-  HASH_SET( attributes, "datapath_id", ULL2NUM( datapath_id ) );
-  HASH_SET( attributes, "transaction_id", UINT2NUM( transaction_id ) );
-  HASH_SET( attributes, "cookie", ULL2NUM( cookie ) );
-  HASH_SET( attributes, "priority", UINT2NUM( priority ) );
-  HASH_SET( attributes, "reason", UINT2NUM( reason ) );
-  HASH_SET( attributes, "table_id", UINT2NUM( table_id ) );
-  HASH_SET( attributes, "duration_sec", UINT2NUM( duration_sec ) );
-  HASH_SET( attributes, "duration_nsec", UINT2NUM( duration_nsec ) );
-  HASH_SET( attributes, "idle_timeout", UINT2NUM( idle_timeout ) );
-  HASH_SET( attributes, "hard_timeout", UINT2NUM( hard_timeout ) );
-  HASH_SET( attributes, "packet_count", ULL2NUM( packet_count ) );
-  HASH_SET( attributes, "byte_count", ULL2NUM( byte_count ) );
+  VALUE r_attributes = rb_hash_new();
+  HASH_SET( r_attributes, "datapath_id", ULL2NUM( datapath_id ) );
+  HASH_SET( r_attributes, "transaction_id", UINT2NUM( transaction_id ) );
+  HASH_SET( r_attributes, "cookie", ULL2NUM( cookie ) );
+  HASH_SET( r_attributes, "priority", UINT2NUM( priority ) );
+  HASH_SET( r_attributes, "reason", UINT2NUM( reason ) );
+  HASH_SET( r_attributes, "table_id", UINT2NUM( table_id ) );
+  HASH_SET( r_attributes, "duration_sec", UINT2NUM( duration_sec ) );
+  HASH_SET( r_attributes, "duration_nsec", UINT2NUM( duration_nsec ) );
+  HASH_SET( r_attributes, "idle_timeout", UINT2NUM( idle_timeout ) );
+  HASH_SET( r_attributes, "hard_timeout", UINT2NUM( hard_timeout ) );
+  HASH_SET( r_attributes, "packet_count", ULL2NUM( packet_count ) );
+  HASH_SET( r_attributes, "byte_count", ULL2NUM( byte_count ) );
 
   UNUSED( match );
-#ifdef LATER
   if ( match != NULL ) {
 printf( "no of matches %d\n", match->n_matches );
   }
-  VALLUE r_match = oxm_match_to_r_match( match );
-  HASH_SET( attributes, "match", r_match );
-#endif
-  VALUE cFlowRemoved = rb_funcall( rb_eval_string( "Messages::FlowRemoved" ), rb_intern( "new" ), 1, attributes );
-  rb_funcall( ( VALUE ) controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), cFlowRemoved );
+  VALUE r_match = oxm_match_to_r_match( match );
+  HASH_SET( r_attributes, "match", r_match );
+  VALUE r_flow_removed = rb_funcall( rb_eval_string( "Messages::FlowRemoved" ), rb_intern( "new" ), 1, r_attributes );
+  rb_funcall( ( VALUE ) controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), r_flow_removed );
 }
 
 

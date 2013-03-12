@@ -80,6 +80,8 @@ class FooController < Controller
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
                        cookie: 1001,
+                       idle_timeout: 60,
+                       flags: OFPFF_SEND_FLOW_REM,
                        match: match,
                        instructions: [ apply_ins ] )
 #    send_flow_mod_add( datapath_id,
@@ -124,13 +126,17 @@ class FooController < Controller
       send_port_multipart_request datapath_id
     end
     if @state == -1
+#      send_barrier_request datapath_id
       send_table_features_multipart_request datapath_id
     end
     if @state == -1 
       send_group_multipart_request datapath_id, 1
     end
-    if @state == 5
+    if @state == -1
       send_group_desc_multipart_request datapath_id, 1
+    end
+    if @state == -1
+      send_port_desc_multipart_request datapath_id
     end
   end
 
@@ -147,6 +153,15 @@ class FooController < Controller
 
   def flow_removed datapath_id, message
     puts message.inspect
+    match = Match.new( in_port: 1 )
+    redirect_action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER ) 
+    apply_ins = ApplyAction.new( actions:  [ redirect_action ] ) 
+    send_flow_mod_add( datapath_id,
+                       priority: OFP_LOW_PRIORITY,
+                       buffer_id: OFP_NO_BUFFER,
+                       cookie: 1001,
+                       match: match,
+                       instructions: [ apply_ins ] )
   end
 
 
@@ -186,6 +201,17 @@ class FooController < Controller
 
 
   def group_desc_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def port_desc_multipart_reply datapath_id, message
+    puts message.inspect
+  end
+
+
+  def barrier_reply datapath_id, message
+exit
     puts message.inspect
   end
 end

@@ -24,6 +24,7 @@
 #include "messages/flow-removed-handler.h"
 #include "messages/error-handler.h"
 #include "messages/multipart-reply-handler.h"
+#include "messages/barrier-reply-handler.h"
 
 
 extern VALUE mTrema;
@@ -39,6 +40,7 @@ install_handlers( VALUE self ) {
   set_flow_removed_handler( handle_flow_removed, ( void * ) self );
   set_error_handler( handle_error, ( void * ) self );
   set_multipart_reply_handler( handle_multipart_reply, ( void * ) self );
+  set_barrier_reply_handler( handle_barrier_reply, ( void * ) self );
   return self;
 }
 

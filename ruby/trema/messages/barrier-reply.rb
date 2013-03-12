@@ -18,11 +18,14 @@
 
 module Trema
   module Messages
-    class PortDescMultipartReply < MultipartReply
-      array :ports
+    class BarrierReply < Message
+      unsigned_int32 :transaction_id
     end
   end
 end
+
+
+BarrierReply = Trema::Messages::BarrierReply
 
 
 ### Local variables:

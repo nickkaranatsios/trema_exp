@@ -18,13 +18,14 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "hash-util.h"
 
 
 buffer *
 pack_features_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( r_xid != Qnil ) {
+  VALUE r_xid = HASH_REF( options, "transaction_id" );
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 

@@ -77,6 +77,10 @@ pack_aggregate_multipart_request( VALUE options ) {
   buffer *aggregate_multipart_request = create_aggregate_multipart_request( xid, flags, table_id,
                                                                             out_port, out_group, cookie,
                                                                             cookie_mask, oxm_match );
+  if ( oxm_match != NULL ) {
+    delete_oxm_matches( oxm_match );
+  }
+
   return aggregate_multipart_request;
 }
 

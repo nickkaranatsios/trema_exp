@@ -33,15 +33,15 @@ handle_error( uint64_t datapath_id,
     return;
   }
   
-  VALUE attributes = rb_hash_new();
-  HASH_SET( attributes, "datapath_id", ULL2NUM( datapath_id ) );
-  HASH_SET( attributes, "transaction_id", UINT2NUM( transaction_id ) );
-  HASH_SET( attributes, "type", UINT2NUM( type ) );
-  HASH_SET( attributes, "code", UINT2NUM( code ) );
-  HASH_SET( attributes, "data", buffer_to_r_array( data ) );
+  VALUE r_attributes = rb_hash_new();
+  HASH_SET( r_attributes, "datapath_id", ULL2NUM( datapath_id ) );
+  HASH_SET( r_attributes, "transaction_id", UINT2NUM( transaction_id ) );
+  HASH_SET( r_attributes, "type", UINT2NUM( type ) );
+  HASH_SET( r_attributes, "code", UINT2NUM( code ) );
+  HASH_SET( r_attributes, "data", buffer_to_r_array( data ) );
 
-  VALUE cError = rb_funcall( rb_eval_string( "Messages::Error" ), rb_intern( "new" ), 1, attributes );
-  rb_funcall( ( VALUE ) controller, rb_intern( "error" ), 2, ULL2NUM( datapath_id ), cError );
+  VALUE r_error = rb_funcall( rb_eval_string( "Messages::Error" ), rb_intern( "new" ), 1, r_attributes );
+  rb_funcall( ( VALUE ) controller, rb_intern( "error" ), 2, ULL2NUM( datapath_id ), r_error );
 }
 
 

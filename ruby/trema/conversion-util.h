@@ -26,7 +26,6 @@ VALUE oxm_match_to_r_match( const oxm_matches *match );
 struct in6_addr ipv6_addr_to_in6_addr( VALUE ipv6_addr );
 void r_match_to_oxm_match( VALUE r_match, oxm_matches *match );
 VALUE ofp_match_to_r_match( const struct ofp_match *match );
-void assign_r_match( const oxm_match_header *hdr, VALUE r_attributes );
 
 
 #endif // CONVERSION_UTIL_H

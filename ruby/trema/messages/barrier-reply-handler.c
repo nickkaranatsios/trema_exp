@@ -19,26 +19,19 @@
 #include "trema.h"
 #include "ruby.h"
 #include "hash-util.h"
-#include "unpack-util.h"
 
 
 void
-handle_port_status( uint64_t datapath_id,
-  uint32_t transaction_id,
-  uint8_t reason,
-  struct ofp_port port_desc,
-  void *controller ) {
-  if ( !rb_respond_to( ( VALUE ) controller, rb_intern( "port_status" ) ) ) {
+handle_barrier_reply( uint64_t datapath_id,
+                     uint32_t transaction_id,
+                     void *controller ) {
+  if ( !rb_respond_to( ( VALUE ) controller, rb_intern( "barrier_reply" ) ) ) {
     return;
   }
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "datapath_id", ULL2NUM( datapath_id ) );
-  HASH_SET( r_attributes, "transaction_id", UINT2NUM( transaction_id ) );
-  HASH_SET( r_attributes, "reason", UINT2NUM( reason ) );
-  
-  unpack_port( &port_desc, r_attributes );
-  VALUE cPortStatus = rb_funcall( rb_eval_string( "Messages::PortStatus" ), rb_intern( "new" ), 1, r_attributes );
-  rb_funcall( ( VALUE ) controller, rb_intern( "port_status" ), 2, ULL2NUM( datapath_id ), cPortStatus );
+  VALUE attributes = rb_hash_new();
+  HASH_SET( attributes, "transaction_id", UINT2NUM( transaction_id ) );
+  VALUE r_barrier_reply = rb_funcall( rb_eval_string( "Messages::BarrierReply" ), rb_intern( "new" ), 1, attributes );
+  rb_funcall( ( VALUE ) controller, rb_intern( "barrier_reply" ), 2, ULL2NUM( datapath_id ), r_barrier_reply );
 }
 
 

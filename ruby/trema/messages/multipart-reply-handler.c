@@ -21,6 +21,7 @@
 #include "ruby.h"
 #include "hash-util.h"
 #include "conversion-util.h"
+#include "unpack-util.h"
 
 
 static const char *table_feature_prop_type_name[] = {
@@ -334,7 +335,7 @@ unpack_action_set_field( const struct ofp_action_set_field *src, VALUE r_action_
 
   if ( field_length > sizeof( oxm_match_header ) ) {
     const oxm_match_header *oxm_src = ( const oxm_match_header * ) src->field;
-    assign_r_match( oxm_src, r_attributes );
+    unpack_r_match( oxm_src, r_attributes );
 
 
     VALUE r_field = UINT2NUM( OXM_FIELD( *oxm_src ) );
@@ -565,6 +566,23 @@ unpack_group_desc_multipart_reply( VALUE r_attributes, void *data ) {
 }
 
 
+static void
+unpack_port_desc_multipart_reply( VALUE r_attributes, void *data, size_t length ) {
+  const struct ofp_port *port = data;
+
+  VALUE r_ports_ary = rb_ary_new();
+  VALUE r_port_attrs = rb_hash_new();
+  while ( length >= sizeof( struct ofp_port ) ) {
+    unpack_port( port, r_port_attrs );
+    VALUE port = rb_funcall( rb_eval_string( "Messages::Port" ), rb_intern( "new" ), 1, r_port_attrs );
+    rb_ary_push( r_ports_ary, port );
+    length -= sizeof( struct ofp_port );
+    port++;
+  }
+  HASH_SET( r_attributes, "ports", r_ports_ary );
+}
+
+  
 static VALUE
 unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t stats_type, const buffer *frame ) {
   VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
@@ -601,7 +619,7 @@ unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t sta
         case OFPMP_TABLE: {
           uint16_t flags = 0;
           VALUE r_flags = HASH_REF( r_attributes, flags );
-          if ( r_flags != Qnil ) {
+          if ( !NIL_P( r_flags ) ) {
             flags =  ( uint16_t ) NUM2UINT( r_flags );
           }
           UNUSED( flags );
@@ -641,6 +659,14 @@ unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t sta
           r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
           if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" )  ) ) {
             rb_funcall( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
+          }
+        }
+        break;
+        case OFPMP_PORT_DESC: {
+          unpack_port_desc_multipart_reply( r_attributes, frame->data, frame->length );
+          r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ) ) ) {
+            rb_funcall( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
           }
         }
         break;

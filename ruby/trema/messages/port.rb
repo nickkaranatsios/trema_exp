@@ -18,8 +18,18 @@
 
 module Trema
   module Messages
-    class PortDescMultipartReply < MultipartReply
-      array :ports
+    class Port < Message
+      unsigned_int32 :port_no, presence: true
+      mac :hw_addr
+      string :name
+      unsigned_int32 :config, presence: true
+      unsigned_int32 :state, presence: true
+      unsigned_int32 :curr, presence: true
+      unsigned_int32 :advertised, presence: true
+      unsigned_int32 :supported, presence: true
+      unsigned_int32 :peer, presence: true
+      unsigned_int32 :curr_speed, presence: true
+      unsigned_int32 :max_speed, presence: true
     end
   end
 end

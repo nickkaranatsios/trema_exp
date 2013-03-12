@@ -16,28 +16,14 @@
  */
 
 
-#include "trema.h"
-#include "ruby.h"
-#include "hash-util.h"
+#ifndef BARRIER_REPLY_HANDLER_H
+#define BARRIER_REPLY_HANDLER_H
 
 
-buffer *
-pack_desc_multipart_request( VALUE options ) {
-  uint32_t xid = get_transaction_id();
-  VALUE r_xid = HASH_REF( options, transaction_id );
-  if ( !NIL_P( r_xid ) )  {
-    xid = NUM2UINT( r_xid );
-  }
+void handle_barrier_reply( uint64_t datapath_id, uint32_t transaction_id, void *user_data );
 
-  uint16_t flags = 0;
-  VALUE r_flags = HASH_REF( options, flags );
-  if ( !NIL_P( r_flags ) ) {
-    flags = ( uint16_t ) NUM2UINT( r_flags );
-  }
-  buffer *desc_multipart_request = create_desc_multipart_request( xid, flags );
 
-  return desc_multipart_request;
-}
+#endif // BARRIER_REPLY_HANDLER_H
 
 
 /*
@@ -46,3 +32,5 @@ pack_desc_multipart_request( VALUE options ) {
  * indent-tabs-mode: nil
  * End:
  */
+                          
+

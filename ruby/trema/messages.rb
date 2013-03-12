@@ -30,6 +30,9 @@ require "trema/messages/flow-removed"
 require "trema/messages/bucket"
 require "trema/messages/group-mod"
 require "trema/messages/error"
+require "trema/messages/port"
+require "trema/messages/barrier-request"
+require "trema/messages/barrier-reply"
 require "trema/messages/multipart-request"
 require "trema/messages/multipart-reply"
 require "trema/messages/flow-multipart-request"
@@ -49,6 +52,7 @@ require "trema/messages/group-multipart-reply"
 require "trema/messages/group-desc-multipart-request"
 require "trema/messages/group-desc-multipart-reply"
 require "trema/messages/port-desc-multipart-request"
+require "trema/messages/port-desc-multipart-reply"
 
 
 ### Local variables:

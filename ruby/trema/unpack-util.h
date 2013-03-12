@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 NEC Corporation
+ * Copyright (C) 2008-2012 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,28 +16,15 @@
  */
 
 
-#include "trema.h"
-#include "ruby.h"
-#include "hash-util.h"
+#ifndef UNPACK_UTIL_H
+#define UNPACK_UTIL_H
 
 
-buffer *
-pack_desc_multipart_request( VALUE options ) {
-  uint32_t xid = get_transaction_id();
-  VALUE r_xid = HASH_REF( options, transaction_id );
-  if ( !NIL_P( r_xid ) )  {
-    xid = NUM2UINT( r_xid );
-  }
+void unpack_port( const struct ofp_port *port_desc, VALUE r_attributes );
+void unpack_r_match( const oxm_match_header *hdr, VALUE r_attributes );
 
-  uint16_t flags = 0;
-  VALUE r_flags = HASH_REF( options, flags );
-  if ( !NIL_P( r_flags ) ) {
-    flags = ( uint16_t ) NUM2UINT( r_flags );
-  }
-  buffer *desc_multipart_request = create_desc_multipart_request( xid, flags );
 
-  return desc_multipart_request;
-}
+#endif // UNPACK_UTIL_H
 
 
 /*

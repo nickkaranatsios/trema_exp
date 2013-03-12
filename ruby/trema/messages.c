@@ -36,6 +36,7 @@
 #include "messages/group-multipart-request.h"
 #include "messages/group-desc-multipart-request.h"
 #include "messages/port-desc-multipart-request.h"
+#include "messages/barrier-request.h"
 
 
 extern VALUE mTrema;
@@ -161,6 +162,12 @@ pack_group_desc_multipart_request_msg( VALUE self, VALUE options ) {
 }
 
 
+static VALUE
+pack_barrier_request_msg( VALUE self, VALUE options ) {
+  PACK_MSG( barrier_request, self, options );
+}
+
+
 void
 Init_messages( void ) {
   mMessages = rb_define_module_under( mTrema, "Messages" );
@@ -180,6 +187,7 @@ Init_messages( void ) {
   rb_define_module_function( mMessages, "pack_table_features_multipart_request_msg", pack_table_features_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_group_multipart_request_msg", pack_group_multipart_request_msg, 1 );
   rb_define_module_function( mMessages, "pack_group_desc_multipart_request_msg", pack_group_desc_multipart_request_msg, 1 );
+  rb_define_module_function( mMessages, "pack_barrier_request_msg", pack_barrier_request_msg, 1 );
 
   rb_require( "trema/messages" );
 }

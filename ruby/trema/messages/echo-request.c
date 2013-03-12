@@ -18,19 +18,20 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "hash-util.h"
 
 
 buffer *
 pack_echo_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
-  if ( r_xid != Qnil ) {
+  VALUE r_xid = HASH_REF( options, "transaction_id" );
+  if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
-  VALUE r_body = rb_hash_aref( options, ID2SYM( rb_intern( "user_data" ) ) );
+  VALUE r_body = HASH_REF( options, "user_data" );
   buffer *body = NULL;
-  if ( r_body != Qnil ) {
+  if ( !NIL_P( r_body ) ) {
     if ( TYPE( r_body ) == T_ARRAY ) {
         uint16_t buffer_len = ( uint16_t ) RARRAY_LEN( r_body );
 

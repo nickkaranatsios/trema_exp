@@ -247,6 +247,26 @@ send_group_desc_multipart_request( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+static VALUE
+send_port_desc_multipart_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+  SEND_MULTIPART_REQUEST( port_desc, "Messages::PortDescMultipartRequest", self, datapath_id, options );
+}
+
+
+static VALUE
+send_barrier_request( int argc, VALUE *argv, VALUE self ) {
+  VALUE datapath_id = Qnil;
+  VALUE options = Qnil;
+  rb_scan_args( argc, argv, "11", &datapath_id, &options );
+  VALUE r_barrier_request = rb_funcall( rb_eval_string( "Messages::BarrierRequest" ), rb_intern( "new" ), 1, options );
+  send_controller_message( self, datapath_id, r_barrier_request );
+  return self;
+}
+
+
 void
 Init_message_helper( void ) {
   mMessageHelper = rb_define_module_under( mTrema, "MessageHelper" );
@@ -263,6 +283,8 @@ Init_message_helper( void ) {
   rb_define_module_function( mMessageHelper, "send_table_features_multipart_request", send_table_features_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_group_multipart_request", send_group_multipart_request, -1 );
   rb_define_module_function( mMessageHelper, "send_group_desc_multipart_request", send_group_desc_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_port_desc_multipart_request", send_port_desc_multipart_request, -1 );
+  rb_define_module_function( mMessageHelper, "send_barrier_request", send_barrier_request, - 1 );
 }
 
 

@@ -24,8 +24,6 @@
 
 buffer *
 pack_group_mod( VALUE options ) {
-  VALUE r_str = rb_inspect( options );
-  printf( "options %s\n", StringValuePtr( r_str ) );
   uint32_t xid = get_transaction_id();
   VALUE r_xid = HASH_REF( options, transaction_id );
   if ( !NIL_P( r_xid ) ) {
