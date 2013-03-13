@@ -24,12 +24,12 @@
 buffer *
 pack_echo_request( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = HASH_REF( options, "transaction_id" );
+  VALUE r_xid = HASH_REF( options, transaction_id );
   if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
-  VALUE r_body = HASH_REF( options, "user_data" );
+  VALUE r_body = HASH_REF( options, user_data );
   buffer *body = NULL;
   if ( !NIL_P( r_body ) ) {
     if ( TYPE( r_body ) == T_ARRAY ) {

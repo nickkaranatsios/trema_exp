@@ -54,12 +54,10 @@ handle_flow_removed( uint64_t datapath_id,
   HASH_SET( r_attributes, "packet_count", ULL2NUM( packet_count ) );
   HASH_SET( r_attributes, "byte_count", ULL2NUM( byte_count ) );
 
-  UNUSED( match );
   if ( match != NULL ) {
-printf( "no of matches %d\n", match->n_matches );
+    VALUE r_match = oxm_match_to_r_match( match );
+    HASH_SET( r_attributes, "match", r_match );
   }
-  VALUE r_match = oxm_match_to_r_match( match );
-  HASH_SET( r_attributes, "match", r_match );
   VALUE r_flow_removed = rb_funcall( rb_eval_string( "Messages::FlowRemoved" ), rb_intern( "new" ), 1, r_attributes );
   rb_funcall( ( VALUE ) controller, rb_intern( "flow_removed" ), 2, ULL2NUM( datapath_id ), r_flow_removed );
 }

@@ -262,34 +262,34 @@ r_match_to_oxm_match( VALUE r_match, oxm_matches *match ) {
   }
 
   VALUE r_sctp_dst = rb_iv_get( r_match, "@sctp_dst" );
-  if ( !NIL_P( r_sctp_dst != Qnil ) ) {
+  if ( !NIL_P( r_sctp_dst ) ) {
     append_oxm_match_sctp_dst( match, ( uint16_t ) NUM2UINT( r_sctp_dst ) );
   }
 
 
   VALUE r_icmpv6_type = rb_iv_get( r_match, "@icmpv6_type" );
-  if ( r_icmpv6_type != Qnil ) {
+  if ( !NIL_P( r_icmpv6_type ) ) {
     uint8_t icmpv6_type = ( uint8_t ) NUM2UINT( r_icmpv6_type );
     append_oxm_match_icmpv6_type( match, icmpv6_type );
 
     VALUE r_icmpv6_code = rb_iv_get( r_match, "@icmpv6_code" );
-    if ( r_icmpv6_code != Qnil ) {
+    if ( !NIL_P( r_icmpv6_code ) ) {
       append_oxm_match_icmpv6_code( match, ( uint8_t ) NUM2UINT( r_icmpv6_code ) );
     }
 
     if ( icmpv6_type == 135 || icmpv6_type == 136 ) {
       VALUE r_ipv6_nd_target = rb_iv_get( r_match, "@ipv6_nd_target" );
-      if ( r_ipv6_nd_target != Qnil ) {
+      if ( !NIL_P( r_ipv6_nd_target ) ) {
         append_oxm_match_ipv6_nd_target( match, ipv6_addr_to_in6_addr( r_ipv6_nd_target ) );
       }
 
       VALUE r_ipv6_nd_sll = rb_iv_get( r_match, "@ipv6_nd_sll" );
-      if ( r_ipv6_nd_sll != Qnil ) {
+      if ( !NIL_P( r_ipv6_nd_sll ) ) {
         append_oxm_match_ipv6_nd_sll( match, mac_addr_to_cstr( r_ipv6_nd_sll ) );
       }
 
       VALUE r_ipv6_nd_tll = rb_iv_get( r_match, "@ipv6_nd_tll" );
-      if ( r_ipv6_nd_tll != Qnil ) {
+      if ( !NIL_P( r_ipv6_nd_tll ) ) {
         append_oxm_match_ipv6_nd_tll( match, mac_addr_to_cstr( r_ipv6_nd_tll ) );
       }
     }

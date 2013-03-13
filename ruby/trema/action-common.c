@@ -119,7 +119,7 @@ pack_flexible_action( VALUE r_action ) {
 openflow_instructions *
 pack_instruction( VALUE r_instruction ) {
   openflow_instructions *instructions = create_instructions();
-  VALUE cInstruction;
+  VALUE r_ins_instance;
   VALUE r_id = rb_intern( "pack_instruction" );
 
   if ( r_instruction != Qnil ) {
@@ -129,16 +129,16 @@ pack_instruction( VALUE r_instruction ) {
 
         for ( int i = 0; i < RARRAY_LEN( r_instruction ); i++ ) {
           if ( rb_respond_to( each[ i ], r_id ) ) {
-            cInstruction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, instructions );
-            rb_funcall( each[ i ], r_id, 1, cInstruction );
+            r_ins_instance = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, instructions );
+            rb_funcall( each[ i ], r_id, 1, r_ins_instance );
           }
         }
       }
       break;
       case T_OBJECT:
         if ( rb_respond_to( rb_obj_class( r_instruction ), r_id ) ) {
-          cInstruction = Data_Wrap_Struct( r_instruction, NULL, NULL, instructions );
-          rb_funcall( r_instruction, r_id, 1, cInstruction );
+          r_ins_instance = Data_Wrap_Struct( r_instruction, NULL, NULL, instructions );
+          rb_funcall( r_instruction, r_id, 1, r_ins_instance );
         }
       break;
       default:
@@ -146,8 +146,7 @@ pack_instruction( VALUE r_instruction ) {
       break;
     }
   }
-  Data_Get_Struct( cInstruction, openflow_instructions, instructions );
-  printf( "no. of instructions added %d\n", instructions->n_instructions );
+  Data_Get_Struct( r_ins_instance, openflow_instructions, instructions );
   return instructions;
 }
 

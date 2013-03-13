@@ -40,8 +40,8 @@ class LearningSwitch < Controller
     @fdb = FDB.new
     puts "#{ __method__ } datapath_id #{ datapath_id }"
 
-    action = Actions::SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
-    ins = Instructions::ApplyAction.new( :actions => [ action ] ) 
+    action = SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
+    ins = ApplyAction.new( :actions => [ action ] ) 
     send_flow_mod_add( datapath_id,
                        :priority => OFP_LOW_PRIORITY,
                        :buffer_id => OFP_NO_BUFFER,
@@ -75,7 +75,7 @@ class LearningSwitch < Controller
 
 
   def flow_mod datapath_id, message, port_no
-    action = Actions::SendOutPort.new( :port_number => port_no )
+    action = SendOutPort.new( :port_number => port_no )
     ins = Instructions::ApplyAction.new( :actions => [ action ] )
     send_flow_mod_add(
       datapath_id,
@@ -105,4 +105,4 @@ end
 ### mode: Ruby
 ### coding: utf-8
 ### indent-tabs-mode: nil
-### End:
+### End
