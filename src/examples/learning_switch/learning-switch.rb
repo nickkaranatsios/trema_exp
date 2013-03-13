@@ -38,7 +38,6 @@ class LearningSwitch < Controller
 
   def switch_ready datapath_id
     @fdb = FDB.new
-    puts "#{ __method__ } datapath_id #{ datapath_id }"
 
     action = SendOutPort.new( :port_number => OFPP_CONTROLLER, :max_len => OFPCML_NO_BUFFER ) 
     ins = ApplyAction.new( :actions => [ action ] ) 
@@ -52,7 +51,6 @@ class LearningSwitch < Controller
 
 
   def packet_in datapath_id, message
-    puts message.inspect
     @fdb.learn message.eth_src, message.in_port
     port_no = @fdb.port_no_of( message.eth_dst )
     if port_no

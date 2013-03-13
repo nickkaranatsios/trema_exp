@@ -38,23 +38,6 @@ handle_timer_event( void *self ) {
 }
 
 
-#ifdef TEST
-static VALUE
-get_strict( int argc, VALUE *argv ) {
-  VALUE datapath_id = Qnil;
-  VALUE options = Qnil;
-  VALUE strict = Qnil;
-
-  rb_scan_args( argc, argv, "11", &datapath_id, &options );
-  if ( options != Qnil ) {
-    strict = rb_hash_aref( options, ID2SYM( rb_intern( "strict" ) ) );
-  }
-  return strict;
-}
-#endif
-
-
-
 /*
  * Starts this controller. Usually you do not need to invoke
  * explicitly, because this is called implicitly by "trema run"

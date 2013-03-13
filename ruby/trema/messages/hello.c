@@ -18,17 +18,18 @@
 
 #include "trema.h"
 #include "ruby.h"
+#include "hash-util.h"
 
 
 buffer *
 pack_hello( VALUE options ) {
   uint32_t xid = get_transaction_id();
-  VALUE r_xid = rb_hash_aref( options, ID2SYM( rb_intern( "transaction_id" ) ) );
+  VALUE r_xid = HASH_REF( options, transaction_id );
   if ( !NIL_P( r_xid ) ) {
     xid = NUM2UINT( r_xid );
   }
 
-  VALUE r_version = rb_hash_aref( options, ID2SYM( rb_intern( "version" ) ) );
+  VALUE r_version = HASH_REF( options, version );
   uint32_t ofp_version[ 1 ];
   if ( rb_obj_is_kind_of( r_version, rb_cArray ) )  {
     if ( RARRAY_LEN( r_version ) > 1 ) {

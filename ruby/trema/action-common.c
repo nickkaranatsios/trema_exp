@@ -122,7 +122,7 @@ pack_instruction( VALUE r_instruction ) {
   VALUE r_ins_instance;
   VALUE r_id = rb_intern( "pack_instruction" );
 
-  if ( r_instruction != Qnil ) {
+  if ( !NIL_P( r_instruction ) ) {
     switch ( TYPE( r_instruction ) ) {
       case T_ARRAY: {
         VALUE *each = RARRAY_PTR( r_instruction );

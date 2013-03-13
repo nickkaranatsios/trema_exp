@@ -585,8 +585,7 @@ unpack_port_desc_multipart_reply( VALUE r_attributes, void *data, size_t length 
   
 static VALUE
 unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t stats_type, const buffer *frame ) {
-  VALUE sym_datapath_id = ID2SYM( rb_intern( "datapath_id" ) );
-  VALUE r_dpid = rb_hash_aref( r_attributes, sym_datapath_id );
+  VALUE r_dpid = HASH_REF( r_attributes, datapath_id );
   VALUE r_reply_obj = Qnil;
 
   if ( frame != NULL ) {

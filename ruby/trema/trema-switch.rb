@@ -52,7 +52,9 @@ module Trema
 
 
     def command
-      "export SWITCH_HOME=`pwd`; sudo -E #{ Executables.switch } -i #{ dpid_short } -e #{ @stanza[ :ports ] } > #{ log_file } &"
+      ports = @stanza[ :ports ]
+      ports = Trema::Link.instances.values.map.with_index { | each, i | "#{ each.name }/#{ i + 1 }"  }.join( ',' ) if @stanza[ :ports ].nil?
+      "export SWITCH_HOME=`pwd`; sudo -E #{ Executables.switch } -i #{ dpid_short } -e #{ ports } > #{ log_file } &"
     end
   end
 end

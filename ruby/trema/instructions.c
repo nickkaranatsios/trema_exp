@@ -19,19 +19,11 @@
 #include "trema.h"
 #include "ruby.h"
 #include "action-common.h"
+#include "hash-util.h"
 
 
 extern VALUE mTrema;
 VALUE mInstructions;
-
-
-static VALUE sym_table_id;
-static VALUE sym_metadata;
-static VALUE sym_metadata_mask;
-static VALUE sym_actions;
-static VALUE sym_meter;
-static VALUE sym_experimenter;
-static VALUE sym_user_data;
 
 
 static openflow_instructions *
@@ -43,79 +35,79 @@ instructions_ptr( VALUE self ) {
 
 
 static VALUE
-pack_goto_table_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE table_id = rb_hash_aref( options, sym_table_id );
-  append_instructions_goto_table( instructions_ptr( instructions_r ), ( uint8_t ) NUM2UINT( table_id ) ); 
+pack_goto_table_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE r_table_id = HASH_REF( r_options, table_id );
+  append_instructions_goto_table( instructions_ptr( r_instructions ), ( uint8_t ) NUM2UINT( r_table_id ) ); 
   return self;
 }
 
 
 static VALUE
-pack_write_metadata_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE metadata = rb_hash_aref( options, sym_metadata );
+pack_write_metadata_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE r_metadata = HASH_REF( r_options, metadata );
   uint64_t metadata_mask = 0;
-  VALUE metadata_mask_r = rb_hash_aref( options, sym_metadata_mask );
+  VALUE r_metadata_mask = HASH_REF( r_options, metadata_mask );
 
-  if ( metadata_mask_r != Qnil ) {
-    metadata_mask = ( uint64_t ) NUM2ULL( metadata_mask_r );
+  if ( !NIL_P( r_metadata_mask ) ) {
+    metadata_mask = ( uint64_t ) NUM2ULL( r_metadata_mask );
   }
-  append_instructions_write_metadata( instructions_ptr( instructions_r ), ( uint64_t ) NUM2ULL( metadata ), metadata_mask );
+  append_instructions_write_metadata( instructions_ptr( r_instructions ), ( uint64_t ) NUM2ULL( r_metadata ), metadata_mask );
   return self;
 }
 
 
 static VALUE
-pack_write_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE basic_actions = rb_hash_aref( options, sym_actions );
+pack_write_action_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE basic_actions = HASH_REF( r_options, actions );
   openflow_actions *actions = pack_basic_action( basic_actions );
-  append_instructions_write_actions( instructions_ptr( instructions_r ), actions );
+  append_instructions_write_actions( instructions_ptr( r_instructions ), actions );
   return self;
 }
 
 
 static VALUE
-pack_apply_action_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE action_list = rb_hash_aref( options, sym_actions );
+pack_apply_action_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE action_list = HASH_REF( r_options, actions );
   openflow_actions *actions = pack_basic_action( action_list );
-  append_instructions_apply_actions( instructions_ptr( instructions_r ), actions );
+  append_instructions_apply_actions( instructions_ptr( r_instructions ), actions );
   return self;
 }
 
 
 static VALUE
-pack_clear_action_instruction( VALUE self, VALUE instruction_r, VALUE options ) {
-  UNUSED( options );
-  append_instructions_clear_actions( instructions_ptr( instruction_r ) );
+pack_clear_action_instruction( VALUE self, VALUE r_instruction, VALUE r_options ) {
+  UNUSED( r_options );
+  append_instructions_clear_actions( instructions_ptr( r_instruction ) );
   return self;
 }
 
 
 static VALUE
-pack_meter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE meter = rb_hash_aref( options, sym_meter );
-  append_instructions_meter( instructions_ptr( instructions_r ), NUM2UINT( meter ) );
+pack_meter_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE r_meter = HASH_REF( r_options, meter );
+  append_instructions_meter( instructions_ptr( r_instructions ), NUM2UINT( r_meter ) );
   return self;
 }
 
 
 static VALUE
-pack_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options ) {
-  VALUE experimenter = rb_hash_aref( options, sym_experimenter );
-  VALUE user_data_r = Qnil;
+pack_experimenter_instruction( VALUE self, VALUE r_instructions, VALUE r_options ) {
+  VALUE r_experimenter = HASH_REF( r_options, experimenter );
+  VALUE r_user_data = Qnil;
 
-  if ( ( user_data_r = rb_hash_aref( options, sym_user_data ) ) != Qnil ) {
-    Check_Type( user_data_r, T_ARRAY );
-    uint16_t length = ( uint16_t ) RARRAY_LEN( user_data_r );
+  if ( ( r_user_data = HASH_REF( r_options, user_data ) ) != Qnil ) {
+    Check_Type( r_user_data, T_ARRAY );
+    uint16_t length = ( uint16_t ) RARRAY_LEN( r_user_data );
     buffer *user_data = alloc_buffer_with_length( length );
     void *p = append_back_buffer( user_data, length );
     for ( int i = 0; i < length; i++ ) {
-      ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( user_data_r )[ i ] );
+      ( ( uint8_t * ) p )[ i ] = ( uint8_t ) FIX2INT( RARRAY_PTR( r_user_data )[ i ] );
     }
-    append_instructions_experimenter( instructions_ptr( instructions_r ), NUM2UINT( experimenter ), user_data );
+    append_instructions_experimenter( instructions_ptr( r_instructions ), NUM2UINT( r_experimenter ), user_data );
     free_buffer( user_data );
   }
   else {
-    append_instructions_experimenter( instructions_ptr( instructions_r ), NUM2UINT( experimenter ), NULL );
+    append_instructions_experimenter( instructions_ptr( r_instructions ), NUM2UINT( r_experimenter ), NULL );
   }
   return self;
 }
@@ -124,14 +116,6 @@ pack_experimenter_instruction( VALUE self, VALUE instructions_r, VALUE options )
 void
 Init_instructions( void ) {
   mInstructions = rb_define_module_under( mTrema, "Instructions" );
-
-  sym_table_id = ID2SYM( rb_intern( "table_id" ) );
-  sym_metadata = ID2SYM( rb_intern( "metadata" ) );
-  sym_metadata_mask = ID2SYM( rb_intern( "metadata_mask" ) );
-  sym_actions = ID2SYM( rb_intern( "actions" ) );
-  sym_meter = ID2SYM( rb_intern( "meter" ) );
-  sym_experimenter = ID2SYM( rb_intern( "experimenter" ) );
-  sym_user_data = ID2SYM( rb_intern( "user_data" ) );
 
   rb_define_module_function( mInstructions, "pack_goto_table_instruction", pack_goto_table_instruction, 2 );
   rb_define_module_function( mInstructions, "pack_write_metadata_instruction", pack_write_metadata_instruction, 2 );

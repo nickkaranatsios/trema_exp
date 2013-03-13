@@ -52,8 +52,6 @@ class FooController < Controller
 #       eval %[ set_#{ handler }_handler() { | datapath_id, message | EM.defer{ #{ handler }( datapath_id, message ) } } ]
 #     end
 #  end
-
-
   def switch_ready datapath_id
     puts "#{ __method__ } datapath_id #{ datapath_id }"
 
