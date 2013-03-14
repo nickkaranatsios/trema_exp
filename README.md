@@ -23,6 +23,8 @@ Implementation status:
 * `src/examples/learning_switch`: works (both C and Ruby )
 * `src/examples/repeater_hub`: works (Ruby only)
 * `trema apps`: not work
+* `features`: not work
+* `spec`: not work
 
 The `./trema ruby` not updated yet to include trema edge's API documentation and
 currently displays the trema's API documentation.
