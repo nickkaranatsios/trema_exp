@@ -78,8 +78,6 @@ class FooController < Controller
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
                        cookie: 1001,
-                       idle_timeout: 60,
-                       flags: OFPFF_SEND_FLOW_REM,
                        match: match,
                        instructions: [ apply_ins ] )
 #    send_flow_mod_add( datapath_id,
@@ -123,7 +121,7 @@ class FooController < Controller
     if @state == -1
       send_port_multipart_request datapath_id
     end
-    if @state == -1
+    if @state == 5
 #      send_barrier_request datapath_id
       send_table_features_multipart_request datapath_id
     end

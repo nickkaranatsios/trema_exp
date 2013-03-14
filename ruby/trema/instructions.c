@@ -109,6 +109,7 @@ pack_experimenter_instruction( VALUE self, VALUE r_instructions, VALUE r_options
   else {
     append_instructions_experimenter( instructions_ptr( r_instructions ), NUM2UINT( r_experimenter ), NULL );
   }
+
   return self;
 }
 

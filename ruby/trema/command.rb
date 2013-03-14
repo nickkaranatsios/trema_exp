@@ -18,7 +18,6 @@
 #
 
 
-require "trema/command/dump_flows"
 require "trema/command/kill"
 require "trema/command/killall"
 require "trema/command/netns"

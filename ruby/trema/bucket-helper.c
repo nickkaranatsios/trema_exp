@@ -23,29 +23,29 @@
 
 static bool
 pack_bucket( VALUE r_bucket, openflow_buckets *buckets ) {
-
   VALUE r_actions = rb_iv_get( r_bucket, "@actions" );
   openflow_actions *actions = NULL;
-  if ( r_actions != Qnil ) {
+  if ( !NIL_P( r_actions ) ) {
     actions = pack_basic_action( r_actions );
   }
   VALUE r_weight = rb_iv_get( r_bucket, "@weight" );
   uint16_t weight = 0;
-  if ( r_weight != Qnil ) {
+  if ( !NIL_P( r_weight ) ) {
     weight = ( uint16_t ) NUM2UINT( r_weight );
   }
 
   VALUE r_watch_port = rb_iv_get( r_bucket, "@watch_port" );
   uint32_t watch_port = 0;
-  if ( r_watch_port != Qnil ) {
+  if ( !NIL_P( r_watch_port ) ) {
     watch_port = ( uint32_t ) NUM2UINT( r_watch_port );
   }
 
   VALUE r_watch_group = rb_iv_get( r_bucket, "@watch_group" );
   uint32_t watch_group = 0;
-  if ( r_watch_group != Qnil ) {
+  if ( !NIL_P( r_watch_group ) ) {
     watch_group = ( uint32_t ) NUM2UINT( r_watch_group );
   }
+
   return append_bucket( buckets, weight, watch_port, watch_group, actions );
 }
 
@@ -54,7 +54,7 @@ openflow_buckets *
 pack_buckets( VALUE r_bucket ) {
   openflow_buckets *buckets = create_buckets();
 
-  if ( r_bucket != Qnil ) {
+  if ( !NIL_P( r_bucket ) ) {
     switch ( TYPE( r_bucket ) ) {
       case T_ARRAY: {
         VALUE *each = RARRAY_PTR( r_bucket );
@@ -74,8 +74,10 @@ pack_buckets( VALUE r_bucket ) {
       break;
     }
   }
+
   return buckets;
 }
+
 
 /*
  * Local variables:
