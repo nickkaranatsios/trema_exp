@@ -176,16 +176,6 @@ command :reset_stats do | c |
 end
 
 
-desc "Print all flow entries"
-arg_name "switches..."
-command :dump_flows do | c |
-  c.action do | global_options, options, args |
-    help_now!( "switches is required" ) if args.empty?
-    trema_dump_flows args
-  end
-end
-
-
 desc "Opens a new shell in the specified network namespace"
 arg_name "name"
 command :netns do | c |
