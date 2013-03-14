@@ -32,5 +32,3 @@ void handle_barrier_reply( uint64_t datapath_id, uint32_t transaction_id, void *
  * indent-tabs-mode: nil
  * End:
  */
-                          
-

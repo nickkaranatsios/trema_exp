@@ -60,7 +60,7 @@ ipv6_addr_to_in6_addr( VALUE ipv6_addr ) {
 
   return in6_addr;
 }
-  
+
 
 static VALUE
 pack_in_port( VALUE self, VALUE actions, VALUE options ) {

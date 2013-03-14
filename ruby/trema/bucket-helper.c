@@ -85,4 +85,3 @@ pack_buckets( VALUE r_bucket ) {
  * indent-tabs-mode: nil
  * End:
  */
-  

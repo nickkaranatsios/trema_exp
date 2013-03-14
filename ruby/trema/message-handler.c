@@ -31,7 +31,6 @@ extern VALUE mTrema;
 VALUE mMessageHandler;
 
 
-
 VALUE
 install_handlers( VALUE self ) {
   set_packet_in_handler( handle_packet_in, ( void * ) self );

@@ -35,7 +35,6 @@ ipv6_addr_to_in6_addr( VALUE ipv6_addr ) {
 }
 
 
-
 buffer *
 r_array_to_buffer( VALUE r_array ) {
   buffer *data = NULL;
@@ -301,13 +300,13 @@ VALUE
 oxm_match_to_r_match( const oxm_matches *match ) {
   assert( match != NULL );
 
-  VALUE options = rb_hash_new();
+  VALUE r_options = rb_hash_new();
 
   for ( list_element *list = match->list; list != NULL; list = list->next ) {
     const oxm_match_header *oxm = list->data;
-    unpack_r_match( oxm, options );
+    unpack_r_match( oxm, r_options );
   }
-  return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, options );
+  return rb_funcall( rb_eval_string( "Match" ), rb_intern( "new" ), 1, r_options );
 }
 
 
@@ -317,4 +316,3 @@ oxm_match_to_r_match( const oxm_matches *match ) {
  * indent-tabs-mode: nil
  * End:
  */
-

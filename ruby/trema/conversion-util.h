@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -20,12 +20,12 @@
 #define CONVERSION_UTIL_H
 
 
-buffer *r_array_to_buffer( VALUE r_array );
 VALUE buffer_to_r_array( const buffer *buffer );
 VALUE oxm_match_to_r_match( const oxm_matches *match );
+VALUE ofp_match_to_r_match( const struct ofp_match *match );
+buffer *r_array_to_buffer( VALUE r_array );
 struct in6_addr ipv6_addr_to_in6_addr( VALUE ipv6_addr );
 void r_match_to_oxm_match( VALUE r_match, oxm_matches *match );
-VALUE ofp_match_to_r_match( const struct ofp_match *match );
 
 
 #endif // CONVERSION_UTIL_H

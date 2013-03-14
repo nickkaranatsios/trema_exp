@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -49,26 +49,26 @@ mac_addr_to_cstr( VALUE mac_addr ) {
 openflow_actions *
 pack_basic_action( VALUE r_action ) {
   openflow_actions *actions = create_actions();
-  VALUE cAction = Qnil;
+  VALUE r_action_ins = Qnil;
   VALUE r_id = rb_intern( "pack_basic_action" );
 
-  if ( r_action != Qnil ) {
+  if ( !NIL_P( r_action ) ) {
     switch ( TYPE( r_action ) ) {
       case T_ARRAY: {
           VALUE *each = RARRAY_PTR( r_action );
 
           for ( int i = 0; i < RARRAY_LEN( r_action ); i++ ) {
             if ( rb_respond_to( each[ i ], r_id ) ) {
-              cAction = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, actions );
-              rb_funcall( each[ i ], r_id, 1, cAction );
+              r_action_ins = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, actions );
+              rb_funcall( each[ i ], r_id, 1, r_action_ins );
             }
           }
       }
       break;
       case T_OBJECT:
         if ( rb_respond_to( r_action, r_id ) ) {
-          cAction = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, actions );
-          rb_funcall( r_action, r_id, 1, cAction );
+          r_action_ins = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, actions );
+          rb_funcall( r_action, r_id, 1, r_action_ins );
         }
       break;
       default:
@@ -76,7 +76,7 @@ pack_basic_action( VALUE r_action ) {
       break;
     }
   }
-  Data_Get_Struct( cAction, openflow_actions, actions );
+  Data_Get_Struct( r_action_ins, openflow_actions, actions );
   return actions;
 }
 
@@ -84,26 +84,26 @@ pack_basic_action( VALUE r_action ) {
 oxm_matches *
 pack_flexible_action( VALUE r_action ) {
   oxm_matches *oxm_match = create_oxm_matches();
-  VALUE cOxmMatch = Qnil;
+  VALUE r_oxm_ins = Qnil;
   VALUE r_id = rb_intern( "flexible_action" );
 
-  if ( r_action != Qnil ) {
+  if ( !NIL_P( r_action ) ) {
     switch ( TYPE( r_action ) ) {
       case T_ARRAY: {
           VALUE *each = RARRAY_PTR( r_action );
 
           for ( int i = 0; i < RARRAY_LEN( r_action ); i++ ) {
             if ( rb_respond_to( each[ i ], r_id ) ) {
-              cOxmMatch = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, oxm_match );
-              rb_funcall( each[ i ], r_id, 1, cOxmMatch );
+              r_oxm_ins = Data_Wrap_Struct( rb_obj_class( each[ i ] ), NULL, NULL, oxm_match );
+              rb_funcall( each[ i ], r_id, 1, r_oxm_ins );
             }
           }
       }
       break;
       case T_OBJECT:
         if ( rb_respond_to( r_action, r_id ) ) {
-          cOxmMatch = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, oxm_match );
-          rb_funcall( r_action, r_id, 1, cOxmMatch );
+          r_oxm_ins = Data_Wrap_Struct( rb_obj_class( r_action ), NULL, NULL, oxm_match );
+          rb_funcall( r_action, r_id, 1, r_oxm_ins );
         }
       break;
       default:
@@ -111,7 +111,7 @@ pack_flexible_action( VALUE r_action ) {
       break;
     }
   }
-  Data_Get_Struct( cOxmMatch, oxm_matches, oxm_match );
+  Data_Get_Struct( r_oxm_ins, oxm_matches, oxm_match );
   return oxm_match;
 }
 

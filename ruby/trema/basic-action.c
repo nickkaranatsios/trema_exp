@@ -145,7 +145,7 @@ pack_pop_pbb( VALUE self, VALUE actions, VALUE options ) {
   return self;
 }
 
-  
+
 static VALUE
 pack_experimenter( VALUE self, VALUE actions, VALUE options ) {
   VALUE r_experimenter = HASH_REF( options, experimenter );

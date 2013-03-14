@@ -1,7 +1,5 @@
 /*
- * Author: Yasuhito Takamiya <yasuhito@gmail.com>
- *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -114,31 +112,9 @@ controller_start_trema( VALUE self ) {
 }
 
 
-static VALUE
-controller_test_basic_action( VALUE self, VALUE action ) {
-  pack_basic_action( action );
-  return self;
-}
-
-
-static VALUE
-controller_test_flexible_action( VALUE self, VALUE oxm_match ) {
-  pack_flexible_action( oxm_match );
-  return self;
-}
-
-
-static VALUE
-controller_test_instruction( VALUE self, VALUE instruction ) {
-  pack_instruction( instruction );
-  return self;
-}
-
-
 /********************************************************************************
  * Init Controller module.
  ********************************************************************************/
-
 void
 Init_controller( void ) {
   rb_require( "trema/app" );
@@ -148,9 +124,6 @@ Init_controller( void ) {
   rb_define_method( cController, "run!", controller_run, 0 );
   rb_define_method( cController, "shutdown!", controller_shutdown, 0 );
   rb_define_private_method( cController, "start_trema", controller_start_trema, 0 );
-  rb_define_method( cController, "test_basic_action", controller_test_basic_action, 1 );
-  rb_define_method( cController, "test_flexible_action", controller_test_flexible_action, 1 );
-  rb_define_method( cController, "test_instruction", controller_test_instruction, 1 );
 
   rb_require( "trema/controller" );
 }
