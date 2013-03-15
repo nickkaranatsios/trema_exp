@@ -141,7 +141,7 @@ t = Trema::Test.new
 #t.test_flow_mod_add
 #t.basic_actions
 #t.flexible_actions
-#t.messages
-t.instructions
+t.messages
+#t.instructions
 
 
