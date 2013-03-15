@@ -327,10 +327,6 @@ Init_message_const( void ) {
   rb_define_module_function( mMessageConst, "frag_reasm", frag_reasm, 0 );
   rb_define_module_function( mMessageConst, "frag_mask", frag_mask, 0 );
 
-  VALUE config_flags = rb_range_new( UINT2NUM( OFPC_FRAG_NORMAL ), UINT2NUM( OFPC_FRAG_MASK ), false );
-  rb_iv_set( mMessageConst, "@config_flags", config_flags );
-
-
   // ofp_ports
   rb_define_module_function( mMessageConst, "max_port", max_port, 0 );
   rb_define_module_function( mMessageConst, "in_port", in_port, 0 );

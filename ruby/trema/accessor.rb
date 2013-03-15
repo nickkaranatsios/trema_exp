@@ -24,7 +24,7 @@ module Trema
   # A base class for defining user defined like accessors.
   #
   class Accessor
-    # mixin mapping of ofp type to implemententation class.
+    # mixin mapping of ofp type to implementation class.
     include Mapping
     USER_DEFINED_TYPES = %w( ip_addr mac match packet_info array string bool )
 
