@@ -2,7 +2,7 @@
 
 New to trema-edge are the following subdirectories containing implementation files
 for the Ruby controller. Because retrospection is used for method dispatching
-or define accessor attributes the contents of those files should not carelessly modified.
+or for defining accessor attributes the contents of those files should not carelessly modified.
 All classes can be referenced by prefixing the full module name or by just their name.
 For example `Trema::Instructions::WriteAction` is equivalent to `WriteAction`.
 
@@ -10,7 +10,7 @@ For example `Trema::Instructions::WriteAction` is equivalent to `WriteAction`.
 All messages that the Ruby controller supports can be found under
 the directory `messages`. Messages are logically separated into requests and
 replies. For each message there is a ruby class file that holds the attributes
-describe it. This message object can be instantiated by calling its constructor
+describing it. This message object can be instantiated by calling its constructor
 supplying a hash of key/value arguments. An equivalent message C file provides
 pack and unpack functions to be able to transmit and receive the message
 to/from the lower layers. A user can send a message by calling the `send_message`

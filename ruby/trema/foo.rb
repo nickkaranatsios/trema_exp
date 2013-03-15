@@ -72,7 +72,7 @@ class FooController < Controller
     #goto_table_ins = GotoTable.new( table_id: 1 )
     match = Match.new( in_port: 1, eth_type: 0x88cc )
     #match = Match.new( in_port: 1, eth_type: 2054 )
-    #match = Match.new( in_port: 1 )
+    match = Match.new( in_port: 1 )
     # to match ping packets use eth_type: 2054 to match lldp packets use 0x88cc
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
@@ -125,13 +125,13 @@ class FooController < Controller
 #      send_barrier_request datapath_id
       send_table_features_multipart_request datapath_id
     end
-    if @state == 5
+    if @state == -1
       send_group_multipart_request datapath_id, 1
     end
     if @state == -1
       send_group_desc_multipart_request datapath_id, 1
     end
-    if @state == -1
+    if @state == 5
       send_port_desc_multipart_request datapath_id
     end
   end
@@ -207,7 +207,6 @@ class FooController < Controller
 
 
   def barrier_reply datapath_id, message
-exit
     puts message.inspect
   end
 end
