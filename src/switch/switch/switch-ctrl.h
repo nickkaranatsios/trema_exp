@@ -16,8 +16,8 @@
  */
 
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef SWITCH_CTRL_H
+#define SWITCH_CTRL_H
 
 
 #ifdef __cplusplus
@@ -25,43 +25,7 @@ extern "C" {
 #endif
 
 
-#include "hiredis.h"
-#define MAX_OUTSTANDING_REQUESTS  16
-
-
-/*
- * This structure is used to keep track of the number of multipart requests.
- */
-struct outstanding_request {
-  uint32_t transaction_id;
-  uint16_t type;
-  uint16_t flags;
-};
-
-
-struct protocol_ctrl {
-  struct outstanding_request outstanding_requests[ MAX_OUTSTANDING_REQUESTS ];
-  uint32_t nr_requests;
-  uint32_t capabilities;
-  bool controller_connected;
-  redisContext *redis_context;
-};
-
-
-struct protocol {
-  struct async thread;
-  const struct switch_arguments *args;
-  message_queue *input_queue;
-  uint64_t send_count;
-  void *data;
-  int own_efd;
-  int peer_efd;
-  struct protocol_ctrl ctrl;
-};
-
-
-pthread_t start_async_protocol( struct switch_arguments *args );
-void wakeup_datapath( struct protocol *protocol );
+void ( *check_ctrl )( void *user_data );
 
 
 #ifdef __cplusplus
@@ -69,7 +33,7 @@ void wakeup_datapath( struct protocol *protocol );
 #endif
 
 
-#endif // PROTOCOL_H
+#endif // SWITCH_CTRL_H 
 
 
 /*
