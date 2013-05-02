@@ -88,12 +88,30 @@ parse_match( match *match, const char *option ) {
     uint32_t in_port_val;
     parse_unsigned_int32( option, strlen( "--in_port=" ), &in_port_val );
     MATCH_ATTR_SET( in_port, in_port_val ); 
-    warn( "inport option %d", in_port_val );
   }
   if ( !prefixcmp( option, "--eth_type=" ) ) {
     uint32_t eth_type_val;
     parse_unsigned_int32( option, strlen( "--eth_type=" ), &eth_type_val );
     MATCH_ATTR_SET( eth_type, ( uint16_t ) eth_type_val );
+  }
+  if ( !prefixcmp( option, "--metadata=" ) ) {
+    char *mask_option = NULL;
+    uint64_t metadata_mask_val = 0;
+    if ( ( mask_option = strchr( option, '/' ) ) != NULL ) {
+      parse_unsigned_int64( mask_option, strlen( "/" ), &metadata_mask_val );  
+    }
+    uint64_t metadata_val;
+    if ( mask_option ) {
+      char temp[ 64 ]; 
+      memset( temp, 0, sizeof( temp ) );
+      const char *ptr = option + strlen( "--metadata=" );
+      memcpy( temp, ptr, ( size_t ) ( mask_option - ptr ) );
+      parse_unsigned_int64( temp, 0, &metadata_val );
+      MATCH_ATTR_MASK_SET( metadata, metadata_val, metadata_mask_val );
+    }
+    else {
+      MATCH_ATTR_SET( metadata, metadata_val );
+    }
   }
   if ( !prefixcmp( option, "--ip_proto=" ) ) {
     uint32_t ip_proto_val;

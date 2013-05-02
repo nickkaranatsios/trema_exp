@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 
-#include "hiredis.h"
+#include <hiredis.h>
 #define MAX_OUTSTANDING_REQUESTS  16
 
 
