@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -17,10 +17,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "cmockery_trema.h"
-#include "wrapper.h"
-#include "checks.h"
+#include "trema.h"
 #include "parse-options.h"
+#include "cmockery_trema.h"
 
 
 static void *

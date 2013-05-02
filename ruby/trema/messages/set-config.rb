@@ -31,6 +31,9 @@ module Trema
       end
     end
   end
+
+
+  SetConfig = Messages::SetConfig
 end
 
 

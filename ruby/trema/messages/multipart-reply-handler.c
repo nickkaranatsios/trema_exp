@@ -64,6 +64,26 @@ unpack_flow_multipart_reply( VALUE r_attributes, void *data ) {
   if ( !NIL_P( r_match ) ) {
     HASH_SET( r_attributes, "match", r_match );
   }
+  uint16_t match_length = ( uint16_t ) ( flow_stats->match.length + PADLEN_TO_64( flow_stats->match.length ) );
+  size_t offset = offsetof( struct ofp_flow_stats, match ) + match_length;
+  size_t instructions_length = flow_stats->length - offset;
+
+  VALUE r_instruction_ary = rb_ary_new();
+  while ( instructions_length > sizeof( struct ofp_instruction ) ) {
+    const struct ofp_instruction *inst_src = ( const struct ofp_instruction * ) ( ( const char * ) flow_stats + offset );
+
+    uint16_t part_length = inst_src->len;
+    if ( instructions_length < part_length ) {
+      break;
+    }
+    unpack_instruction( inst_src, r_instruction_ary );
+
+    instructions_length -= part_length;
+    offset += part_length;
+  }
+  if ( RARRAY_LEN( r_instruction_ary ) ) {
+    HASH_SET( r_attributes, "instructions", r_instruction_ary );
+  }
 }
 
 
@@ -327,189 +347,6 @@ unpack_group_multipart_reply( VALUE r_attributes, void *data ) {
 }
 
 
-static void
-unpack_action_set_field( const struct ofp_action_set_field *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  VALUE r_flexible_action = Qnil;
-  uint32_t field_length = src->len - offsetof( struct ofp_action_set_field, field );
-
-  if ( field_length > sizeof( oxm_match_header ) ) {
-    const oxm_match_header *oxm_src = ( const oxm_match_header * ) src->field;
-    unpack_r_match( oxm_src, r_attributes );
-
-
-    VALUE r_field = UINT2NUM( OXM_FIELD( *oxm_src ) );
-    VALUE r_klass = rb_funcall( rb_eval_string( "FlexibleAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPXMT_OFB" ), r_field );
-    
-    r_flexible_action = rb_funcall( r_klass, rb_intern( "new" ), 1, r_attributes );
-  }
-  VALUE r_action_set = rb_ary_new();
-  rb_ary_push( r_action_set, r_flexible_action );
-  HASH_SET( r_attributes, "action_set", r_action_set );
-  VALUE set_field = rb_funcall( rb_eval_string( "SetField" ), rb_intern( "new" ), 1, r_attributes ); 
-  rb_ary_push( r_action_ary, set_field );
-}
-
-
-static VALUE
-find_basic_action( const uint16_t type ) {
-  VALUE r_type = UINT2NUM( type );
-  VALUE r_klass = rb_funcall( rb_eval_string( "BasicAction" ), rb_intern( "search" ), 2, rb_str_new_cstr( "OFPAT" ), r_type );
-  return r_klass;
-}
-
-
-static void
-push_basic_action( const uint16_t type, VALUE r_action_ary, VALUE r_attributes ) {
-  VALUE r_klass = find_basic_action( type );
-  if ( !NIL_P( r_klass ) ) {
-    VALUE r_basic_action = Qnil;
-    if ( !NIL_P( r_attributes ) ) {
-      r_basic_action = rb_funcall( r_klass, rb_intern( "new" ), 1, r_attributes );
-    }
-    else {
-      r_basic_action = rb_funcall( r_klass, rb_intern( "new" ), 0 );
-    }
-    rb_ary_push( r_action_ary, r_basic_action );
-  }
-}
-
-
-static void
-unpack_output_action( const struct ofp_action_output *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "port_number", UINT2NUM( src->port ) );
-  HASH_SET( r_attributes, "max_len", UINT2NUM( src->max_len ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_action_header( const struct ofp_action_header *src, VALUE r_action_ary ) {
-  push_basic_action( src->type, r_action_ary, Qnil );
-}
-
-
-static void
-unpack_set_mpls_ttl_action( const struct ofp_action_mpls_ttl *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "mpls_ttl", UINT2NUM( src->mpls_ttl ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_ether_type( const uint16_t ether_type, VALUE r_attributes ) {
-  HASH_SET( r_attributes, "ether_type", UINT2NUM( ether_type ) );
-}
-
-
-static void
-unpack_push_action( const struct ofp_action_push *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  unpack_ether_type( src->ethertype, r_attributes );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_pop_mpls_action( const struct ofp_action_pop_mpls *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  unpack_ether_type( src->ethertype, r_attributes );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_set_queue_action( const struct ofp_action_set_queue *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "queue_id", UINT2NUM( src->queue_id ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_group_action( const struct ofp_action_group *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "group_id", UINT2NUM( src->group_id ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_set_nw_ttl_action( const struct ofp_action_nw_ttl *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "ip_ttl", UINT2NUM( src->nw_ttl ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_experimenter_action( const struct ofp_action_experimenter_header *src, VALUE r_action_ary ) {
-  VALUE r_attributes = rb_hash_new();
-  HASH_SET( r_attributes, "experimenter", UINT2NUM( src->experimenter ) );
-  push_basic_action( src->type, r_action_ary, r_attributes );
-}
-
-
-static void
-unpack_action( const struct ofp_action_header *ac_hdr, VALUE r_action_ary ) {
-  switch ( ac_hdr->type ) {
-    case OFPAT_OUTPUT: {
-      unpack_output_action( ( const struct ofp_action_output * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_COPY_TTL_OUT:
-    case OFPAT_COPY_TTL_IN:
-    case OFPAT_DEC_MPLS_TTL:
-    case OFPAT_POP_VLAN:
-    case OFPAT_POP_PBB:
-    case OFPAT_DEC_NW_TTL: {
-      unpack_action_header( ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_SET_FIELD: {
-      unpack_action_set_field( ( const struct ofp_action_set_field * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_SET_MPLS_TTL: {
-      unpack_set_mpls_ttl_action( ( const struct ofp_action_mpls_ttl * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_PUSH_VLAN:
-    case OFPAT_PUSH_MPLS:
-    case OFPAT_PUSH_PBB: {
-      unpack_push_action( ( const struct ofp_action_push  * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_POP_MPLS: {
-      unpack_pop_mpls_action( ( const struct ofp_action_pop_mpls * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_SET_QUEUE: {
-      unpack_set_queue_action( ( const struct ofp_action_set_queue * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_GROUP: {
-      unpack_group_action( ( const struct ofp_action_group * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_SET_NW_TTL: {
-      unpack_set_nw_ttl_action( ( const struct ofp_action_nw_ttl * ) ac_hdr, r_action_ary );
-    }
-    break;
-    case OFPAT_EXPERIMENTER: {
-      unpack_experimenter_action( ( const struct ofp_action_experimenter_header * ) ac_hdr, r_action_ary );
-    }
-    break;
-    default: {
-      error( "Undefined action type %u", ac_hdr->type );
-    }
-    break;
-  }
-}
-
-
 static VALUE
 unpack_bucket( const struct ofp_bucket *bucket ) {
   VALUE r_action_ary = rb_ary_new();
@@ -567,6 +404,27 @@ unpack_group_desc_multipart_reply( VALUE r_attributes, void *data ) {
 
 
 static void
+unpack_group_features_multipart_reply( VALUE r_attributes, void *data ) {
+  assert( data );
+  const struct ofp_group_features *group_features = data;
+
+  HASH_SET( r_attributes, "types", UINT2NUM( group_features->types ) );
+  HASH_SET( r_attributes, "capabilities", UINT2NUM( group_features->capabilities ) );
+  VALUE r_max_groups = rb_ary_new();
+  for ( uint8_t i = 0; i < sizeof( group_features->max_groups ) / sizeof( group_features->max_groups[ 0 ] ); i++ ) {
+    rb_ary_push( r_max_groups, UINT2NUM( group_features->max_groups[ i ] ) );
+  }
+  HASH_SET( r_attributes, "max_groups", r_max_groups );
+  
+  VALUE r_actions = rb_ary_new();
+  for ( uint8_t i = 0; i < sizeof( group_features->actions ) / sizeof( group_features->actions[ 0 ] ); i++ ) {
+    rb_ary_push( r_actions, UINT2NUM( group_features->actions[ i ] ) );
+  }
+  HASH_SET( r_attributes, "actions", r_actions );
+}
+
+
+static void
 unpack_port_desc_multipart_reply( VALUE r_attributes, void *data, size_t length ) {
   const struct ofp_port *port = data;
 
@@ -587,95 +445,191 @@ static VALUE
 unpack_multipart_reply( void *controller, VALUE r_attributes, const uint16_t stats_type, const buffer *frame ) {
   VALUE r_dpid = HASH_REF( r_attributes, datapath_id );
   VALUE r_reply_obj = Qnil;
+  VALUE r_parts = rb_ary_new();
 
-  if ( frame != NULL ) {
-    if ( frame->length ) {
-      switch ( stats_type ) {
-        case OFPMP_DESC: {
-          unpack_desc_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::DescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "desc_multipart_reply"  ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_FLOW: {
-          unpack_flow_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::FlowMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "flow_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "flow_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_AGGREGATE: {
-          unpack_aggregate_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::AggregateMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "aggregate_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "aggregate_multipart_reply" ), 2, r_dpid, r_reply_obj ); 
-          }
-        }
-        break;
-        case OFPMP_TABLE: {
-          uint16_t flags = 0;
-          VALUE r_flags = HASH_REF( r_attributes, flags );
-          if ( !NIL_P( r_flags ) ) {
-            flags =  ( uint16_t ) NUM2UINT( r_flags );
-          }
-          UNUSED( flags );
-          unpack_table_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::TableMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "table_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "table_multipart_reply" ), 2, r_dpid, r_reply_obj ); 
-          }
-        }
-        break;
-        case OFPMP_PORT_STATS: {
-          unpack_port_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "port_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_TABLE_FEATURES: {
-          unpack_table_features_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::TableFeaturesMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_GROUP: {
-          unpack_group_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "group_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_GROUP_DESC: {
-          unpack_group_desc_multipart_reply( r_attributes, frame->data );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" )  ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        case OFPMP_PORT_DESC: {
-          unpack_port_desc_multipart_reply( r_attributes, frame->data, frame->length );
-          r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
-          if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ) ) ) {
-            rb_funcall( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
-          }
-        }
-        break;
-        default:
-          warn( "Received invalid mutlipart reply type %u", stats_type );
-        break;
+  switch ( stats_type ) {
+    case OFPMP_DESC: {
+      unpack_desc_multipart_reply( r_attributes, frame->data );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::DescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      rb_ary_push( r_parts, r_reply_obj );
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "desc_multipart_reply"  ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
       }
     }
+    break;
+    case OFPMP_FLOW: {
+      if ( frame != NULL ) {
+        if ( frame->length ) {
+          size_t len = sizeof( struct ofp_flow_stats );
+          size_t total_len = frame->length;
+          size_t offset = 0;
+          while( total_len >= len ) {
+            unpack_flow_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+            r_reply_obj = rb_funcall( rb_eval_string( "Messages::FlowMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+            rb_ary_push( r_parts, r_reply_obj );
+            const struct ofp_flow_stats *flow_stats = ( const struct ofp_flow_stats * )( ( const char * ) frame->data + offset );
+            total_len -= flow_stats->length;
+            offset += flow_stats->length;
+          }
+        }
+      }
+     HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "flow_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "flow_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    case OFPMP_AGGREGATE: {
+      // we always expect a reply
+      unpack_aggregate_multipart_reply( r_attributes, frame->data );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::AggregateMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      rb_ary_push( r_parts, r_reply_obj );
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "aggregate_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "aggregate_multipart_reply" ), 2, r_dpid, r_reply_obj ); 
+      }
+    }
+    break;
+    case OFPMP_TABLE: {
+      size_t len = sizeof( struct ofp_table_stats );
+      size_t total_len = frame->length;
+      size_t offset = 0;
+      while ( total_len >= len ) {
+        unpack_table_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+        r_reply_obj = rb_funcall( rb_eval_string( "Messages::TableMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+        rb_ary_push( r_parts, r_reply_obj );
+        total_len -= len;
+        offset += len;
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "table_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "table_multipart_reply" ), 2, r_dpid, r_reply_obj ); 
+      }
+    }
+    break;
+    case OFPMP_PORT_STATS: {
+      if ( frame != NULL ) {
+        if ( frame->length ) {
+          size_t len = sizeof( struct ofp_port_stats );
+          size_t total_len = frame->length;
+          size_t offset = 0;
+          while( total_len >= len ) {
+            unpack_port_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+            r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+            rb_ary_push( r_parts, r_reply_obj );
+            total_len -= len;
+            offset += len;
+          }
+        }
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "port_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    case OFPMP_TABLE_FEATURES: {
+      size_t len = sizeof( struct ofp_table_features );
+      size_t total_len = frame->length;
+      size_t offset = 0;
+      while ( total_len >= len ) {
+        unpack_table_features_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+        r_reply_obj = rb_funcall( rb_eval_string( "Messages::TableFeaturesMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+        rb_ary_push( r_parts, r_reply_obj );
+        const struct ofp_table_features *table_features = ( const struct ofp_table_features * )( ( const char * ) frame->data + offset );
+        total_len -= table_features->length;
+        offset += table_features->length;
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "table_features_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    case OFPMP_GROUP: {
+      if ( frame != NULL ) {
+        if ( frame->length ) {
+          size_t len = sizeof( struct ofp_group_stats );
+          size_t total_len = frame->length;
+          size_t offset = 0;
+          while ( total_len >= len ) {
+            unpack_group_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+            r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+            rb_ary_push( r_parts, r_reply_obj );
+            const struct ofp_group_stats *group_stats = ( const struct ofp_group_stats * )( ( const char * ) frame->data + offset ); 
+            total_len -= group_stats->length;
+            offset += group_stats->length;
+          }
+        }
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "group_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    case OFPMP_GROUP_DESC: {
+      if ( frame != NULL ) {
+        if ( frame->length ) {
+          size_t len = sizeof( struct ofp_group_desc_stats );
+          size_t total_len = frame->length;
+          size_t offset = 0;
+          while ( total_len >= len ) {
+            unpack_group_desc_multipart_reply( r_attributes, ( ( char * ) frame->data + offset ) );
+            r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+            rb_ary_push( r_parts, r_reply_obj );
+            const struct ofp_group_desc_stats *group_desc_stats = ( const struct ofp_group_desc_stats * )( ( const char * ) frame->data + offset ); 
+            total_len -= group_desc_stats->length;
+            offset += group_desc_stats->length;
+          }
+        }
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" )  ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "group_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    case OFPMP_GROUP_FEATURES: {
+      unpack_group_features_multipart_reply( r_attributes, frame->data );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::GroupFeaturesMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      rb_ary_push( r_parts, r_reply_obj );
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "group_features_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "group_features_multipart_reply" ), 2, r_dpid, r_reply_obj ); 
+      }
+    }
+    break;
+    case OFPMP_PORT_DESC: {
+      if ( frame != NULL ) {
+        if ( frame->length ) {
+          unpack_port_desc_multipart_reply( r_attributes, frame->data, frame->length );
+          r_reply_obj = rb_funcall( rb_eval_string( "Messages::PortDescMultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+          rb_ary_push( r_parts, r_reply_obj );
+        }
+      }
+      HASH_SET( r_attributes, "parts", r_parts );
+      r_reply_obj = rb_funcall( rb_eval_string( "Messages::MultipartReply" ), rb_intern( "new" ), 1, r_attributes );
+      if ( rb_respond_to( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ) ) ) {
+        rb_funcall( ( VALUE ) controller, rb_intern( "port_desc_multipart_reply" ), 2, r_dpid, r_reply_obj );
+      }
+    }
+    break;
+    default:
+      warn( "Received invalid mutlipart reply type %u", stats_type );
+    break;
   }
-  
+
   return r_reply_obj;
 }
 

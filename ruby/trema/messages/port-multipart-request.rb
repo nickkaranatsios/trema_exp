@@ -22,6 +22,9 @@ module Trema
       unsigned_int32 :port_no
     end
   end
+
+
+  PortMultipartRequest = Messages::PortMultipartRequest
 end
 
 

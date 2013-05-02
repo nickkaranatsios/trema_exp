@@ -1,9 +1,9 @@
 /*
  * Unit tests for hash table.
- * 
+ *
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -241,7 +241,7 @@ test_iterate_empty_hash() {
   table = create_hash( compare_atom, hash_atom );
   init_hash_iterator( table, &iter );
 
-  while ( iterate_hash_next( &iter ) != NULL ) { UNREACHABLE(); }
+  while ( iterate_hash_next( &iter ) != NULL ) { die( "UNREACHABLE" ); }
 
   delete_hash( table );
 }

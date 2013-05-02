@@ -1,4 +1,10 @@
-# Trema edge
+Welcome to Trema-Edge
+=====================
+
+[![Build Status](https://travis-ci.org/trema/trema-edge.png?branch=master)](https://travis-ci.org/trema/trema-edge)
+[![Code Climate](https://codeclimate.com/github/trema/trema-edge.png)](https://codeclimate.com/github/trema/trema-edge)
+[![Dependency Status](https://gemnasium.com/trema/trema-edge.png)](https://gemnasium.com/trema/trema-edge)
+[![Coverage Status](https://coveralls.io/repos/trema/trema-edge/badge.png?branch=master)](https://coveralls.io/r/trema/trema-edge)
 
 This is a temporary repository that we create in order to receive some
 valuable feedback from our users. In the future we are planning to
@@ -20,7 +26,7 @@ Implementation status:
 * `switch_manager, switch daemon`: works
 * `tremashark`: not yet implemented
 * `src/examples/dumper`: works (C only)
-* `src/examples/learning_switch`: works (both C and Ruby )
+* `src/examples/learning_switch`: works (both C and Ruby)
 * `src/examples/repeater_hub`: works (Ruby only)
 * `trema apps`: not work
 * `features`: not work
@@ -32,41 +38,31 @@ currently displays the trema's API documentation.
 The Ruby controller implements most of the messages except the following:
 
 * Experimenter
-* Barrier-request/Barrier-reply. Trema switch lacks implementation of this message.
 * Queue-get-config/request/reply
 * Role-request/reply
 * Get-async-requet/reply
 * Meter-mod
 
+
 ## Tested platforms
 
-* Ruby 1.9.3 (1.8.x is NOT supported)
+* Ruby 2.0.0 (1.8.x is NOT supported)
 * Ubuntu 12.04 (amd64)
 
 It may also run on other GNU/Linux distributions but is not tested.
 
+
 ## Required Packages
 
-This repository has only been tested with ruby 1.9.3 and will not work with
-lower versions. We recommend installation of the rvm program for easy
-installation of ruby 1.9.3.
+This repository has only been tested with ruby 2.0.0 (maybe with
+1.9.3) and will not work with 1.8.x. We recommend installation of the
+rvm program for easy installation of ruby 2.0.0.
 
-To build `trema-edge` please use the rake command. But before running the `rake` command
-ensure that the gem `rake-builder` version 0.7.0 is installed and in addition
-the `xutils-dev` package, since it is needed by the `rake-builder` gem invoking
-the `makedepend` program.
 
-## Build trema
+## Build Trema
 
+    % bundle install
     % rake
-
-
-## Run the C learning switch
-
-    % ./learning_switch.sh start
-
-    Stop learning switch
-    % ./learning_switch.sh stop
 
 
 ## Run the Ruby learning switch
@@ -168,14 +164,38 @@ which is the effortless and easy way.
       return 0;
     }
     % cc `../trema-config -c` -o sample sample.c `../trema-config -l`
+
+    % cat sample.conf
+    trema_switch( "lsw" ) {
+      datapath_id "0xabc"
+    }
+
+    vhost ("host1") {
+      ip "192.168.0.1"
+      netmask "255.255.0.0"
+      mac "00:00:00:01:00:01"
+    }
+
+    vhost ("host2") {
+      ip "192.168.0.2"
+      netmask "255.255.0.0"
+      mac "00:00:00:01:00:02"
+    }
+
+    link "host1", "lsw:1"
+    link "host2", "lsw:2" 
+
     % cd ..
 
 ### To start the C controller
 
-    % ./trema-run.sh ./work/sample start
+    % ./trema run work/sample -c work/sample.conf
     
-    Stop controller
-    % ./trema-run.sh ./work/sample stop
+    If sucessfully run should observe the following:
+    Hello 0xabc from work/sample!
+    
+    To stop the controller
+    % Press Ctrl-c.
 
 
 # About OpenFlow 1.3.0

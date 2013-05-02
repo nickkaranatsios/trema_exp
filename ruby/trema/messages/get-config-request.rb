@@ -22,6 +22,9 @@ module Trema
       unsigned_int32 :transaction_id
     end
   end
+
+
+  GetConfigRequest = Messages::GetConfigRequest
 end
 
 

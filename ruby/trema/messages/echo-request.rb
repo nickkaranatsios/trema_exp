@@ -23,6 +23,9 @@ module Trema
       array :user_data
     end
   end
+
+
+  EchoRequest = Messages::EchoRequest
 end
 
 

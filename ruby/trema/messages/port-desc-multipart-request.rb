@@ -21,7 +21,12 @@ module Trema
     class PortDescMultipartRequest < MultipartRequest
     end
   end
+
+
+  PortDescMultipartRequest = Messages::PortDescMultipartRequest
 end
+
+
 
 
 ### Local variables:

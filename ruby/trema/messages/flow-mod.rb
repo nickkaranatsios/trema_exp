@@ -29,6 +29,9 @@ module Trema
       array :instructions
     end
   end
+
+
+  FlowMod = Messages::FlowMod
 end
 
 

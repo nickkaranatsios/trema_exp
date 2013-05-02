@@ -83,6 +83,10 @@ _handle_features_request( const uint32_t transaction_id, void *user_data ) {
                                                   features.n_tables, features.auxiliary_id, features.capabilities );
   if ( switch_send_openflow_message( features_reply ) ) {
     protocol->ctrl.controller_connected = true;
+    /*
+     * save datapath's capabilities
+     */
+    protocol->ctrl.capabilities = features.capabilities;
   }
   free_buffer( features_reply );
 }
@@ -188,11 +192,11 @@ handle_flow_mod_add( const uint32_t transaction_id, const uint64_t cookie,
 
   instruction_set *instruction_set = create_instruction_set();
   if ( instructions != NULL ) {
-    OFDPE ret = assign_instructions( instruction_set, instructions->list, table_id );
+    OFDPE ret = assign_instructions( instruction_set, instructions->list );
     if ( ret != OFDPE_SUCCESS ) {
       send_error_message( transaction_id, OFPET_FLOW_MOD_FAILED, OFPBIC_UNSUP_INST );
       delete_instruction_set( instruction_set );
-      xfree( match );
+      delete_match( match );
       return;
     }
   }
@@ -213,7 +217,7 @@ handle_flow_mod_add( const uint32_t transaction_id, const uint64_t cookie,
      * datapath errors.
      */
     delete_instruction_set( instruction_set );
-    xfree( match );
+    delete_match( match );
     send_error_message( transaction_id, OFPET_FLOW_MOD_FAILED, OFPFMFC_UNKNOWN );
     return;
   }
@@ -222,7 +226,7 @@ handle_flow_mod_add( const uint32_t transaction_id, const uint64_t cookie,
   if ( ret != OFDPE_SUCCESS ) {
     error( "Failed to add a flow entry ( ret = %d ).", ret );
     delete_instruction_set( instruction_set );
-    xfree( match );
+    delete_match( match );
 
     uint16_t type = OFPET_FLOW_MOD_FAILED;
     uint16_t code = OFPFMFC_UNKNOWN;
@@ -259,7 +263,6 @@ handle_flow_mod_delete( const uint32_t transaction_id, const uint64_t cookie,
                         const openflow_instructions *instructions,
                         const bool strict ) {
 
-  UNUSED( transaction_id );
   UNUSED( idle_timeout );
   UNUSED( hard_timeout );
   UNUSED( priority );
@@ -302,7 +305,6 @@ handle_flow_mod_mod( const uint32_t transaction_id, const uint64_t cookie,
                      const uint16_t flags, const oxm_matches *oxm,
                      const openflow_instructions *instructions,
                      const bool strict, struct protocol *protocol ) {
-  UNUSED( transaction_id );
 
   match *match = create_match( );
   if ( oxm != NULL && oxm->n_matches > 0 ) {
@@ -314,11 +316,11 @@ handle_flow_mod_mod( const uint32_t transaction_id, const uint64_t cookie,
 
   instruction_set *ins_set = create_instruction_set();
   if ( instructions != NULL ) {
-    OFDPE ret = assign_instructions( ins_set, instructions->list, table_id );
+    OFDPE ret = assign_instructions( ins_set, instructions->list );
     if ( ret != OFDPE_SUCCESS ) {
       send_error_message( transaction_id, OFPET_FLOW_MOD_FAILED, OFPBIC_UNSUP_INST );
       delete_instruction_set( ins_set );
-      xfree( match );
+      delete_match( match );
       return;
     }
   }
@@ -385,7 +387,7 @@ _handle_flow_mod( const uint32_t transaction_id,
                            table_id, idle_timeout, hard_timeout,
                            priority, buffer_id, flags, oxm,
                            instructions, protocol );
-      break;
+    break;
     case OFPFC_MODIFY:
       /*
        * The idle_timeout and hard_timeout fields are ignored.
@@ -396,13 +398,13 @@ _handle_flow_mod( const uint32_t transaction_id,
       handle_flow_mod_mod( transaction_id, cookie, cookie_mask, table_id,
                            idle_timeout, hard_timeout, priority, buffer_id,
                            flags, oxm, instructions, strict, protocol );
-      break;
+    break;
     case OFPFC_MODIFY_STRICT:
       strict = true;
       handle_flow_mod_mod( transaction_id, cookie, cookie_mask, table_id,
                            idle_timeout, hard_timeout, priority, buffer_id,
                            flags, oxm, instructions, strict, protocol );
-      break;
+    break;
     case OFPFC_DELETE:
       /*
        * The out_port and out_group introduce a constraint when matching
@@ -413,18 +415,18 @@ _handle_flow_mod( const uint32_t transaction_id,
                               priority, buffer_id, out_port,
                               out_group, flags, oxm,
                               instructions, strict );
-      break;
+    break;
     case OFPFC_DELETE_STRICT:
       strict = true;
       handle_flow_mod_delete( transaction_id, cookie, cookie_mask, table_id,
                               idle_timeout, hard_timeout, priority, buffer_id,
                               out_port, out_group, flags, oxm,
                               instructions, strict );
-      break;
+    break;
     default:
       warn( "Undefined flow mod command type %d", command );
       send_error_message( transaction_id, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_COMMAND );
-      break;
+    break;
   }
 }
 void ( *handle_flow_mod )( const uint32_t transaction_id,
@@ -449,14 +451,15 @@ _handle_packet_out( const uint32_t transaction_id, uint32_t buffer_id,
                     uint32_t in_port, const openflow_actions *actions,
                     const buffer *frame, void *user_data ) {
   UNUSED( transaction_id );
-  assert( actions->list );
 
   struct protocol *protocol = user_data;
 
   action_list *ac_list = create_action_list();
-  for ( list_element *e = actions->list; e != NULL; e = e->next ) {
-    struct ofp_action_header *ac_hdr = e->data;
-    ac_list = assign_actions( ac_list, ac_hdr, ac_hdr->len );
+  if ( actions != NULL ) {
+    for ( list_element *e = actions->list; e != NULL; e = e->next ) {
+      struct ofp_action_header *ac_hdr = e->data;
+      ac_list = assign_actions( ac_list, ac_hdr, ac_hdr->len );
+    }
   }
   buffer *duplicated = NULL;
   if ( frame != NULL && frame->length > 0 ) {
@@ -520,16 +523,16 @@ _handle_group_mod( const uint32_t transaction_id,
   switch( command ) {
     case OFPGC_ADD:
       handle_group_add( transaction_id, type, group_id, buckets );
-      break;
+    break;
     case OFPGC_MODIFY:
       handle_group_mod_mod( transaction_id, type, group_id, buckets );
-      break;
+    break;
     case OFPGC_DELETE:
       handle_group_mod_delete( transaction_id, group_id );
-      break;
+    break;
     default:
       send_error_message( transaction_id, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_COMMAND );
-      break;
+    break;
   }
 }
 void ( *handle_group_mod )( const uint32_t transaction_id, const uint16_t command, const uint8_t type, const uint32_t group_id, const list_element *buckets, void *user_data ) = _handle_group_mod;
@@ -586,6 +589,7 @@ save_outstanding_request( struct protocol_ctrl *ctrl, const uint32_t transaction
       error = -1;
     }
   }
+
   return error;
 }
 
@@ -599,141 +603,99 @@ _handle_multipart_request( uint32_t transaction_id, uint16_t type, uint16_t flag
     send_error_message( transaction_id, OFPET_BAD_REQUEST, OFPBRC_MULTIPART_BUFFER_OVERFLOW );
     return;
   }
+  const uint32_t capabilities = protocol->ctrl.capabilities;
   switch( type ) {
-    case OFPMP_DESC:
-      {
-        // the request body is empty
-        char *desc = hw_desc();
-        buffer *msg = create_desc_multipart_reply( transaction_id, 0, mfr_desc(), desc, protocol->args->progname, serial_num(), dp_desc() );
-        switch_send_openflow_message( msg );
-        xfree( desc );
-        free_buffer( msg );
-      }
-      break;
-    case OFPMP_FLOW: 
-      {
-        const struct ofp_flow_stats_request *req = ( const struct ofp_flow_stats_request * ) body->data;
-
-        request_send_flow_stats( req, transaction_id );
-      }
-      break;
-    case OFPMP_AGGREGATE:
-      {
-        const struct ofp_aggregate_stats_request *req = ( const struct ofp_aggregate_stats_request * ) body->data;
-
-        struct ofp_aggregate_stats_reply *reply = request_aggregate_stats( req );
-        if ( reply ) {
-          buffer *msg = create_aggregate_multipart_reply( transaction_id, 0, reply->packet_count, reply->byte_count, reply->flow_count );
-          switch_send_openflow_message( msg );
-          xfree( reply );
-          free_buffer( msg );
-        }
-      }
-      break;
-    case OFPMP_TABLE: 
-      {
-        // no request body is included with this type.
-        request_send_table_stats( transaction_id );
-      }
-      break;
-    case OFPMP_PORT_STATS:
-      {
-        const struct ofp_port_stats_request *req = ( const struct ofp_port_stats_request * ) body->data;
-        request_send_port_stats( req, transaction_id );
-      }
-      break;
-    case OFPMP_PORT_DESC: 
-      {
-        // no request body is included with this type.
-        list_element *list = request_port_desc();
-        SEND_STATS( port_desc, transaction_id, flags, list );
-      }
-      break;
-    case OFPMP_QUEUE: 
-      {
-        const struct ofp_queue_stats_request *req = ( const struct ofp_queue_stats_request * ) body->data;
-        // TODO no support for queue statistics in datapath.
-        UNUSED( req );
-      }
-      break;
-    case OFPMP_GROUP: 
-      {
-        const struct ofp_group_stats_request *req = ( const struct ofp_group_stats_request * ) body->data;
-        request_send_group_stats( req, transaction_id );
-      }
-      break;
-    case OFPMP_GROUP_DESC: 
-      {
-        // the request body is empty.
-        list_element *list = request_group_desc_stats();
-        SEND_STATS( group_desc, transaction_id, flags, list );
-      }
-      break;
-    case OFPMP_GROUP_FEATURES: 
-      {
-        struct ofp_group_features *reply = request_group_features();
-        if ( reply != NULL ) {
-          buffer *msg = create_group_features_multipart_reply( transaction_id, flags,
-            reply->types, reply->capabilities, reply->max_groups, reply->actions );
-          switch_send_openflow_message( msg );
-          free_buffer( msg );
-          xfree( reply );
-        }
-      }
-      break;
-    case OFPMP_METER: 
-      {
-        const struct ofp_meter_multipart_request *req = ( const struct ofp_meter_multipart_request * ) body->data;
-        /*
-         * TODO Currently this setting not supported by datapath.
-         */
-        UNUSED( req );
-      }
-      break;
-    case OFPMP_METER_CONFIG: 
-      {
-        const struct ofp_meter_multipart_request *req = ( const struct ofp_meter_multipart_request * ) body->data;
-        UNUSED( req );
-      }
-      break;
-    case OFPMP_METER_FEATURES: 
-      {
-        // request body is empty
-        const struct ofp_meter_features *reply = ( const struct ofp_meter_features * ) body->data;
-        /*
-         * TODO Currently meter features not supported by datapath.
-         */
-        UNUSED( reply );
-      }
-      break;
-    case OFPMP_TABLE_FEATURES: 
-      {
-        const struct ofp_table_features *table_features = NULL;
-        if ( body != NULL && body->data != NULL ) {
-          table_features = ( const struct ofp_table_features * ) body->data;
-        }
-        /*
-         * TODO Currently the setting of table features not supported by datapath
-         * therefore ignored.
-         */
-        UNUSED( table_features );
-        request_send_table_features_stats( transaction_id );
-      }
-      break;
-    case OFPMP_EXPERIMENTER: 
-      {
-        const struct ofp_experimenter_multipart_header *em_hdr = ( const struct ofp_experimenter_multipart_header * ) body->data;
-        // TODO not supported yet in datapath.
-        UNUSED( em_hdr );
-      }
-      break;
+    case OFPMP_DESC: {
+      // the request body is empty
+      handle_desc( transaction_id, protocol->args->progname );
+    }
+    break;
+    case OFPMP_FLOW: {
+      const struct ofp_flow_stats_request *req = ( const struct ofp_flow_stats_request * ) body->data;
+      handle_flow_stats( req, transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_AGGREGATE: {
+      const struct ofp_aggregate_stats_request *req = ( const struct ofp_aggregate_stats_request * ) body->data;
+      handle_aggregate_stats( req, transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_TABLE: {
+      // no request body is included with this type.
+      handle_table_stats( transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_PORT_STATS: {
+      const struct ofp_port_stats_request *req = ( const struct ofp_port_stats_request * ) body->data;
+      handle_port_stats( req, transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_PORT_DESC: {
+      // no request body is included with this type.
+      handle_port_desc( transaction_id );
+    }
+    break;
+    case OFPMP_QUEUE: {
+      const struct ofp_queue_stats_request *req = ( const struct ofp_queue_stats_request * ) body->data;
+      handle_queue_stats( req, transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_GROUP: {
+      const struct ofp_group_stats_request *req = ( const struct ofp_group_stats_request * ) body->data;
+      handle_group_stats( req, transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_GROUP_DESC: {
+      // the request body is empty.
+      handle_group_desc( transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_GROUP_FEATURES: {
+      handle_group_features( transaction_id, capabilities );
+    }
+    break;
+    case OFPMP_METER: {
+      const struct ofp_meter_multipart_request *req = ( const struct ofp_meter_multipart_request * ) body->data;
+      handle_meter_stats( req, transaction_id );
+    }
+    break;
+    case OFPMP_METER_CONFIG: {
+      const struct ofp_meter_multipart_request *req = ( const struct ofp_meter_multipart_request * ) body->data;
+      handle_meter_config( req, transaction_id );
+    }
+    break;
+    case OFPMP_METER_FEATURES: {
+      handle_meter_features( transaction_id );
+    }
+    break;
+    case OFPMP_TABLE_FEATURES: {
+      /*
+       * TODO Currently the setting of table features not supported by datapath
+       */
+      handle_table_features( transaction_id );
+    }
+    break;
+    case OFPMP_EXPERIMENTER: {
+      const struct ofp_experimenter_multipart_header *em_hdr = ( const struct ofp_experimenter_multipart_header * ) body->data;
+      handle_experimenter_stats( em_hdr, transaction_id );
+    }
+    break;
     default:
-      break;
+      send_error_message( transaction_id, OFPET_BAD_REQUEST, OFPBRC_BAD_MULTIPART );
+    break;
   }
 }
 void ( *handle_multipart_request )( uint32_t transaction_id, uint16_t type, uint16_t flags, const buffer *body, void *user_data ) = _handle_multipart_request;
 
 
+static void
+_handle_barrier_request( uint32_t transaction_id, void *user_data ) {
+  UNUSED( user_data );
+  buffer *barrier_reply = create_barrier_reply( transaction_id ); 
+  switch_send_openflow_message( barrier_reply );
+  free_buffer( barrier_reply );
+}
+void ( *handle_barrier_request )( uint32_t transaction_id, void *user_data ) = _handle_barrier_request;
 /*
  * Local variables:
  * c-basic-offset: 2

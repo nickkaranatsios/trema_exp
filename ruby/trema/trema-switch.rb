@@ -16,7 +16,7 @@
 #
 
 
-require "trema/network-component"
+require_relative "network-component"
 
 
 module Trema
@@ -29,7 +29,7 @@ module Trema
 
     log_file { | switch | "switch.#{ switch.dpid }.log" }
 
-    
+
     def initialize stanza
       @stanza = stanza
       TremaSwitch.add self
@@ -53,8 +53,23 @@ module Trema
 
     def command
       ports = @stanza[ :ports ]
-      ports = Trema::Link.instances.values.map.with_index { | each, i | "#{ each.name }/#{ i + 1 }"  }.join( ',' ) if @stanza[ :ports ].nil?
-      "export SWITCH_HOME=`pwd`; sudo -E #{ Executables.switch } -i #{ dpid_short } -e #{ ports } > #{ log_file } &"
+      if @stanza[ :ports ].nil?
+        ports = []
+        Trema::Link.instances.values.each_with_index do | each, i |
+           ports << "#{ each.name }/#{ i + 1 }" if each.peers.any? { | peer | peer.match( /\b#{ @stanza[ :name ] }\b/ ) }
+        end
+        ports = ports.join( ',' )
+      end
+      "sudo -E #{ Executables.switch } -i #{ dpid_short } #{ option_ports( ports ) } > #{ log_file } &"
+    end
+
+
+    private
+
+
+    def option_ports ports 
+      option = ""
+      option << "-e #{ ports }" if ports.length > 0
     end
   end
 end

@@ -21,6 +21,9 @@ module Trema
     class TableFeaturesMultipartRequest < MultipartRequest
     end
   end
+
+
+  TableFeaturesMultipartRequest = Messages::TableFeaturesMultipartRequest
 end
 
 

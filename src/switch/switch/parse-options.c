@@ -54,7 +54,7 @@ static void
 set_default_opts( struct switch_arguments *args, const struct option long_options[] ) {
   args->progname = "switch",
   args->log_level = "info",
-  args->datapath_ports = "lo:1",
+  args->datapath_ports = "",
   args->datapath_id = 1,
   args->server_ip = 0x7f000001,
   args->server_port = 6633,
@@ -73,7 +73,7 @@ _parse_options( struct switch_arguments *args, int argc, char **argv ) {
     { "max_flow_entries", required_argument, 0, 'm' },
     { "server_ip", required_argument, 0, 'c' },
     { "server_port", required_argument, 0, 'p' },
-    { "switch_ports", required_argument, 0, 'e' },
+    { "switch_ports", optional_argument, 0, 'e' },
     { "help", no_argument, 0, 'h' },
     { 0, 0, 0, 0 },
   };
@@ -90,26 +90,26 @@ _parse_options( struct switch_arguments *args, int argc, char **argv ) {
     switch ( c ) {
       case 'h':
         print_usage( args, 0 );
-        break;
+      break;
       case 'l':
         if ( optarg ) {
           args->log_level = optarg;
           set_logging_level( args->log_level );
         }
-        break;
+      break;
       case 'd':
         args->run_as_daemon = true;
-        break;
+      break;
       case 'i':
         if ( optarg ) {
           string_to_datapath_id( optarg, &args->datapath_id );
         }
-        break;
+      break;
       case 'm':
         if ( optarg ) {
           args->max_flow_entries = ( uint16_t ) atoi( optarg );
         }
-        break;
+      break;
       case 'c':
         if ( optarg ) {
             char *save_ptr = NULL;
@@ -123,19 +123,19 @@ _parse_options( struct switch_arguments *args, int argc, char **argv ) {
               args->server_ip = temp_addr;
             }
         }
-        break;
+      break;
       case 'p':
         if ( optarg ) {
           args->server_port = ( uint16_t ) atoi( optarg );
         }
-        break;
+      break;
       case 'e':
         if ( optarg ) {
           args->datapath_ports = optarg;
         }
-        break;
+      break;
       default:
-        break;
+      break;
     }
   }
 }

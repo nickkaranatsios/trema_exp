@@ -23,6 +23,9 @@ module Trema
       unsigned_int32 :group_id
     end
   end
+
+
+  GroupMultipartRequest = Messages::GroupMultipartRequest
 end
 
 

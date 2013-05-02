@@ -3,7 +3,7 @@
 #
 # Author: Yasuhito Takamiya <yasuhito@gmail.com>
 #
-# Copyright (C) 2008-2012 NEC Corporation
+# Copyright (C) 2008-2013 NEC Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -25,10 +25,10 @@ class RepeaterHub < Controller
     action = SendOutPort.new( port_number: OFPP_CONTROLLER, max_len: OFPCML_NO_BUFFER )
     ins = ApplyAction.new( actions:  [ action ] )
     send_flow_mod_add( datapath_id,
-                       :priority => OFP_LOW_PRIORITY,
-                       :buffer_id => OFP_NO_BUFFER,
-                       :flags => OFPFF_SEND_FLOW_REM,
-                       :instructions => [ ins ]
+                       priority: OFP_LOW_PRIORITY,
+                       buffer_id: OFP_NO_BUFFER,
+                       flags: OFPFF_SEND_FLOW_REM,
+                       instructions: [ ins ]
     )
   end
 

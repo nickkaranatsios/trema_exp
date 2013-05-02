@@ -1,7 +1,7 @@
 /*
  * Author: Yasuhito Takamiya <yasuhito@gmail.com>
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -23,7 +23,6 @@
 
 
 #define UNUSED( x ) ( void ) ( x )
-#define UNREACHABLE() die( "unreachable code" )
 #define die_if_NULL( data )                                     \
   if ( data == NULL ) {                                         \
     die( "Argument of %s must not be NULL.", __func__ );        \

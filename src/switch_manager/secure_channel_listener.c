@@ -1,7 +1,7 @@
 /*
  * Author: Kazushi SUGYO
  *
- * Copyright (C) 2008-2012 NEC Corporation
+ * Copyright (C) 2008-2013 NEC Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -264,7 +264,7 @@ secure_channel_accept( int fd, void *data ) {
 
     free_switch_daemon_args( argv );
 
-    UNREACHABLE();
+    die( "UNREACHABLE" );
   }
   else {
     /* parent */

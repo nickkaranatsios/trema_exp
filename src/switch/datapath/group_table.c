@@ -88,12 +88,14 @@ lookup_group_entry( const uint32_t group_id ) {
   }
 
   group_entry *entry = NULL;
+  bool found = false;
   for ( list_element *element = table->entries; element != NULL; element = element->next ) {
     if ( element->data == NULL ) {
       continue;
     }
     entry = element->data;
     if ( entry->group_id == group_id ) {
+      found = true;
       break;
     }
   }
@@ -102,7 +104,7 @@ lookup_group_entry( const uint32_t group_id ) {
     return NULL;
   }
 
-  return entry;
+  return found == true ? entry : NULL;
 }
 
 
@@ -296,7 +298,7 @@ get_group_stats( const uint32_t group_id, group_stats **stats, uint32_t *n_group
     group_entry *entry = lookup_group_entry( group_id );
     if ( entry == NULL ) {
       unlock_pipeline();
-      ret = ERROR_OFDPE_BAD_REQUEST_BAD_TABLE_ID;
+      return ERROR_OFDPE_BAD_REQUEST_BAD_TABLE_ID;
     }
     append_to_tail( &groups, entry );
     ( *n_groups )++;

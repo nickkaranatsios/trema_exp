@@ -22,7 +22,12 @@ module Trema
       unsigned_int32 :transaction_id
     end
   end
+
+
+  FeaturesRequest = Messages::FeaturesRequest
 end
+
+
 
 
 ### Local variables:
