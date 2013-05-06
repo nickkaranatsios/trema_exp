@@ -161,6 +161,7 @@ class FooController < Controller
                        instructions: [ apply_ins ] )
 
     match = Match.new( in_port: 1, eth_type: 2048, ip_proto: 17, udp_dst: 1 )
+    #match = Match.new( in_port: 1, eth_type: 2048, eth_src: Trema::Mac.new( "00:00:00:01:00:01" ) )
     send_flow_mod_add( datapath_id,
                        priority: OFP_LOW_PRIORITY,
                        buffer_id: OFP_NO_BUFFER,
@@ -207,6 +208,7 @@ class FooController < Controller
     end
     if @state == 5
        match = Match.new( in_port: 1, eth_type: 2048, ip_proto: 17, udp_src:1, udp_dst: 1 )
+       #match = Match.new( in_port:1, eth_type: 2048, eth_src: Trema::Mac.new( "00:00:00:01:00:01" ) )
        send_flow_multipart_request datapath_id, cookie: 1001, match: match
     end
     if @state == -1

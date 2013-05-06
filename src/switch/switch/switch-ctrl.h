@@ -25,6 +25,10 @@ extern "C" {
 #endif
 
 
+// how often to poll for control command
+#define CTRL_INTERVAL 5
+
+
 void ( *check_ctrl )( void *user_data );
 
 

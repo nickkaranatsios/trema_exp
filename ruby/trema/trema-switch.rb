@@ -60,7 +60,7 @@ module Trema
         end
         ports = ports.join( ',' )
       end
-      "sudo -E #{ Executables.switch } -i #{ dpid_short } #{ option_ports( ports ) } > #{ log_file } &"
+      "sudo -E #{ Executables.switch } -i #{ dpid_short } #{ option_ports( ports ) } #{ administer } > #{ log_file } &"
     end
 
 
@@ -70,6 +70,11 @@ module Trema
     def option_ports ports 
       option = ""
       option << "-e #{ ports }" if ports.length > 0
+    end
+
+
+    def administer
+      "--administer" unless @stanza[ :administer ].nil?
     end
   end
 end

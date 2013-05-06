@@ -32,6 +32,11 @@ module Trema
       def ports ports
          @ports = ports.split( ',' ).map.with_index{ | v, i | "#{ v }/#{ i + 1 }" }.join( ',' )
       end
+
+
+      def administer
+        @administer = true
+      end
     end
   end
 end

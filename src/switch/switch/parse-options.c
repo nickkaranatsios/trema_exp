@@ -33,6 +33,7 @@ static char const * const switch_usage[] = {
   "  -c --server_ip=ipv4_addr                   set server's ipv4 address to connect to",
   "  -p --server_port=port                      set server's port to connect to",
   "  -e --switch_ports=<interface/logical port> one or more comma separated list of switch ports",
+  "  -a --administer                            administer monitor the switch default false",
   "  -h --help                                  display usage and exit",
   NULL
 };
@@ -60,6 +61,7 @@ set_default_opts( struct switch_arguments *args, const struct option long_option
   args->server_port = 6633,
   args->max_flow_entries = UINT8_MAX;
   args->run_as_daemon = false,
+  args->administer = false;
   args->options = long_options;
 }
 
@@ -74,6 +76,7 @@ _parse_options( struct switch_arguments *args, int argc, char **argv ) {
     { "server_ip", required_argument, 0, 'c' },
     { "server_port", required_argument, 0, 'p' },
     { "switch_ports", optional_argument, 0, 'e' },
+    { "administer", optional_argument, 0, 'a' },
     { "help", no_argument, 0, 'h' },
     { 0, 0, 0, 0 },
   };
@@ -90,6 +93,9 @@ _parse_options( struct switch_arguments *args, int argc, char **argv ) {
     switch ( c ) {
       case 'h':
         print_usage( args, 0 );
+      break;
+      case 'a':
+        args->administer = true;
       break;
       case 'l':
         if ( optarg ) {

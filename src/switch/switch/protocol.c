@@ -236,22 +236,24 @@ serve_protocol( void *data ) {
   set_fd_handler_safe( protocol->peer_efd, NULL, NULL, notify_datapath, protocol );
   set_writable_safe( protocol->peer_efd, false );
 
-  // 1.5 seconds
-  struct timeval timeout = { 1, 500000 };
-  protocol->ctrl.redis_context = redisConnectWithTimeout( "127.0.0.1", 6379, timeout );
-  if ( protocol->ctrl.redis_context == NULL || protocol->ctrl.redis_context->err ) {
-    if ( protocol->ctrl.redis_context ) {
-      warn( "Failed to connect to redis server %s", protocol->ctrl.redis_context->errstr );
-      redisFree( protocol->ctrl.redis_context );
-      protocol->ctrl.redis_context = NULL;
+  // by default control is disabled
+  if ( args->administer == true ) {
+    // 1.5 seconds
+    struct timeval timeout = { 1, 500000 };
+    protocol->ctrl.redis_context = redisConnectWithTimeout( "127.0.0.1", 6379, timeout );
+    if ( protocol->ctrl.redis_context == NULL || protocol->ctrl.redis_context->err ) {
+      if ( protocol->ctrl.redis_context ) {
+        warn( "Failed to connect to redis server %s", protocol->ctrl.redis_context->errstr );
+        redisFree( protocol->ctrl.redis_context );
+        protocol->ctrl.redis_context = NULL;
+      }
+      else {
+        error( "Connection error can not allocate redis context" );
+      }
     }
-    else {
-      error( "Connection error can not allocate redis context" );
+    if ( protocol->ctrl.redis_context != NULL ) {
+      add_periodic_event_callback_safe( CTRL_INTERVAL, check_ctrl, ( void * ) protocol );
     }
-  }
-  if ( protocol->ctrl.redis_context != NULL ) {
-#define INTERVAL 5
-    add_periodic_event_callback_safe( INTERVAL, check_ctrl, ( void * ) protocol );
   }
   return start_event_handler_safe();
 }

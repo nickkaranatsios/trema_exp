@@ -39,6 +39,7 @@ struct switch_arguments {
   message_queue *to_protocol_queue;
   uint32_t server_ip;
   bool run_as_daemon;
+  bool administer;
   uint16_t server_port;
   uint16_t max_flow_entries;
 }; 

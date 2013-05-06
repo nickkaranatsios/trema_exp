@@ -25,6 +25,7 @@
 #include "ofdp.h"
 #include "protocol.h"
 #include "oxm-helper.h"
+#include "parse-options.h"
 
 
 #define MAX_TOKENS 10
@@ -74,7 +75,7 @@ parse_unsigned_int64( const char *option, const size_t option_len, uint64_t *val
   char *end;
   const char *ptr = option + option_len;
 
-  *val = ( uint64_t ) strtoll( ptr, &end, 10 );
+  *val = ( uint64_t ) strtoll( ptr, &end, 0 );
   if ( *end != '\0' || end == ptr ) {
     *val = 0;
   }
@@ -183,13 +184,14 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
   int left;
   if ( stats != NULL && nr_stats ) {
     for ( uint32_t i = 0; i < nr_stats; i++ ) {
-      left = snprintf( reply_buf + used, PATH_MAX - used, "dump_flows=table_id=%u,duration_sec=%u,duration_nsec=%u,priority=%u,idle_timeout=%u,hard_timeout=%u,cookie=%" PRIu64",packet_count=%" PRIu64",byte_count=%" PRIu64"\n",
+      left = snprintf( reply_buf + used, PATH_MAX - used, "dump_flows=table_id=%u,duration_sec=%u,duration_nsec=%u,priority=%u,idle_timeout=%u,hard_timeout=%u,flags=%u,cookie=%" PRIu64",packet_count=%" PRIu64",byte_count=%" PRIu64"\n",
                        stats->table_id,
                        stats->duration_sec,
                        stats->duration_nsec,
                        stats->priority,
                        stats->idle_timeout,
                        stats->hard_timeout, 
+                       stats->flags,
                        stats->cookie,
                        stats->packet_count,
                        stats->byte_count );
@@ -201,8 +203,20 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
 }
 
 
+static int
+parse_dpid( const char *dpid_str, uint64_t own_datapath_id ) {
+  if ( !prefixcmp( dpid_str, "--datapath_id=" ) ) {
+    uint64_t dpid;
+    parse_unsigned_int64( dpid_str, strlen( "--datapath_id=" ), &dpid );
+    return own_datapath_id == dpid;
+  }
+
+  return -1;
+}
+
+
 static void
-process_request_cmd( redisContext *context, redisReply *reply ) {
+process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_datapath_id ) {
   char *token;
   char *saveptr;
   const char *sep = " ";
@@ -216,14 +230,17 @@ process_request_cmd( redisContext *context, redisReply *reply ) {
       strncpy(  ( tokens + ( i++ * TOKEN_SIZE ) ), token, TOKEN_SIZE );
     }
   }
-  const char *input_cmd = &tokens[ 0 ];
-  if ( !strncmp( input_cmd, "dump_flows", TOKEN_SIZE ) ) {
-    char *reply_buf = dump_flows( tokens, i );
-    redisCommand( context, "SET %s %s", "cmd.reply", reply_buf );
-    xfree( reply_buf );
-  }
-  else {
-    warn( "Unknown command %s", tokens );
+  const char *dpid_str = ( tokens + TOKEN_SIZE );
+  if ( parse_dpid( dpid_str, own_datapath_id ) ) {
+    const char *input_cmd = &tokens[ 0 ];
+    if ( !strncmp( input_cmd, "dump_flows", TOKEN_SIZE ) ) {
+      char *reply_buf = dump_flows( tokens, i );
+      redisCommand( context, "SET %s %s", "cmd.reply", reply_buf );
+      xfree( reply_buf );
+    }
+    else {
+      warn( "Unknown command %s", tokens );
+    }
   }
 }
 
@@ -237,9 +254,7 @@ _check_ctrl( void *user_data ) {
   redisReply *reply = redisCommand( context, "GET cmd.request" );
   if ( reply != NULL ) {
     if ( reply->len ) {
-error( "about to process command" );
-      process_request_cmd( context, reply );
-      warn( "cmd %s", reply->str );
+      process_request_cmd( context, reply, protocol->args->datapath_id );
     }
     freeReplyObject( reply );
   }
