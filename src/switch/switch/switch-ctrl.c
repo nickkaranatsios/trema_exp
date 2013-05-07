@@ -26,6 +26,7 @@
 #include "protocol.h"
 #include "oxm-helper.h"
 #include "parse-options.h"
+#include "switch-ctrl.h"
 
 
 
@@ -242,6 +243,49 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
 }
 
 
+static char *
+dump_tables( const char *cmd, uint8_t cmd_len ) {
+  uint32_t table_id = FLOW_TABLE_ID_MAX;;
+  uint8_t i = 1;
+
+  while ( cmd_len > 1 ) {
+    struct arg *arg = &args[ i ];
+    const char *option = ( cmd + ( i++ * TOKEN_SIZE ) );
+
+    if ( !prefixcmp( option, "--table_id=" ) ) {
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int32( ptr, &table_id );
+    }
+    if ( table_id != FLOW_TABLE_ID_MAX ) {
+      flow_table_features table_features;
+      get_flow_table_features( ( uint8_t ) table_id, &table_features );
+      char *reply_buf = xmalloc( PATH_MAX + 1 );
+      reply_buf[ 0 ] = '\0';
+      const char *orig = "{ \"table_features\" [ ";
+      const char *term = "] }";
+      
+      snprintf( reply_buf, PATH_MAX, "%s {" DUMP_TABLE_FIELDS "} %s",
+                orig,
+                table_features.table_id,
+                table_features.name,
+                table_features.config,
+                table_features.max_entries,
+                table_features.metadata_match,
+                table_features.metadata_write,
+                term );
+      return reply_buf;
+    }
+    else {
+      for ( uint32_t i = 0; i < table_id; i++ ) {
+        flow_table_features table_features;
+        get_flow_table_features( ( uint8_t ) i, &table_features );
+      }
+    }
+    cmd_len--;
+  }
+}
+
+
 static int
 parse_dpid( const char *dpid_str, uint64_t own_datapath_id ) {
   if ( !prefixcmp( dpid_str, "--datapath_id=" ) ) {
@@ -275,6 +319,11 @@ process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_data
     const char *input_cmd = &tokens[ 0 ];
     if ( !strncmp( input_cmd, "dump_flows", TOKEN_SIZE ) ) {
       char *reply_buf = dump_flows( tokens, i );
+      redisCommand( context, "SET %s %s", "cmd.reply", reply_buf );
+      xfree( reply_buf );
+    }
+    else if ( !strncmp( input_cmd, "dump_tables", TOKEN_SIZE ) ) {
+      char *reply_buf = dump_tables( tokens, i );
       redisCommand( context, "SET %s %s", "cmd.reply", reply_buf );
       xfree( reply_buf );
     }
