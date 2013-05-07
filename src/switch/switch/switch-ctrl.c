@@ -28,8 +28,20 @@
 #include "parse-options.h"
 
 
-#define MAX_TOKENS 10
-#define TOKEN_SIZE 32
+
+
+struct arg {
+  char token[ TOKEN_SIZE ];
+  char json_format[ TOKEN_SIZE ];
+  union {
+    uint8_t uint8_val;
+    uint16_t uint16_val;
+    uint32_t uint32_val;
+    uint64_t uint64_val;
+  } value;
+};
+
+static struct arg args[ MAX_TOKENS ];
 
 
 int
@@ -58,9 +70,9 @@ suffixcmp( const char *str, const char *suffix ) {
 
 
 uint32_t
-parse_unsigned_int32( const char *option, const size_t option_len, uint32_t *val ) {
+parse_unsigned_int32( const char *option, uint32_t *val ) {
   char *end;
-  const char *ptr = option + option_len;
+  const char *ptr = option;
 
   *val = ( uint32_t ) strtol( ptr, &end, 10 );
   if ( *end != '\0' || end == ptr ) {
@@ -71,9 +83,9 @@ parse_unsigned_int32( const char *option, const size_t option_len, uint32_t *val
 
 
 uint64_t
-parse_unsigned_int64( const char *option, const size_t option_len, uint64_t *val ) {
+parse_unsigned_int64( const char *option, uint64_t *val ) {
   char *end;
-  const char *ptr = option + option_len;
+  const char *ptr = option;
 
   *val = ( uint64_t ) strtoll( ptr, &end, 0 );
   if ( *end != '\0' || end == ptr ) {
@@ -87,19 +99,19 @@ static void
 parse_match( match *match, const char *option ) {
   if ( !prefixcmp( option, "--in_port=" ) ) {
     uint32_t in_port_val;
-    parse_unsigned_int32( option, strlen( "--in_port=" ), &in_port_val );
+    parse_unsigned_int32( strchr( option, '=' ) + 1, &in_port_val );
     MATCH_ATTR_SET( in_port, in_port_val ); 
   }
   if ( !prefixcmp( option, "--eth_type=" ) ) {
     uint32_t eth_type_val;
-    parse_unsigned_int32( option, strlen( "--eth_type=" ), &eth_type_val );
+    parse_unsigned_int32( strchr( option, '=' ) + 1, &eth_type_val );
     MATCH_ATTR_SET( eth_type, ( uint16_t ) eth_type_val );
   }
   if ( !prefixcmp( option, "--metadata=" ) ) {
     char *mask_option = NULL;
     uint64_t metadata_mask_val = 0;
     if ( ( mask_option = strchr( option, '/' ) ) != NULL ) {
-      parse_unsigned_int64( mask_option, strlen( "/" ), &metadata_mask_val );  
+      parse_unsigned_int64( mask_option + 1, &metadata_mask_val );  
     }
     uint64_t metadata_val;
     if ( mask_option ) {
@@ -107,7 +119,7 @@ parse_match( match *match, const char *option ) {
       memset( temp, 0, sizeof( temp ) );
       const char *ptr = option + strlen( "--metadata=" );
       memcpy( temp, ptr, ( size_t ) ( mask_option - ptr ) );
-      parse_unsigned_int64( temp, 0, &metadata_val );
+      parse_unsigned_int64( temp, &metadata_val );
       MATCH_ATTR_MASK_SET( metadata, metadata_val, metadata_mask_val );
     }
     else {
@@ -116,17 +128,17 @@ parse_match( match *match, const char *option ) {
   }
   if ( !prefixcmp( option, "--ip_proto=" ) ) {
     uint32_t ip_proto_val;
-    parse_unsigned_int32( option, strlen( "--ip_proto=" ), &ip_proto_val );
+    parse_unsigned_int32( strchr( option, '=' ) + 1, &ip_proto_val );
     MATCH_ATTR_SET( ip_proto, ( uint8_t ) ip_proto_val );
   }
   if ( !prefixcmp( option, "--udp_src=" ) ) {
     uint32_t udp_src_val;
-    parse_unsigned_int32( option, strlen( "--udp_src=" ), &udp_src_val ); 
+    parse_unsigned_int32( strchr( option , '=' ) + 1, &udp_src_val ); 
     MATCH_ATTR_SET( udp_src, ( uint16_t ) udp_src_val );
   }
   if ( !prefixcmp( option, "--udp_dst=" ) ) {
     uint32_t udp_dst_val;
-    parse_unsigned_int32( option, strlen( "--udp_dst=" ), &udp_dst_val );
+    parse_unsigned_int32( strchr( option, '=' ) + 1, &udp_dst_val );
     MATCH_ATTR_SET( udp_dst, ( uint16_t ) udp_dst_val );
   }
 }
@@ -145,28 +157,46 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
   uint32_t out_group = OFPG_ANY;
 
   while ( cmd_len > 1 ) {
+    struct arg *arg = &args[ i ];
     const char *option = ( cmd + ( i++ * TOKEN_SIZE ) );
 
     parse_match( match, option );
 
     if ( !prefixcmp( option, "--table_id=" ) ) {
-      parse_unsigned_int32( option, strlen( "--table_id=" ), &table_id );
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int32( ptr, &table_id );
+      arg->value.uint32_val = table_id;
+      // skip the --
+      strcpy( arg->json_format, "table_id:" );
+      strcat( arg->json_format, ptr );
     }
 
     if ( !prefixcmp( option, "--cookie=" ) ) {
-      parse_unsigned_int64( option, strlen( "--cookie=" ), &cookie );
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int64( ptr, &cookie );
+      strcpy( arg->json_format, "cookie:" );
+      strcat( arg->json_format, ptr );
     }
 
     if ( !prefixcmp( option, "--cookie_mask=" ) ) {
-      parse_unsigned_int64( option, strlen( "--cookie_mask=" ), &cookie_mask );
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int64( ptr, &cookie_mask );
+      strcpy( arg->json_format, "cookie_mask:" );
+      strcat( arg->json_format, ptr );
     }
 
     if ( !prefixcmp( option, "--out_port=" ) ) {
-      parse_unsigned_int32( option, strlen( "--out_port=" ), &out_port );
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int32( ptr, &out_port );
+      strcpy( arg->json_format, "out_port:" );
+      strcat( arg->json_format, ptr );
     }
 
     if ( !prefixcmp( option, "--out_group=" ) ) {
-      parse_unsigned_int32( option, strlen( "--out_group=" ), &out_group );
+      const char *ptr = strchr( option, '=' ) + 1;
+      parse_unsigned_int32( ptr, &out_group );
+      strcpy( arg->json_format, "out_group:" );
+      strcat( arg->json_format, ptr );
     }
     cmd_len--;
   }
@@ -182,19 +212,28 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
   reply_buf[ 0 ] = '\0';
   size_t used = 0;
   int left;
+  const char *term = ",";
+  const char *orig = "{ \"dump_flows\": [";
   if ( stats != NULL && nr_stats ) {
     for ( uint32_t i = 0; i < nr_stats; i++ ) {
-      left = snprintf( reply_buf + used, PATH_MAX - used, "dump_flows=table_id=%u,duration_sec=%u,duration_nsec=%u,priority=%u,idle_timeout=%u,hard_timeout=%u,flags=%u,cookie=%" PRIu64",packet_count=%" PRIu64",byte_count=%" PRIu64"\n",
+      if ( i != 0 ) {
+        orig = "";
+      }
+      if ( i == nr_stats - 1 ) {
+        term = "]}";
+      }
+      left = snprintf( reply_buf + used, PATH_MAX - used, "%s {" DUMP_FLOW_FIELDS "} %s",
+                       orig,
                        stats->table_id,
                        stats->duration_sec,
-                       stats->duration_nsec,
                        stats->priority,
                        stats->idle_timeout,
                        stats->hard_timeout, 
                        stats->flags,
                        stats->cookie,
                        stats->packet_count,
-                       stats->byte_count );
+                       stats->byte_count,
+                       term );
       used = ( size_t ) left - used;
       stats++;
     }
@@ -207,7 +246,7 @@ static int
 parse_dpid( const char *dpid_str, uint64_t own_datapath_id ) {
   if ( !prefixcmp( dpid_str, "--datapath_id=" ) ) {
     uint64_t dpid;
-    parse_unsigned_int64( dpid_str, strlen( "--datapath_id=" ), &dpid );
+    parse_unsigned_int64( strchr( dpid_str, '=' ) + 1, &dpid );
     return own_datapath_id == dpid;
   }
 
@@ -227,6 +266,7 @@ process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_data
   // dump_flows 0xabc --in_port=1
   for ( token =  strtok_r( cmd, sep, &saveptr ); token; token = strtok_r( NULL, sep, &saveptr ) ) {
     if ( i < MAX_TOKENS ) {
+      strncpy( args[ i ].token, token, TOKEN_SIZE );
       strncpy(  ( tokens + ( i++ * TOKEN_SIZE ) ), token, TOKEN_SIZE );
     }
   }
