@@ -14,6 +14,8 @@ group :development do
   gem "reek", "~> 1.3.1"
   gem "rspec", "~> 2.13.0"
   gem "yard", "~> 0.8.5.2"
+  gem "pcaprub", "~> 0.11.3"
+  gem "packetfu", "~> 1.1.6"
 end
 
 
