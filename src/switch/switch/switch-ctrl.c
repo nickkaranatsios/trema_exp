@@ -31,19 +31,37 @@
 
 
 
-struct arg {
-  char token[ TOKEN_SIZE ];
-  char json_format[ TOKEN_SIZE ];
-  union {
-    uint8_t uint8_val;
-    uint16_t uint16_val;
-    uint32_t uint32_val;
-    uint64_t uint64_val;
-  } value;
+enum option_type {
+  OPTION_END,
+  OPTION_UINT8,
+  OPTION_UINT16,
+  OPTION_UINT32,
+  OPTION_UINT64,
+  OPTION_STRING
 };
 
-static struct arg args[ MAX_TOKENS ];
+#define OPT_NO_MASK( ( 0 << 0 )
+#define OPT_HAS_MASK ( 1 << 0 )
+#define OPT_VALUE_SET ( 1 << 1 )
 
+struct option {
+  const char *prefix_opt;
+  const char *json_output;
+  int flags;
+  void *value;
+  enum option_type type;
+};
+  
+#define OPT_END() { OPTION_END }
+#define OPT_UINT8 { ( p ), ( j ), ( f ), ( v ), OPTION_UINT8 }
+#define OPT_UINT16 { ( p ), ( j ), ( f ), ( v ), OPTION_UINT16 }
+#define OPT_UINT32 { ( p ), ( j ), ( f ), ( v ), OPTION_UINT32 }
+#define OPT_UINT64 { ( p ), ( j ), ( f ), ( v ), OPTION_UIN64 }
+#define OPT_STRING { ( p ), ( j ), ( f ), ( v ), OPTION_STRING }
+#define OPT_SET( f ) ( ( f ) |= OPT_VALUE_SET )
+#define OPT_MASK_SET( f ) ( ( f ) & OPT_HAS_MASK == OPT_HAS_MASK )
+
+  
 
 int
 prefixcmp( const char *str, const char *prefix ) {
@@ -56,6 +74,8 @@ prefixcmp( const char *str, const char *prefix ) {
     }
   }
 }
+
+
 
 
 int 
@@ -96,9 +116,72 @@ parse_unsigned_int64( const char *option, uint64_t *val ) {
 }
 
 
+int
+parse_option( const char *option, const struct option *opts ) {
+  char *end;
+
+  for ( ; opts->type != OPTION_END; opts++ ) {
+    if ( !prefixcmp( option, opts->prefix_opt ) ) {
+      if ( HAS_MASK( opts->flags ) ) {
+        
+      }
+      char *ptr = strchr( option, "=" ) + 1;
+      switch( opts->type ) {
+        case OPTION_UINT8: {
+          *( uint8_t * ) opt->value = ( uint8_t * ) strtol( ptr, &end, 10 );
+          OPT_SET( opts->flags );
+        }
+        break;
+        case OPTION_UINT16: {
+          *( uint16_t * ) opt->value = ( uint16_t * ) strtol( ptr, &end, 10 );
+          OPT_SET( opts->flags );
+        }
+        break;
+        case OPTION_UINT32: {
+          *( uint32_t * ) opt->value = strtol( ptr, &end, 10 );
+          OPT_SET( opts->flags );
+        }
+        break;
+        case OPTION_UINT64: {
+         *( uint64_t * ) = ( uint64_t ) strtoll( ptr, &end, 0 );
+         OPT_SET( opts->flags );
+        }
+        break;
+        default:
+          warn( "Unsupported option type %d ", opts->type );
+        break;
+    }
+  }
+
+  return 1;
+}
+
+
 static void
 parse_match( match *match, const char *option ) {
-  if ( !prefixcmp( option, "--in_port=" ) ) {
+  uint16_t udp_src_val;
+  uint16_t udp_dst_val;
+  uint32_t in_port_val;
+  uint32_t eth_type_val;
+  uint64_t metadata_val[ 2 ];
+
+  struct option opts[] = {
+    OPT_UINT32( "--in_port", "in_port:", OPT_NO_MASK, &in_port_val ),
+    OPT_UINT16( "--eth_type", "eth_type:", OPT_NO_MASK, &eth_type_val );
+    OPT_UINT64( "--metadata", "metadata:", OPT_HAS_MASK, &metadata_val );
+    OPT_UINT8( "--ip_proto", "ip_proto:", OPT_NO_MASK, &ip_proto_val );
+    OPT_UINT16( "--udp_src", "udp_src:", OPT_NO_MASK, &udp_src_val );
+    OPT_UINT16( "--udp_dst", "udp_dst:", OPT_NO_MASK, &udp_dst_val );
+    OPT_END()
+  };
+    
+  int argc = parse_option( option, opts );
+    
+  for ( ; opts->type != OPTION_END; opts++ ) {
+    if ( OPT_SET( opt->flags ) ) {
+      MATCH_ATTR_SET( opts->prefix_opt + 2, opts->value );
+    }
+  if ( !prefixcmp( option, "--in_port" ) ) {
     uint32_t in_port_val;
     parse_unsigned_int32( strchr( option, '=' ) + 1, &in_port_val );
     MATCH_ATTR_SET( in_port, in_port_val ); 
@@ -168,36 +251,36 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
       parse_unsigned_int32( ptr, &table_id );
       arg->value.uint32_val = table_id;
       // skip the --
-      strcpy( arg->json_format, "table_id:" );
-      strcat( arg->json_format, ptr );
+      strcpy( arg->json_buf, "table_id:" );
+      strcat( arg->json_buf, ptr );
     }
 
     if ( !prefixcmp( option, "--cookie=" ) ) {
       const char *ptr = strchr( option, '=' ) + 1;
       parse_unsigned_int64( ptr, &cookie );
-      strcpy( arg->json_format, "cookie:" );
-      strcat( arg->json_format, ptr );
+      strcpy( arg->json_buf, "cookie:" );
+      strcat( arg->json_buf, ptr );
     }
 
     if ( !prefixcmp( option, "--cookie_mask=" ) ) {
       const char *ptr = strchr( option, '=' ) + 1;
       parse_unsigned_int64( ptr, &cookie_mask );
-      strcpy( arg->json_format, "cookie_mask:" );
-      strcat( arg->json_format, ptr );
+      strcpy( arg->json_buf, "cookie_mask:" );
+      strcat( arg->json_buf, ptr );
     }
 
     if ( !prefixcmp( option, "--out_port=" ) ) {
       const char *ptr = strchr( option, '=' ) + 1;
       parse_unsigned_int32( ptr, &out_port );
-      strcpy( arg->json_format, "out_port:" );
-      strcat( arg->json_format, ptr );
+      strcpy( arg->json_buf, "out_port:" );
+      strcat( arg->json_buf, ptr );
     }
 
     if ( !prefixcmp( option, "--out_group=" ) ) {
       const char *ptr = strchr( option, '=' ) + 1;
       parse_unsigned_int32( ptr, &out_group );
-      strcpy( arg->json_format, "out_group:" );
-      strcat( arg->json_format, ptr );
+      strcpy( arg->json_buf, "out_group:" );
+      strcat( arg->json_buf, ptr );
     }
     cmd_len--;
   }
@@ -209,6 +292,7 @@ dump_flows( const char *cmd, uint8_t cmd_len ) {
     error( "Failed to retrieve flow stats from datapath ( ret = %d ).", ret );
   }
   delete_match( match );
+  
   char *reply_buf = xmalloc( PATH_MAX + 1 );
   reply_buf[ 0 ] = '\0';
   size_t used = 0;
@@ -299,21 +383,63 @@ parse_dpid( const char *dpid_str, uint64_t own_datapath_id ) {
 
 
 static void
-process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_datapath_id ) {
-  char *token;
-  char *saveptr;
-  const char *sep = " ";
-  char tokens[ MAX_TOKENS * TOKEN_SIZE ];
-  char *cmd = reply->str;
+parse_dump_flows( const char *option, uint64_t own_datapath_id ) {
+  uint64_t datapath_val;
+  uint64_t metadata_val[ 2 ];
+  uint64_t cookie_val[ 2 ];
+  uint32_t in_port_val;
+  uint32_t eth_type_val;
+  uint32_t out_port_val;
+  uint32_t out_group_val;
+  uint16_t udp_src_val;
+  uint16_t udp_dst_val;
+  uint8_t ip_proto_val;
+  uint8_t table_id_val;
 
-  uint8_t i = 0;
-  // dump_flows 0xabc --in_port=1
-  for ( token =  strtok_r( cmd, sep, &saveptr ); token; token = strtok_r( NULL, sep, &saveptr ) ) {
-    if ( i < MAX_TOKENS ) {
-      strncpy( args[ i ].token, token, TOKEN_SIZE );
-      strncpy(  ( tokens + ( i++ * TOKEN_SIZE ) ), token, TOKEN_SIZE );
+static struct option dump_flows_opts[] = {
+    OPT_UINT64( "--datapath_id", "datapath_id:", OPT_NO_MASK, &datapath_val ),
+    OPT_UINT32( "--in_port", "in_port:", OPT_NO_MASK, &in_port_val ),
+    OPT_UINT16( "--eth_type", "eth_type:", OPT_NO_MASK, &eth_type_val ),
+    OPT_UINT64( "--metadata", "metadata:", OPT_HAS_MASK, &metadata_val ),
+    OPT_UINT8( "--ip_proto", "ip_proto:", OPT_NO_MASK, &ip_proto_val ),
+    OPT_UINT16( "--udp_src", "udp_src:", OPT_NO_MASK, &udp_src_val ),
+    OPT_UINT16( "--udp_dst", "udp_dst:", OPT_NO_MASK, &udp_dst_val ),
+    OPT_UINT8( "--table_id", "table_id:", OPT_NO_MASK, &table_id_val ),
+    OPT_UINT64( "--cookie", "cookie:", OPT_HAS_MASK, &cookie_val ),
+    OPT_UINT32( "--out_port", "out_port:" OPT_NO_MASK, &out_port_val ),
+    OPT_UINT32( "--out_group", "out_group:" OPT_NO_MASK, &out_group_val ),
+    OPT_END()
+  };
+  
+  parse_option( option, dump_flow_opts );
+  if ( OPT_SET( dump_flows_opts->opts[ 0 ].flags ) ) {
+    if ( own_datapath_id != * ( uint64_t * ) dump_flows_opts[ 0 ].value ) {
+      return;
     }
   }
+}
+
+static void
+process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_datapath_id ) {
+  char *option;
+  char *saveptr;
+  const char *sep = " ";
+  char *cmd = reply->str;
+
+  // dump_flows --datapath_id=0xabc --in_port=1
+  for ( option =  strtok_r( cmd, sep, &saveptr ); option; option = strtok_r( NULL, sep, &saveptr ) ) {
+    if ( !prefixcmp( option, "dump_flows" ) ) {
+      parse_dump_flows( option );
+    }
+    else if ( !prefixcmp( option, "dump_tables" ) ) {
+      parse_dump_tables( option );
+    }
+    else {
+      warn( "Unknown command %s", token );
+    }
+  }
+
+#ifdef 0
   const char *dpid_str = ( tokens + TOKEN_SIZE );
   if ( parse_dpid( dpid_str, own_datapath_id ) ) {
     const char *input_cmd = &tokens[ 0 ];
@@ -331,6 +457,7 @@ process_request_cmd( redisContext *context, redisReply *reply, uint64_t own_data
       warn( "Unknown command %s", tokens );
     }
   }
+#endif
 }
 
 

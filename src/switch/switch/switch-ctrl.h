@@ -28,10 +28,23 @@ extern "C" {
 // how often to poll for control command
 #define CTRL_INTERVAL 5
 #define DUMP_FLOW_FIELDS \
-  "\"table_id\":%u, \"duration_sec\":%u, \"priority\":%u, \"idle_timeout\":%u, \"hard_timeout\":%u, \"flags\":%u, \"cookie\":%"PRIu64", \"packet_count\":%"PRIu64", \"byte_count\":%"PRIu64""
+  "\"table_id\":%u, \
+  \"duration_sec\":%u, \
+  \"priority\":%u, \
+  \"idle_timeout\":%u, \
+  \"hard_timeout\":%u, \
+  \"flags\":%u, \
+  \"cookie\":%"PRIu64", \
+  \"packet_count\":%"PRIu64", \
+  \"byte_count\":%"PRIu64""
 
 #define DUMP_TABLE_FIELDS \
-  "\"table_id\":%u, \"name\":%s, \"config\":%u, \"max_entries\":%u, \"metadata_match\":%"PRIu64", \"metadata_write\":%"PRIu64""
+  "\"table_id\":%u, \
+  \"name\":%s, \
+  \"config\":%u, \
+  \"max_entries\":%u, \
+  \"metadata_match\":%"PRIu64", \
+  \"metadata_write\":%"PRIu64""
 
 // maximum number of options a command would have
 #define MAX_TOKENS 20
