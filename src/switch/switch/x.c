@@ -1,5 +1,5 @@
-# gcc -g -o x x.c
-# gbd x
+// # gcc -g -o x x.c
+// gbd x
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -111,27 +111,27 @@ parse_option( const char *option, struct option *opts ) {
       char *ptr = strchr( option, '=' ) + 1;
       switch( opts->type ) {
         case OPTION_UINT8: {
-          *( uint8_t * ) opts->value = strtol( ptr, &end, 10 );
+          * ( uint8_t * ) opts->value = ( uint8_t )  strtol( ptr, &end, 10 );
           OPT_SET( opts->flags );
         }
         break;
         case OPTION_UINT16: {
-          *( uint16_t * ) opts->value = strtol( ptr, &end, 10 );
+          * ( uint16_t * ) opts->value = ( uint16_t ) strtol( ptr, &end, 10 );
           OPT_SET( opts->flags );
         }
         break;
         case OPTION_UINT32: {
-          *( uint32_t * ) opts->value = strtol( ptr, &end, 10 );
+          * ( uint32_t * ) opts->value = ( uint32_t ) strtol( ptr, &end, 10 );
           OPT_SET( opts->flags );
         }
         break;
         case OPTION_UINT64: {
           if ( OPT_MASK_SET( opts->flags ) ) {
-            *( uint64_t * ) opts->value = strtoll( ptr, &end, 0 );
-            *( ( uint64_t * ) opts->value + 1 ) = strtoll( mask_ptr, &end, 0 );
+            * ( uint64_t * ) opts->value = ( uint64_t ) strtoll( ptr, &end, 0 );
+            * ( ( uint64_t * ) opts->value + 1 ) = ( uint64_t ) strtoll( mask_ptr, &end, 0 );
            }
            else {
-            *( uint64_t * ) opts->value = strtoll( ptr, &end, 0 );
+            * ( uint64_t * ) opts->value = ( uint64_t ) strtoll( ptr, &end, 0 );
            }
            OPT_SET( opts->flags );
         }
@@ -185,11 +185,26 @@ parse_dump_flows( char *cmd, const uint64_t datapath_id ) {
   }
 }
 
+#define MATCH_FIELDS \
+  MATCH_FIELD( in_port )
 int
 main( int argc, char **argv ) {
   char cmd[ 128 ];
   strncpy( cmd, "dump_flows --datapath_id=0xabcd --metadata=1234/4567 --in_port=1 --eth_type=2048 --ip_proto=17 --udp_src=1 --udp_dst=1", 128 );
   const uint64_t own_datapath_id = 0xabc;
+  const char *match_fields[] = {
+    "in_port",
+    "eth_type",
+    "ip_proto",
+    "udp_src",
+    "udp_dst",
+    "metadata",
+  };
+
+  int i;
+  for ( i = 0; i < sizeof( match_fields ) / sizeof( match_fields[ 0 ] ); i++ ) {
+    printf( "mf= %s\n", match_fields[ i ] );
+  }
 
   parse_dump_flows( cmd, own_datapath_id );
   return 0;

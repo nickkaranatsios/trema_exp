@@ -46,10 +46,38 @@ extern "C" {
   \"metadata_match\":%"PRIu64", \
   \"metadata_write\":%"PRIu64""
 
-// maximum number of options a command would have
-#define MAX_TOKENS 20
-// size of each option
-#define TOKEN_SIZE 32
+enum option_type {
+  OPTION_END,
+  OPTION_UINT8,
+  OPTION_UINT16,
+  OPTION_UINT32,
+  OPTION_UINT64,
+  OPTION_STRING
+};
+
+
+#define OPT_NO_MASK ( 0 << 0 )
+#define OPT_HAS_MASK ( 1 << 0 )
+#define OPT_VALUE_SET ( 1 << 1 )
+
+
+struct option {
+  const char *prefix_opt;
+  const char *json_output;
+  int flags;
+  void *value;
+  enum option_type type;
+};
+
+
+#define OPT_END() { ( NULL ), ( NULL ), 0, ( NULL ), OPTION_END  }
+#define OPT_UINT8( p, j, f, v ) { ( p ), ( j ), ( f ), ( v ), OPTION_UINT8 }
+#define OPT_UINT16( p, j, f, v ) { ( p ), ( j ), ( f ), ( v ), OPTION_UINT16 }
+#define OPT_UINT32( p, j, f, v ) { ( p ), ( j ), ( f ), ( v ), OPTION_UINT32 }
+#define OPT_UINT64( p, j, f, v ) { ( p ), ( j ), ( f ), ( v ), OPTION_UINT64 }
+#define OPT_STRING( p, j, f, v ) { ( p ), ( j ), ( f ), ( v ), OPTION_STRING }
+#define OPT_SET( f ) ( ( f ) |= OPT_VALUE_SET )
+#define OPT_MASK_SET( f ) ( ( ( f ) & OPT_HAS_MASK ) == OPT_HAS_MASK ) 
 
 
 void ( *check_ctrl )( void *user_data );
